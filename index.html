@@ -94,6 +94,8 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .tbtn{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:5px 10px;font-size:13.5px;display:inline-flex;gap:6px;align-items:baseline;max-width:100%}
 .tbtn small{font-size:11.5px;color:var(--muted)}
 .tbtn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.tbtn.genbtn{border-style:dashed;border-color:var(--accent);color:var(--accent)}
+.tbtn.genbtn:disabled{opacity:.6}
 .tbtn .done{width:6px;height:6px;border-radius:50%;background:var(--ok);align-self:center}
 
 /* task sheet (exam paper) */
@@ -325,6 +327,34 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .api-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
 .hint a{color:var(--accent)}
 .backup{display:flex;gap:6px}
+/* reading and listening */
+.skills{display:flex;gap:6px;padding-top:16px;flex-wrap:wrap}
+.skills button{flex:1 1 0;max-width:180px;border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:10px 14px;font-size:15px;font-weight:600;color:var(--muted)}
+.skills button[aria-selected="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.cgrid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:20px;align-items:start;padding-block:16px 48px}
+@media (max-width:980px){.cgrid{grid-template-columns:minmax(0,1fr)}}
+.passage{font-family:var(--f-text);font-size:16px;line-height:1.75;border:1px solid var(--ink);padding:12px 16px;margin:4px 0 16px}
+.passage p{margin:0 0 10px}
+.passage p:last-child{margin:0}
+.qs{margin:0;padding-left:22px;display:grid;gap:18px}
+.qq{margin:0 0 8px;font-family:var(--f-text);font-size:15.5px}
+.opts{display:grid;gap:6px}
+.opt{display:flex;gap:10px;align-items:baseline;text-align:left;border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:9px 12px;font-family:var(--f-text);font-size:15px;color:var(--ink)}
+.opt b{font-family:var(--f-mono);font-weight:500;color:var(--muted)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--pen);background:var(--pen-soft);text-decoration:line-through}
+.opt:disabled{cursor:default}
+.qs .why{font-size:13.5px;color:var(--muted);margin:6px 0 0}
+.player{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 16px;padding:12px;border:1px dashed var(--rule);border-radius:8px}
+.rate{font-size:13px;color:var(--muted)}
+.rate select{font:inherit;font-size:16px;color:var(--ink);background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:4px 6px}
+.script{margin:0 0 16px}
+.script summary{cursor:pointer;font-size:14px;color:var(--accent);margin-bottom:8px}
+.cres{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:14px 20px;border-top:1px solid var(--rule)}
+.cres .big{font-family:var(--f-mono);font-size:28px;font-weight:500;font-variant-numeric:tabular-nums}
+.cres .big small{font-size:15px;color:var(--muted)}
+.cres .xpnow{margin-left:0}
 /* simple mode: only the four steps (level, task, write, marking) stay on screen */
 .only-simple{display:none}
 .steph{font-size:15px;font-weight:600;align-items:center;gap:8px;padding-top:16px;margin:0}
@@ -367,6 +397,11 @@ body.kid .paper-b{font-size:17px}
 
 <main class="wrap">
   <section id="view-practice">
+    <div class="skills" id="skills" role="tablist" aria-label="練習項目">
+      <button role="tab" data-skill="writing" aria-selected="true">寫作</button>
+      <button role="tab" data-skill="reading" aria-selected="false">閱讀</button>
+      <button role="tab" data-skill="listening" aria-selected="false">聽力</button>
+    </div>
     <h2 class="steph only-simple"><i>1</i>選級數</h2>
     <div class="levels" id="levels" role="group" aria-label="選擇級數"></div>
     <div class="lvinfo" id="lvinfo"></div>
@@ -454,6 +489,15 @@ body.kid .paper-b{font-size:17px}
         </div>
       </div>
     </div>
+    <div class="cgrid" id="compView" hidden>
+      <div class="col">
+        <div class="panel">
+          <div class="panel-h"><h2><i class="stepi only-simple">2</i>選擇題目</h2><span class="eyebrow" id="compCount"></span></div>
+          <div class="panel-b" id="compList"></div>
+        </div>
+      </div>
+      <div class="col" id="compMain"></div>
+    </div>
   </section>
 
   <section id="view-history" hidden>
@@ -492,6 +536,7 @@ const LEVELS = [
 ];
 const TYPES = {
   lookwrite:{zh:"看圖作答",en:"Look and write"}, aboutme:{zh:"寫寫自己",en:"About me"},
+  reading:{zh:"閱讀",en:"Reading"}, listening:{zh:"聽力",en:"Listening"},
   note:{zh:"短訊／電子郵件",en:"Short message"}, pictures:{zh:"看圖寫故事",en:"Picture story"},
   email:{zh:"電子郵件",en:"Email"}, article:{zh:"文章",en:"Article"}, story:{zh:"故事",en:"Story"},
   essay:{zh:"議論文",en:"Essay"}, essay2:{zh:"摘要評論文",en:"Essay"}, review:{zh:"評論",en:"Review"},
@@ -506,6 +551,10 @@ const TASKS = [
 "Look at the picture and read the questions. Write one-word answers.\n\n@pics\n\n1. What is on the table? a ______\n2. How many balloons are there? ______\n3. What colour is the girl's dress? ______\n4. Where is the cat? under the ______\n5. How many children are there? ______"}),
   T("PA1",{id:"st-3",part:"Practice",type:"aboutme",title:"All about me",min:10,max:40,open:true,minutes:8,hint:"回答關於你自己的問題，每一題寫一個英文句子。",prompt:
 "Answer the questions about you. Write a sentence for each question.\n\n1. What's your name?\n2. How old are you?\n3. What's your favourite colour?\n4. What animal do you like?\n5. What do you like eating?"}),
+  T("PA1",{id:"st-4",part:"Practice",type:"aboutme",title:"My family",min:10,max:40,open:true,minutes:8,hint:"回答關於你家人的問題，每一題寫一個英文句子。",prompt:
+"Answer the questions about your family. Write a sentence for each question.\n\n1. How many people are in your family?\n2. What is your mum's or dad's name?\n3. Have you got a brother or a sister?\n4. Have you got a pet? What is it?\n5. What do you like doing with your family?"}),
+  T("PA1",{id:"st-5",part:"Practice",type:"aboutme",title:"My favourite toy",min:10,max:40,open:true,minutes:8,hint:"介紹你最喜歡的玩具，每一題寫一個英文句子。",prompt:
+"Tell us about your favourite toy. Write a sentence for each question.\n\n1. What is your favourite toy?\n2. What colour is it?\n3. Is it big or small?\n4. Where do you play with it?\n5. Why do you like it?"}),
   // A1 Movers
   T("A1",{id:"mv-1",part:"Part 6",type:"lookwrite",title:"At the bus stop",min:15,max:45,open:true,minutes:10,pics:["busstop"],hint:"先把句子填完整，再寫兩個關於圖片的句子。",key:"1 rainy / raining  2 yellow  3 bus  4 umbrella  5-6 any two correct sentences about the picture",prompt:
 "Look and read and write.\n\n@pics\n\nComplete the sentences.\n1. It's ______ today.\n2. The girl has got a ______ umbrella.\n3. The ______ is blue.\n4. The boy is sad because he hasn't got an ______.\n\nNow write **two sentences** about the picture.\n5. ______\n6. ______"}),
@@ -513,6 +562,10 @@ const TASKS = [
 "Look at the three pictures. Write about this story.\n\n@pics\n\nWrite **15 words or more**."}),
   T("A1",{id:"mv-3",part:"Practice",type:"aboutme",title:"My weekend",min:15,max:45,open:true,minutes:10,hint:"寫一寫你的週末，回答下面的問題。",prompt:
 "Tell us about your weekend.\n\n1. Where did you go?\n2. Who did you see?\n3. What did you do?\n4. Was it fun? Why?\n\nWrite **15 words or more**."}),
+  T("A1",{id:"mv-4",part:"Practice",type:"aboutme",title:"My best friend",min:15,max:45,open:true,minutes:10,hint:"介紹你最好的朋友，回答下面的問題。",prompt:
+"Tell us about your best friend.\n\n1. What's your friend's name?\n2. How old is he or she?\n3. What does your friend look like?\n4. What do you like doing together?\n5. Why is he or she your best friend?\n\nWrite **15 words or more**."}),
+  T("A1",{id:"mv-5",part:"Practice",type:"aboutme",title:"My favourite animal",min:15,max:45,open:true,minutes:10,hint:"寫一寫你最喜歡的動物。",prompt:
+"Write about your favourite animal.\n\n1. What is your favourite animal?\n2. What does it look like?\n3. Where does it live?\n4. What does it eat?\n5. Why do you like it?\n\nWrite **15 words or more**."}),
   // A2 Flyers
   T("FLY",{id:"fl-1",part:"Part 6",type:"lookwrite",title:"In the garden",min:20,max:50,open:true,minutes:10,pics:["garden"],hint:"先把句子填完整，再寫兩個關於圖片的句子。",key:"1 bike / bicycle  2 book  3 flowers  4 watering  5-6 any two correct sentences about the picture",prompt:
 "Look and read and write.\n\n@pics\n\nComplete the sentences.\n1. The boy is riding a ______.\n2. The girl is reading a ______ under the tree.\n3. There are three ______ in the garden.\n4. The woman is ______ the flowers.\n\nNow write **two sentences** about the picture.\n5. ______\n6. ______"}),
@@ -520,6 +573,10 @@ const TASKS = [
 "Look at the three pictures. Write about this story.\n\n@pics\n\nWrite **20 or more words**."}),
   T("FLY",{id:"fl-3",part:"Part 7",type:"pictures",title:"The rainy picnic",min:20,max:50,open:true,minutes:12,pics:["picnic1","picnic2","picnic3"],hint:"看三張圖，用英文寫出這個故事，至少 20 個字。",prompt:
 "Look at the three pictures. Write about this story.\n\n@pics\n\nWrite **20 or more words**."}),
+  T("FLY",{id:"fl-4",part:"Practice",type:"story",title:"The surprise box",min:20,max:50,open:true,minutes:12,hint:"用這個句子開頭，寫一個小故事，至少 20 個字。",prompt:
+"Your story must begin with this sentence:\n\n> *When Tom opened the box, he couldn't believe his eyes.*\n\nWhat was in the box? What happened next? How did Tom feel?\n\nWrite **20 or more words**."}),
+  T("FLY",{id:"fl-5",part:"Practice",type:"note",title:"Party invitation",min:20,max:50,open:true,minutes:10,hint:"寫一封邀請朋友來生日派對的短信。",prompt:
+"You are having a birthday party next Saturday.\n\nWrite an email to your friend Sam. In your email:\n- invite Sam to your party\n- say where and when it is\n- say what you will do at the party\n\nWrite **20 or more words**."}),
   // A2 Key
   T("A2",{id:"a2-6a",part:"Part 6",type:"note",title:"Borrow a bike",min:25,max:45,open:true,minutes:10,prompt:
 "You want to borrow your English friend Sam's bike this weekend.\n\nWrite an email to Sam. In your email:\n- ask to borrow Sam's bike\n- say why you need it\n- say when you will give it back\n\nWrite **25 words or more**."}),
@@ -531,6 +588,10 @@ const TASKS = [
 "Look at the three pictures. Write the story shown in the pictures.\n\n@pics\n\nWrite **35 words or more**."}),
   T("A2",{id:"a2-7b",part:"Part 7",type:"pictures",title:"The missed bus",min:35,max:60,open:true,minutes:15,pics:["bus1","bus2","bus3"],prompt:
 "Look at the three pictures. Write the story shown in the pictures.\n\n@pics\n\nWrite **35 words or more**."}),
+  T("A2",{id:"a2-6d",part:"Part 6",type:"note",title:"Lost bag",min:25,max:45,open:true,minutes:10,prompt:
+"You left your bag at your friend Charlie's house yesterday.\n\nWrite an email to Charlie. In your email:\n- say what your bag looks like\n- say what is in the bag\n- ask when you can get it\n\nWrite **25 words or more**."}),
+  T("A2",{id:"a2-6e",part:"Part 6",type:"note",title:"New sports club",min:25,max:45,open:true,minutes:10,prompt:
+"You have joined a new sports club.\n\nWrite an email to your English friend Kim. In your email:\n- say which sport you are doing\n- say when you go to the club\n- ask Kim to come with you\n\nWrite **25 words or more**."}),
   // B1 Preliminary
   T("B1",{id:"b1-1a",part:"Part 1",type:"email",title:"Class picnic",min:90,max:120,about:100,minutes:22,compulsory:true,prompt:
 "Read this email from your English friend Chris and the notes you have made.\n\n> **From:** Chris\n> **Subject:** Class picnic\n>\n> Hi!\n> I'm organising a picnic for our English class next Saturday. Would you like to come? [Yes!]\n> We could have it by the lake or in the city park. Which place do you prefer? [Explain]\n> Everyone's bringing something to eat. What could you bring? [Tell Chris]\n> And what's the best way for us all to get there? [Suggest ...]\n> See you soon,\n> Chris\n\nWrite your email to Chris using **all the notes**.\n\nWrite your answer in about **100 words**."}),
@@ -546,6 +607,10 @@ const TASKS = [
 "Your English teacher has asked you to write a story.\n\nYour story must begin with this sentence:\n\n> *When I opened the front door, I couldn't believe my eyes.*\n\nWrite your **story** in about **100 words**."}),
   T("B1",{id:"b1-2d",part:"Part 2",type:"story",title:"A strange day",min:90,max:120,about:100,minutes:22,prompt:
 "Your English teacher has asked you to write a story.\n\nYour story must begin with this sentence:\n\n> *Lucy knew it was going to be a strange day as soon as she woke up.*\n\nWrite your **story** in about **100 words**."}),
+  T("B1",{id:"b1-1d",part:"Part 1",type:"email",title:"Weekend visit",min:90,max:120,about:100,minutes:22,compulsory:true,prompt:
+"Read this email from your English friend Robin and the notes you have made.\n\n> **From:** Robin\n> **Subject:** This weekend\n>\n> Hi!\n> My parents say I can come and stay with you this weekend. Is that OK? [Great!]\n> What should we do on Saturday? [Suggest ...]\n> Do I need to bring anything special? [Tell Robin]\n> And how do I get to your house from the station? [Explain]\n> See you soon,\n> Robin\n\nWrite your email to Robin using **all the notes**.\n\nWrite your answer in about **100 words**."}),
+  T("B1",{id:"b1-2e",part:"Part 2",type:"story",title:"The phone rang",min:90,max:120,about:100,minutes:22,prompt:
+"Your English teacher has asked you to write a story.\n\nYour story must begin with this sentence:\n\n> *The phone rang just as I was leaving the house.*\n\nWrite your **story** in about **100 words**."}),
   // B2 First
   T("B2",{id:"b2-1a",part:"Part 1",type:"essay",title:"City or countryside?",min:140,max:190,minutes:40,compulsory:true,prompt:
 "In your English class you have been talking about where people live. Now your English teacher has asked you to write an essay.\n\nWrite an essay using **all** the notes and give reasons for your point of view.\n\n> **Is it better to grow up in a city than in the countryside?**\n>\n> Notes\n> Write about:\n> 1. education and opportunities\n> 2. health and quality of life\n> 3. ........ (your own idea)\n\nWrite your **essay** in **140–190** words in an appropriate style."}),
@@ -561,6 +626,8 @@ const TASKS = [
 "You have received this email from your English-speaking friend Sam.\n\n> I'm starting university in September and I'm thinking of getting a part-time job. Do you think it's a good idea? What kind of job would you recommend, and how can I make sure my studies don't suffer?\n\nWrite your **email** in **140–190** words."}),
   T("B2",{id:"b2-2d",part:"Part 2",type:"report",title:"The student common room",min:140,max:190,minutes:40,prompt:
 "The director of your college wants to improve the student common room and has asked you to write a report.\n\nIn your report you should:\n- describe the facilities currently available\n- explain what students like and dislike about the room\n- recommend changes that would make it more popular\n\nWrite your **report** in **140–190** words."}),
+  T("B2",{id:"b2-1d",part:"Part 1",type:"essay",title:"Banning homework",min:140,max:190,minutes:40,compulsory:true,prompt:
+"In your English class you have been talking about school life. Now your English teacher has asked you to write an essay.\n\nWrite an essay using **all** the notes and give reasons for your point of view.\n\n> **Some people say that homework should be banned. Do you agree?**\n>\n> Notes\n> Write about:\n> 1. free time and family life\n> 2. learning and exam results\n> 3. ........ (your own idea)\n\nWrite your **essay** in **140–190** words in an appropriate style."}),
   // C1 Advanced
   T("C1",{id:"c1-1a",part:"Part 1",type:"essay",title:"Healthier lifestyles",min:220,max:260,minutes:45,compulsory:true,prompt:
 "Your class has attended a panel discussion on what governments can do to encourage people to lead healthier lives. You have made the notes below.\n\n> **Ways governments can encourage healthier lifestyles**\n> - taxing unhealthy food and drinks\n> - providing free sports facilities\n> - running public health campaigns\n>\n> Some opinions expressed in the discussion:\n> \"Taxes like this hit poorer families hardest.\"\n> \"People won't exercise just because a gym is free.\"\n> \"Nobody pays attention to health adverts any more.\"\n\nWrite an **essay** discussing **two** of the methods in your notes. You should **explain which method you think is more effective**, giving reasons in support of your answer.\n\nYou may, if you wish, make use of the opinions expressed in the discussion, but you should use your own words as far as possible.\n\nWrite your essay in **220–260** words in an appropriate style."}),
@@ -633,6 +700,60 @@ const GUIDES = {
     phrases:[["開頭",["I am writing in response to …","I am writing to express my concern about …","I read with interest your recent article on …"]],["表達立場",["I would like to draw your attention to …","While I appreciate that …, …","I strongly disagree with the claim that …","It is worth considering …"]],["建議與結尾",["I would therefore urge …","A more effective solution would be to …","I look forward to seeing …","Yours faithfully,"]]],
     check:["稱呼與結尾搭配正確","第一段清楚說明寫信目的","正式語氣，不用縮寫","回應題目的每個要求"]},
 };
+/* ---------- reading and listening: a text or script plus multiple-choice questions ---------- */
+const Q = (q, options, answer) => ({q, options, answer});
+const R_HINT = "讀短文，選出正確答案。", L_HINT = "按「播放錄音」聽，再選出正確答案。可以多聽幾次。";
+const COMP = [
+  {id:"r-pa1-1", skill:"reading", level:"PA1", title:"Lucy's cat", part:"Reading", hint:R_HINT,
+    text:"Hello! My name is Lucy. I am seven. I have got a cat. Her name is Kiki.\n\nKiki is black and white. She likes fish and milk. She sleeps on my bed. I play with Kiki in the garden.",
+    questions:[Q("How old is Lucy?",["six","seven","eight"],1), Q("What is the cat's name?",["Lucy","Kiki","Sam"],1), Q("What colour is Kiki?",["black and white","orange","grey"],0), Q("What does Kiki like?",["cake and juice","fish and milk","apples"],1), Q("Where does Kiki sleep?",["on Lucy's bed","in the garden","in a box"],0)]},
+  {id:"l-pa1-1", skill:"listening", level:"PA1", title:"At the toy shop", part:"Listening", hint:L_HINT,
+    text:"Girl: Look, Dad! I like that ball.\nDad: The red ball?\nGirl: No, the blue ball. It's big.\nDad: OK. And what about your brother?\nGirl: Ben likes robots. He wants that small robot.\nDad: The green one?\nGirl: Yes! Thank you, Dad!",
+    questions:[Q("What colour is the girl's ball?",["red","blue","green"],1), Q("Is the ball big or small?",["big","small"],0), Q("What does Ben like?",["balls","robots","cars"],1), Q("What colour is the robot?",["green","red","blue"],0)]},
+  {id:"r-a1-1", skill:"reading", level:"A1", title:"A day at the beach", part:"Reading", hint:R_HINT,
+    text:"Last Sunday, Mia and her family went to the beach. The weather was hot and sunny. Mia's brother Jack swam in the sea, but Mia built a big sandcastle.\n\nAt lunchtime they ate sandwiches and drank lemonade. In the afternoon, Dad fell asleep under an umbrella, and Mia and Jack put sand on his feet! When he woke up, everybody laughed.",
+    questions:[Q("When did they go to the beach?",["last Saturday","last Sunday","yesterday"],1), Q("What did Mia make?",["a sandcastle","a cake","a kite"],0), Q("What did they drink?",["water","milk","lemonade"],2), Q("Who fell asleep?",["Mia","Jack","Dad"],2), Q("How did everybody feel at the end?",["angry","happy","tired"],1)]},
+  {id:"l-a1-1", skill:"listening", level:"A1", title:"A call from Grandma", part:"Listening", hint:L_HINT,
+    text:"Grandma: Hello, Tom! What are you doing?\nTom: Hi, Grandma! I'm doing my homework. It's about animals.\nGrandma: Which animal are you writing about?\nTom: Dolphins. They're my favourite. They're very clever.\nGrandma: Lovely! Are you coming to my house on Saturday?\nTom: Yes! Mum says we can come in the morning, at ten o'clock.\nGrandma: Great. I'm going to make a chocolate cake.",
+    questions:[Q("What is Tom doing?",["watching TV","doing homework","playing football"],1), Q("What animal is Tom writing about?",["dolphins","monkeys","horses"],0), Q("When is Tom visiting Grandma?",["on Friday","on Saturday","on Sunday"],1), Q("What time are they coming?",["9 o'clock","10 o'clock","11 o'clock"],1), Q("What is Grandma going to make?",["a pizza","a lemon cake","a chocolate cake"],2)]},
+  {id:"r-fly-1", skill:"reading", level:"FLY", title:"The school trip", part:"Reading", hint:R_HINT,
+    text:"Last month, class 5B went on a trip to the science museum. They travelled by train, which took about an hour. First, they visited the space room, where they saw a real rocket. Then they tried some experiments with water and light. Emma's favourite part was the robot that could draw pictures.\n\nAfter lunch in the museum garden, it started to rain, so they spent the afternoon watching a film about dinosaurs. Everyone was tired but happy when they got back to school at five o'clock.",
+    questions:[Q("How did the class travel to the museum?",["by bus","by train","by car"],1), Q("What did they see in the space room?",["a rocket","a robot","a dinosaur"],0), Q("What did Emma like best?",["the experiments","the film","the robot that could draw"],2), Q("Why did they watch a film in the afternoon?",["It was raining.","They were hungry.","The garden was closed."],0), Q("When did they get back to school?",["at four o'clock","at five o'clock","at six o'clock"],1)]},
+  {id:"l-fly-1", skill:"listening", level:"FLY", title:"The lost jacket", part:"Listening", hint:L_HINT,
+    text:"Woman: Hello, can I help you?\nBoy: Yes, I think I left my jacket here yesterday.\nWoman: OK. What does it look like?\nBoy: It's blue, with a yellow pocket on the front.\nWoman: And was there anything in the pocket?\nBoy: Yes, my bus ticket and a small torch.\nWoman: Let me look. Is this it?\nBoy: Yes, that's it! Thank you so much.\nWoman: You're welcome. Please write your name in this book before you go.",
+    questions:[Q("When did the boy lose his jacket?",["this morning","yesterday","last week"],1), Q("What colour is the jacket?",["yellow","blue","green"],1), Q("What was in the pocket?",["a phone and some money","a bus ticket and a torch","some keys"],1), Q("What must the boy do before he goes?",["write his name","pay some money","call his mum"],0)]},
+  {id:"r-a2-1", skill:"reading", level:"A2", title:"Amy's email", part:"Reading", hint:R_HINT,
+    text:"Hi Sara,\n\nThanks for inviting me to your party on Saturday! I'd love to come, but I have a swimming competition in the morning, so I'll arrive at about two o'clock, not twelve. Can I bring my cousin Leo? He's staying with us this week.\n\nI'm going to make some cookies for the party. Do you want chocolate or lemon ones?\n\nSee you soon,\nAmy",
+    questions:[Q("Why will Amy arrive late?",["She has a swimming competition.","She has to visit her cousin.","Her bus is late."],0), Q("What time will Amy get to the party?",["at twelve o'clock","at two o'clock","in the morning"],1), Q("Who is Leo?",["Amy's brother","Amy's cousin","Sara's friend"],1), Q("What is Amy going to bring?",["a cake","some cookies","some drinks"],1), Q("What does Amy want to know?",["the party address","which cookies Sara wants","when the party ends"],1)]},
+  {id:"l-a2-1", skill:"listening", level:"A2", title:"Going to the cinema", part:"Listening", hint:L_HINT,
+    text:"Max: Hi Jo, do you want to see a film this weekend?\nJo: Sure. What's on?\nMax: There's a new comedy at the Odeon. It starts at seven thirty on Friday.\nJo: Friday's difficult. I've got a piano lesson until seven. What about Saturday?\nMax: On Saturday it's on at six fifteen.\nJo: That's better. How much are the tickets?\nMax: Eight pounds, but it's six with a student card.\nJo: Great, I've got mine. Shall we meet outside the cinema?\nMax: OK, see you at six.",
+    questions:[Q("What kind of film is it?",["a comedy","an action film","a cartoon"],0), Q("Why can't Jo go on Friday?",["She is working.","She has a piano lesson.","She is visiting her aunt."],1), Q("What time does the film start on Saturday?",["6:00","6:15","7:30"],1), Q("How much will Jo pay?",["£6","£7","£8"],0), Q("Where will they meet?",["at Max's house","at the bus stop","outside the cinema"],2)]},
+  {id:"r-b1-1", skill:"reading", level:"B1", title:"The young chef", part:"Reading", hint:R_HINT,
+    text:"When Hannah Lee was twelve, she started cooking dinner for her family twice a week because both her parents worked late. 'At first it was a disaster,' she laughs. 'I burnt everything!' But she didn't give up. She watched cooking videos online and asked her grandmother to teach her traditional dishes.\n\nNow sixteen, Hannah runs a popular cooking blog where she shares cheap, healthy recipes for students. Last year she won a national competition for young chefs, and the prize was a week working in a famous restaurant kitchen. 'It was hard work, and the chefs were very strict,' she says, 'but I learned more in that week than in four years at home.'\n\nHannah hopes to open her own café one day, but first she plans to study nutrition at university.",
+    questions:[Q("Why did Hannah start cooking?",["She wanted to win a competition.","Her parents came home late.","Her grandmother asked her to."],1), Q("How does Hannah describe her first meals?",["They were terrible.","They were delicious.","They were too expensive."],0), Q("What does Hannah's blog offer?",["restaurant reviews","cheap, healthy recipes for students","videos of her grandmother"],1), Q("What does Hannah say about the week in the restaurant?",["It was easy.","She learned a lot.","The chefs were unfriendly."],1), Q("What is Hannah going to do next?",["open a café","study at university","start a new blog"],1)]},
+  {id:"l-b1-1", skill:"listening", level:"B1", title:"Swimming lessons", part:"Listening", hint:L_HINT,
+    text:"Receptionist: Good morning, Riverside Sports Centre.\nCaller: Hi. I'd like some information about swimming lessons for adults.\nReceptionist: Of course. We have beginners' classes on Tuesday and Thursday evenings.\nCaller: What time do they start?\nReceptionist: Tuesday's class is at six thirty, and Thursday's is at eight.\nCaller: Thursday would be better for me. How long is each lesson?\nReceptionist: Forty-five minutes. The course lasts ten weeks.\nCaller: And how much does it cost?\nReceptionist: It's ninety pounds for the whole course, or seventy-five if you're already a member.\nCaller: I'm not a member yet. Do I need to bring anything?\nReceptionist: Just a swimming cap. You can buy one here if you don't have one.",
+    questions:[Q("Which class will the caller probably choose?",["Tuesday at 6:30","Thursday at 8:00","Tuesday at 8:00"],1), Q("How long is each lesson?",["30 minutes","45 minutes","an hour"],1), Q("How long is the course?",["six weeks","eight weeks","ten weeks"],2), Q("How much will the caller pay?",["£75","£90","£100"],1), Q("What must the caller bring?",["a towel","a swimming cap","a membership card"],1)]},
+  {id:"r-b2-1", skill:"reading", level:"B2", title:"The four-day school week", part:"Reading", hint:R_HINT,
+    text:"When a small town in Colorado switched its schools to a four-day week, the main aim was to save money on buses and heating. Few expected it to change much else. Yet teachers soon reported an unexpected benefit: pupils seemed more focused on the days they did attend. Many families used the free Friday for medical appointments and family trips that had previously meant missing lessons, so attendance actually rose.\n\nNot everyone was convinced, however. Working parents complained that they had to pay for childcare on Fridays, and some researchers have found that, over several years, test scores in maths can fall slightly, particularly for younger children. Supporters argue that longer school days make up for the lost time, but critics point out that six-year-olds struggle to concentrate in the late afternoon.\n\nAs more districts consider the idea, the debate is less about whether the four-day week saves money, which it clearly does, than about who pays the hidden costs.",
+    questions:[Q("Why did the town first introduce the four-day week?",["to improve test results","to reduce costs","to give teachers more time","to help working parents"],1), Q("Why did attendance go up?",["Lessons became more interesting.","Families arranged appointments on Fridays.","Pupils were given rewards.","Buses became more reliable."],1), Q("What problem did working parents have?",["They had to pay for childcare on Fridays.","Their children were tired.","They lost their jobs.","They could not drive their children to school."],0), Q("According to research, which pupils may be most affected?",["older teenagers","younger children","pupils who travel far","pupils who are good at maths"],1), Q("What does the writer suggest about the debate now?",["It is mainly about saving money.","It is about who bears the hidden costs.","It has been settled by research.","It only concerns teachers."],1)]},
+  {id:"l-b2-1", skill:"listening", level:"B2", title:"A wildlife photographer", part:"Listening", hint:L_HINT,
+    text:"Speaker: People often ask me how I got into wildlife photography. Honestly, it was an accident.\nSpeaker: I was studying biology and went on a field trip to Scotland, and I borrowed my roommate's camera to record what we saw.\nSpeaker: One morning a pair of otters came out onto the rocks right in front of me, and I took about two hundred pictures. Most of them were terrible, but one was good enough to win a student competition. That gave me the confidence to keep going.\nSpeaker: The hardest part of the job isn't the cold or the early mornings, it's the waiting. I once spent eleven days in a hide waiting for a particular eagle, and it appeared for less than a minute.\nSpeaker: My advice to beginners is simple: don't spend a fortune on equipment. Learn about the animals first. If you understand their behaviour, you'll know where to be and when.",
+    questions:[Q("How did the speaker start taking wildlife photos?",["on a photography course","during a university field trip","as a job for a magazine","on holiday with family"],1), Q("What happened with the otter photos?",["All of them were excellent.","One of them won a competition.","They were sold to a newspaper.","They were lost."],1), Q("What does the speaker find most difficult?",["the cold weather","getting up early","waiting for animals","carrying equipment"],2), Q("How long did the eagle appear for?",["eleven days","about an hour","less than a minute","a whole morning"],2), Q("What is the speaker's main advice?",["Buy the best camera you can.","Study animal behaviour.","Join a photography club.","Always work alone."],1)]},
+  {id:"r-c1-1", skill:"reading", level:"C1", title:"In praise of boredom", part:"Reading", hint:R_HINT,
+    text:"For most of the twentieth century, boredom was treated as a minor irritation, or at worst a sign of a weak character. Recent research paints a more interesting picture. In one widely reported study, participants who had first completed a deliberately tedious task, copying numbers from a phone directory, went on to produce more original ideas in a creativity test than those who had not. The researchers' explanation is that boredom acts as a signal: it tells us that our current activity is not meeting our needs, and pushes the mind to wander in search of something more rewarding.\n\nYet this may be precisely the experience that modern life is eliminating. With a smartphone always within reach, the brief gaps in a day, such as queues, bus journeys and waiting rooms, are instantly filled. Some psychologists warn that by never allowing ourselves to be bored, we lose not only a source of creativity but also the habit of reflection. Others are more sceptical, arguing that the evidence comes largely from small laboratory studies and that boredom remains, for many people, simply unpleasant.\n\nWhat both sides agree on is that the question deserves more serious attention than it has traditionally received.",
+    questions:[Q("How was boredom traditionally viewed?",["as a serious illness","as relatively unimportant","as a source of creativity","as a modern problem"],1), Q("What did participants in the study do first?",["a creativity test","a dull copying task","a phone interview","a reading task"],1), Q("According to the researchers, boredom",["prevents original thinking.","pushes the mind to look for something better.","is caused by smartphones.","is always unpleasant."],1), Q("What concern do some psychologists express?",["People are bored more often than before.","People are losing the habit of reflection.","Laboratory studies are too small.","Waiting rooms are too crowded."],1), Q("What do both groups of experts agree about?",["Boredom is harmful.","Boredom deserves more serious study.","Smartphones should be banned.","The evidence is convincing."],1)]},
+  {id:"l-c1-1", skill:"listening", level:"C1", title:"Cities designed for children", part:"Listening", hint:L_HINT,
+    text:"Interviewer: Your new book argues that cities should be designed for children. Isn't that a strange priority?\nArchitect: Not at all. If a street is safe and interesting for an eight-year-old, it's almost always better for everyone else too: older people, parents with buggies, people in wheelchairs.\nInterviewer: But surely most city residents are adults without children.\nArchitect: True, but think of children as a kind of indicator species. When you see kids playing outside on their own, it tells you the traffic is slow, the air is reasonably clean and neighbours know each other.\nInterviewer: What's the single most effective change a city could make?\nArchitect: Reduce speed limits near homes and schools. It costs almost nothing compared with building new parks, and the effect on how people use the street is enormous.\nInterviewer: Some drivers would object.\nArchitect: Of course, and I don't dismiss that. But in every city I've studied, opposition faded within a couple of years, once people saw the results.",
+    questions:[Q("What is the architect's main argument?",["Cities should build more schools.","Streets that suit children benefit everyone.","Children should not play outside alone.","Only families should live in city centres."],1), Q("Why does she call children an 'indicator species'?",["They are more sensitive to pollution.","Their presence shows a street is healthy and safe.","They are the largest group in cities.","They need special protection."],1), Q("Which change does she recommend most?",["building new parks","lower speed limits","closing streets to cars","more playgrounds"],1), Q("Why does she prefer this change?",["It is cheap and has a big effect.","Drivers prefer it.","It is quick to build.","Children asked for it."],0), Q("What does she say about opposition from drivers?",["It never goes away.","It usually fades over time.","It is not important.","It is stronger in big cities."],1)]},
+  {id:"r-c2-1", skill:"reading", level:"C2", title:"The case for handwriting", part:"Reading", hint:R_HINT,
+    text:"The claim that handwriting is obsolete has the appeal of common sense: few adults now write anything longer than a shopping list by hand, and employers rarely ask for it. Yet the debate is more nuanced than either its enthusiasts or its detractors allow.\n\nStudies of note-taking suggest that students who write by hand, precisely because they cannot keep pace with a lecturer, are forced to select and rephrase, and consequently remember the material better than those who type almost verbatim. Neuroscientists, meanwhile, have observed that forming letters engages regions of the brain associated with reading in young children in a way that pressing keys does not.\n\nNone of this amounts to an argument for returning to the copybook drills of the past, which bored generations of pupils and prized neatness over thought. The more defensible position is that handwriting is a tool whose value lies less in the product than in the process, and that abandoning it wholesale, simply because typing is faster, would be to confuse efficiency with understanding.",
+    questions:[Q("How does the writer regard the claim that handwriting is obsolete?",["as entirely correct","as convincing at first sight but oversimplified","as absurd","as irrelevant to education"],1), Q("Why do students who write by hand remember lectures better?",["They write more neatly.","They have to select and rephrase what they hear.","They write down every word.","They review their notes more often."],1), Q("What have neuroscientists observed?",["Typing harms reading ability.","Handwriting activates reading-related brain areas in children.","Adults read faster after writing by hand.","Pressing keys improves memory."],1), Q("The writer's attitude to traditional copybook drills is",["nostalgic.","critical.","neutral.","enthusiastic."],1), Q("What is the writer's main conclusion?",["Handwriting should replace typing.","The thinking involved in handwriting is what matters.","Handwriting is only useful for young children.","Speed is the most important consideration."],1)]},
+  {id:"l-c2-1", skill:"listening", level:"C2", title:"The myth of multitasking", part:"Listening", hint:L_HINT,
+    text:"Lecturer: We like to believe we're good at multitasking, and in a narrow sense some of us are. But what most people call multitasking is really task-switching: the brain moving rapidly between activities rather than doing them simultaneously.\nLecturer: Each switch carries a cost, often only a fraction of a second, but those fractions accumulate, and they're accompanied by a rise in errors.\nLecturer: What I find most striking in the research is the gap between perception and performance. The people who rate themselves as the most accomplished multitaskers tend, when tested, to be among the worst at it. One plausible explanation is that they're drawn to multitasking not because they're skilled, but because they find it hard to resist distraction.\nLecturer: That's not to say all simultaneous activity is harmful. Walking while talking, or listening to music while doing something routine, causes little interference, because the tasks draw on different mental resources. The trouble begins when two tasks compete for the same resource, as when you try to read an email while following a conversation.",
+    questions:[Q("What does the lecturer say most 'multitasking' really is?",["doing two things at once","switching quickly between tasks","a skill that can be learned","a modern invention"],1), Q("What is the effect of switching between tasks?",["It saves time overall.","It costs time and increases errors.","It has no measurable effect.","It improves concentration."],1), Q("What does the lecturer find most striking?",["Young people multitask better.","People who think they multitask well often do it badly.","Multitasking is becoming more common.","Music always harms concentration."],1), Q("Why might some people multitask a lot?",["They are naturally skilled.","They find it hard to ignore distractions.","Their jobs require it.","They get bored easily."],1), Q("When is doing two things at once least harmful?",["when both tasks involve language","when the tasks use different mental resources","when one task is reading","when the person is experienced"],1)]},
+];
+
 /* ---------- picture cards: a small kit of flat drawings, composed into exam-style scenes ---------- */
 const PAL = {sky:"#d8edff", storm:"#bcc6d2", grass:"#b7e09c", road:"#c5c9d0", wall:"#f7ecdc", floor:"#d8b58f", skin:"#f2c7a0", hair:"#5b3b24", blond:"#d9aa3c", trunk:"#8b5a36", leaf:"#4ea95a", red:"#e2504a", blue:"#3c7bd6", yellow:"#f4c20d", green:"#3d9e57", purple:"#8b59cf", orange:"#ef8a22", pink:"#f27dab", white:"#ffffff", ink:"#2a2a33", brown:"#9b6b40", grey:"#8f98a3", water:"#7fc4ef"};
 const at = (x, y, s, body, flip) => `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})">${body}</g>`;
@@ -859,6 +980,7 @@ const state = { level:"B2", taskId:"b2-1a", guideTab:"structure", attemptId:null
 let lastWords = null, litPrev = null, prevLv = null, badgesChecked = false;
 let kid = store.get("cw.kid", false);
 let simple = store.get("cw.simple", true);
+state.skill = ["writing","reading","listening"].includes(store.get("cw.skill", "")) ? store.get("cw.skill", "") : "writing";
 const KID_NOTE = "The learner is a child. Write every explanation in short, simple, warm Traditional Chinese that a 10-year-old can understand. Praise effort first, avoid grammar jargon (explain with a tiny example instead), and keep English suggestions simple.";
 const timer = { spent:0, running:false, h:null };
 let custom = store.get("cw.custom", {prompt:"", type:"essay", min:140, max:190});
@@ -914,16 +1036,16 @@ function renderLevels(){
   $("#lvinfo").textContent = levelOf(state.level).exam + "　" + levelOf(state.level).info;
 }
 function renderTaskList(){
-  const list = TASKS.filter(t => t.level === state.level);
+  const list = TASKS.filter(t => t.level === state.level && !t.gen), gens = TASKS.filter(t => t.level === state.level && t.gen);
   const done = new Set(attempts.filter(a => a.level === state.level).map(a => a.taskId));
   const parts = [...new Set(list.map(t => t.part))];
-  $("#taskCount").textContent = `${list.length} 題`;
+  $("#taskCount").textContent = `${list.length + gens.length} 題`;
+  const btn = t => `<button class="tbtn" data-task="${t.id}" aria-pressed="${t.id === state.taskId}">${done.has(t.id) ? '<i class="done" title="已有紀錄"></i>' : ""}${esc(t.title)}<small>${TYPES[t.type].zh}</small></button>`;
   $("#tasklist").innerHTML = parts.map(p => {
     const ts = list.filter(t => t.part === p);
-    const comp = ts[0].compulsory ? "必答" : "選答";
-    return `<div class="tgroup"><span class="eyebrow">${p} · ${comp}</span><div class="tlist">${ts.map(t =>
-      `<button class="tbtn" data-task="${t.id}" aria-pressed="${t.id === state.taskId}">${done.has(t.id) ? '<i class="done" title="已有紀錄"></i>' : ""}${esc(t.title)}<small>${TYPES[t.type].zh}</small></button>`).join("")}</div></div>`;
-  }).join("") + `<div class="tgroup customg"><span class="eyebrow">自己出題</span><div class="tlist"><button class="tbtn" data-task="custom" aria-pressed="${state.taskId === "custom"}">自訂題目<small>貼上任何題目</small></button></div></div>`;
+    const comp = ts.some(t => t.compulsory) ? "必答" : p === "Practice" ? "練習" : "選答";
+    return `<div class="tgroup"><span class="eyebrow">${p} · ${comp}</span><div class="tlist">${ts.map(btn).join("")}</div></div>`;
+  }).join("") + `<div class="tgroup"><span class="eyebrow">AI 出的新題目</span><div class="tlist">${gens.map(btn).join("")}<button class="tbtn genbtn" id="genBtn"${genBusy ? " disabled" : ""}>${genBusy ? "出題中，請稍候…" : "請 AI 出一題新的"}</button></div></div>` + `<div class="tgroup customg"><span class="eyebrow">自己出題</span><div class="tlist"><button class="tbtn" data-task="custom" aria-pressed="${state.taskId === "custom"}">自訂題目<small>貼上任何題目</small></button></div></div>`;
 }
 function renderPaper(){
   const t = currentTask(), ty = TYPES[t.type];
@@ -932,7 +1054,7 @@ function renderPaper(){
     $("#paper").innerHTML = head + `<div class="paper-b"><h3>自訂題目</h3><div class="custom-form">
       <label>題目內容（可貼上考古題或老師出的題目）<textarea id="cPrompt" placeholder="例如：Some people think that … Write an essay giving your opinion.">${esc(custom.prompt)}</textarea></label>
       <div class="row3">
-        <label>文體<select id="cType">${Object.entries(TYPES).map(([k,v]) => `<option value="${k}"${k === custom.type ? " selected" : ""}>${v.zh}（${v.en}）</option>`).join("")}</select></label>
+        <label>文體<select id="cType">${Object.entries(TYPES).filter(([k]) => GUIDES[k]).map(([k,v]) => `<option value="${k}"${k === custom.type ? " selected" : ""}>${v.zh}（${v.en}）</option>`).join("")}</select></label>
         <label>最少字數<input id="cMin" type="number" min="10" max="600" value="${esc(custom.min)}"></label>
         <label>最多字數<input id="cMax" type="number" min="10" max="800" value="${esc(custom.max)}"></label>
       </div></div></div>`;
@@ -1175,6 +1297,60 @@ After the answer, write a line containing only "---", then a heading line "## �
   }
 }
 
+/* ---------- AI-written practice tasks (kept per level in this browser, newest 10) ---------- */
+let genBusy = false;
+const GEN_TYPES = {PA1:["aboutme"], A1:["aboutme","story"], FLY:["aboutme","story","note"], A2:["note","story"], B1:["email","article","story"], B2:["essay","article","review","email","report"], C1:["essay","proposal","report","review","letter"], C2:["essay2","article","report","review","letter"]};
+const genKey = level => "cw.gen." + level;
+async function genTask(){
+  if (genBusy || needKey()) return;
+  if (!ai) { toast(aiState === "off" ? "此檢視無法使用 AI 出題" : "正在連線 Claude，請稍候再按一次"); return; }
+  const level = state.level, lv = levelOf(level), types = GEN_TYPES[level];
+  const pref = types[Math.floor(Math.random() * types.length)];
+  const plain = TASKS.filter(t => !t.pics && !t.gen);
+  const ex = plain.find(t => t.level === level && t.type === pref) || plain.find(t => t.type === pref) || plain.find(t => t.level === level);
+  const titles = TASKS.filter(t => t.level === level).map(t => t.title);
+  const prompt = `You write practice tasks in the style of the Cambridge English ${lv.exam} writing paper (CEFR ${lv.cefr})${lv.yle ? ", for children" : ""}. Write ONE new, original task of type "${pref}" (${TYPES[pref].en}).
+Choose a fresh, interesting topic that is clearly different from all of these existing tasks: ${titles.join("; ")}.
+Match the real exam's format, length and difficulty for this level.${lv.yle ? " Use very simple English that a child at this level can read, and a topic children enjoy." : ""}
+Format the "prompt" text with these conventions: a blank line between paragraphs; "- " at the start of a line for bullet points; lines starting with "> " for a boxed text such as an email, an announcement, a first sentence or the essay question (a line with only ">" is a blank line inside the box); **double asterisks** for bold; and for an email the candidate answers using notes, each note in square brackets at the end of the line it refers to, like [Explain].
+
+Here is an existing task in this app, as a format example:
+TITLE: ${ex.title}
+PROMPT:
+${ex.prompt}
+
+Reply with only a JSON object: {"title": "short English title", "part": "the exam part, e.g. Part 2, or Practice", "prompt": "the full task text", "min": number of words, "max": number of words, "hint": "one short sentence in Traditional Chinese (繁體中文) telling the learner what to do"}`;
+  genBusy = true; renderTaskList();
+  try {
+    const r = await ai.json(prompt, {modelTier:"default", cache:false, ...(STANDALONE ? {apiEffort:"low"} : {})});
+    const str = v => typeof v === "string" ? v.trim() : "";
+    const text = str(r?.prompt);
+    if (!text) throw {code:"invalid_json"};
+    const d = LEVEL_DEFAULTS[level], base = plain.find(t => t.level === level && t.type === pref) || plain.find(t => t.level === level) || {};
+    let min = Math.round(+r.min) || d.min, max = Math.round(+r.max) || d.max;
+    if (max <= min) max = min + Math.max(10, Math.round(min * .3));
+    const task = {level, id:`g-${level}-${Date.now().toString(36)}`, gen:true, part:str(r.part).slice(0, 20) || "Practice", type:pref,
+      title:str(r.title).slice(0, 60) || "New task", prompt:text, min, max, minutes:base.minutes || d.minutes, hint:str(r.hint).slice(0, 120)};
+    if (base.open || lv.yle) task.open = true;
+    if (base.about) task.about = base.about;
+    const list = store.get(genKey(level), []).concat(task);
+    while (list.length > 10) {
+      const old = list.shift(), i = TASKS.findIndex(t => t.id === old.id);
+      if (i >= 0 && state.taskId !== old.id) TASKS.splice(i, 1);
+    }
+    store.set(genKey(level), list);
+    TASKS.push(task);
+    genBusy = false;
+    selectTask(task.id);
+    toast("新題目來了：" + task.title, "gold");
+  } catch (e) {
+    if (e?.code !== "cancelled") toast(e?.code === "invalid_json" ? "出題失敗，請再按一次" : aiMsg(e));
+    if (isFatal(e)) aiOff();
+  } finally {
+    genBusy = false; renderTaskList();
+  }
+}
+
 /* ---------- saving and history ---------- */
 let saveChain = Promise.resolve();
 function saveAttempt(silent){
@@ -1190,6 +1366,7 @@ function saveAttempt(silent){
     bonus:state.bonus, bonusUsed:g.used, daily:g.daily, onTime:g.onTime, xp:g.xp,
   };
   if (t.custom) body.customPrompt = custom.prompt;
+  if (t.gen) body.genTask = {...t};
   state.attemptId = ref.id; state.createdAt = body.createdAt;
   saveChain = saveChain.then(() => ref.set(body)).then(() => {
     if ($ans.value === text) state.dirty = false;
@@ -1207,6 +1384,7 @@ function openAttempt(a){
   persistWork(); timerPause();
   state.level = a.level;
   if (a.taskId === "custom") { custom = {prompt:a.customPrompt || "", type:a.type, min:a.min, max:a.max}; store.set("cw.custom", custom); }
+  if (a.genTask && !TASKS.some(t => t.id === a.taskId)) TASKS.push(Object.assign({}, a.genTask, {gen:true}));
   state.taskId = a.taskId === "custom" || TASKS.some(t => t.id === a.taskId) ? a.taskId : state.taskId;
   $ans.value = a.text || ""; timer.spent = a.spent || 0;
   state.attemptId = a.id; state.createdAt = a.createdAt; state.scores = Object.assign(blankScores(), a.scores || {});
@@ -1241,8 +1419,8 @@ function renderHistory(){
   if (!attempts.length) { rows.innerHTML = `<li class="empty" style="display:block">還沒有紀錄。寫完一篇後按「儲存」或「AI 批改」，作品就會出現在這裡。</li>`; return; }
   rows.innerHTML = attempts.map(a => {
     const b = band(a.total);
-    return `<li><span class="lvtag">${esc(levelOf(a.level)?.short || a.level)}</span><div class="t"><b>${esc(a.taskTitle)}</b><small>${fmtDate(a.updatedAt)} · ${esc(a.part)} ${esc(TYPES[a.type]?.zh || "")} · ${a.words || 0} 字${a.spent ? " · " + Math.round(a.spent/60) + " 分鐘" : ""}</small></div>
-      <div class="acts">${typeof a.total === "number" ? `<span class="pill ${b[1]}">${a.total}/20</span>` : `<span class="pill neutral">未評分</span>`}<button class="ibtn" data-open="${esc(a.id)}">開啟</button><button class="ibtn" data-del="${esc(a.id)}">刪除</button></div></li>`;
+    return `<li><span class="lvtag">${esc(levelOf(a.level)?.short || a.level)}</span><div class="t"><b>${esc(a.taskTitle)}</b><small>${fmtDate(a.updatedAt)} · ${a.skill && a.skill !== "writing" ? esc(TYPES[a.type]?.zh || "") + "練習" : `${esc(a.part)} ${esc(TYPES[a.type]?.zh || "")} · ${a.words || 0} 字${a.spent ? " · " + Math.round(a.spent/60) + " 分鐘" : ""}`}</small></div>
+      <div class="acts">${a.skill && a.skill !== "writing" ? `<span class="pill ${a.score / a.outOf >= .6 ? "ok" : "warn"}">答對 ${a.score}/${a.outOf}</span>` : typeof a.total === "number" ? `<span class="pill ${b[1]}">${a.total}/20</span>` : `<span class="pill neutral">未評分</span>`}<button class="ibtn" data-open="${esc(a.id)}">開啟</button><button class="ibtn" data-del="${esc(a.id)}">刪除</button></div></li>`;
   }).join("");
 }
 
@@ -1256,7 +1434,7 @@ const bonusRe = w => new RegExp("\\b" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 const bonusUsed = () => state.bonus.filter(w => bonusRe(w).test($ans.value));
 const dayKey = ms => { const d = new Date(ms); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; };
 const hashStr = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; };
-function dailyTask(level){ const list = TASKS.filter(t => t.level === level); return list[hashStr(dayKey(Date.now()) + level) % list.length]; }
+function dailyTask(level){ const list = TASKS.filter(t => t.level === level && !t.gen); return list[hashStr(dayKey(Date.now()) + level) % list.length]; }
 const dailyDone = level => { const t = dailyTask(level), today = dayKey(Date.now()); return attempts.some(a => a.taskId === t.id && a.daily && dayKey(a.updatedAt) === today); };
 function calcXP({words, max, total, used, daily, onTime}){
   if (words < 10) return 0;
@@ -1430,12 +1608,162 @@ async function importBackup(file){
   } catch { toast("這個檔案不是有效的備份"); }
 }
 
+/* ---------- reading and listening practice ---------- */
+const TTS = "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+let comp = {answers:{}, done:false, fresh:false, confirm:false}, compBusy = false, ttsOn = false, ttsPlays = 0, ttsRate = 0.9;
+const compKey = () => `cw.comp.${state.skill}.${state.level}`;
+const compGenKey = (skill, level) => `cw.compgen.${skill}.${level}`;
+const compList = () => COMP.filter(c => c.skill === state.skill && c.level === state.level);
+function currentComp(){ const list = compList(), id = store.get(compKey(), null); return list.find(c => c.id === id) || list[0]; }
+const compXP = (right, n) => right * 5 + (right === n ? 10 : 0);
+function resetComp(){ ttsStop(); ttsPlays = 0; comp = {answers:{}, done:false, fresh:false, confirm:false}; }
+function ttsVoices(){
+  const vs = TTS ? speechSynthesis.getVoices() : [];
+  const gb = vs.filter(v => /^en[-_]GB/i.test(v.lang)), en = vs.filter(v => /^en/i.test(v.lang) && !gb.includes(v));
+  return gb.concat(en);
+}
+function ttsStop(){ if (TTS) speechSynthesis.cancel(); ttsOn = false; }
+function ttsPlay(script){
+  speechSynthesis.cancel();
+  const vs = ttsVoices(), who = {};
+  const lines = script.split("\n").map(l => l.trim()).filter(Boolean);
+  lines.forEach((line, i) => {
+    const m = line.match(/^([A-Z][A-Za-z .'-]{0,24}):\s*(.+)$/), name = m ? m[1] : "_";
+    if (!(name in who)) who[name] = Object.keys(who).length;
+    const u = new SpeechSynthesisUtterance(m ? m[2] : line);
+    u.lang = "en-GB"; u.rate = ttsRate;
+    if (vs.length) u.voice = vs[who[name] % vs.length];
+    u.pitch = who[name] % 2 ? 1.2 : 0.95;
+    if (i === lines.length - 1) u.onend = u.onerror = () => { ttsOn = false; renderPlayerState(); };
+    speechSynthesis.speak(u);
+  });
+  ttsOn = true; ttsPlays++; renderPlayerState();
+}
+function renderPlayerState(){
+  const b = $("#lPlay"), s = $("#lCount");
+  if (b) b.textContent = ttsOn ? "停止" : ttsPlays ? "再聽一次" : "播放錄音";
+  if (s) s.textContent = !TTS ? "這個瀏覽器不能朗讀，請改用 iPad 的 Safari，或直接看下面的原文。" : ttsPlays ? `已播放 ${ttsPlays} 次` : "考試時每段錄音會播放兩次";
+}
+function renderComp(){
+  const list = compList(), cur = currentComp(), L = state.skill === "listening";
+  const done = new Set(attempts.filter(a => a.skill === state.skill).map(a => a.taskId));
+  const btn = c => `<button class="tbtn" data-comp="${c.id}" aria-pressed="${c === cur}">${done.has(c.id) ? '<i class="done" title="已有紀錄"></i>' : ""}${esc(c.title)}</button>`;
+  $("#compCount").textContent = `${list.length} 份`;
+  $("#compList").innerHTML = `<div class="tgroup"><span class="eyebrow">${L ? "聽力" : "閱讀"}練習</span><div class="tlist">${list.filter(c => !c.gen).map(btn).join("")}</div></div>`
+    + `<div class="tgroup"><span class="eyebrow">AI 出的新題目</span><div class="tlist">${list.filter(c => c.gen).map(btn).join("")}<button class="tbtn genbtn" id="compGenBtn"${compBusy ? " disabled" : ""}>${compBusy ? "出題中，請稍候…" : "請 AI 出一份新的"}</button></div></div>`;
+  if (!cur) { $("#compMain").innerHTML = ""; return; }
+  const letters = "ABCD", n = cur.questions.length;
+  const right = cur.questions.filter((q, i) => comp.answers[i] === q.answer).length;
+  const qs = cur.questions.map((q, i) => {
+    const pick = comp.answers[i];
+    const opts = q.options.map((o, j) => {
+      const cls = "opt" + (comp.done && j === q.answer ? " right" : comp.done && j === pick ? " wrong" : "");
+      return `<button class="${cls}" data-q="${i}" data-o="${j}" aria-pressed="${pick === j}"${comp.done ? " disabled" : ""}><b>${letters[j]}</b><span>${esc(o)}</span></button>`;
+    }).join("");
+    const mark = comp.done ? (pick === q.answer ? ' <span class="pill ok">答對了</span>' : ' <span class="pill bad">答錯了</span>') : "";
+    return `<li><p class="qq">${esc(q.q)}${mark}</p><div class="opts">${opts}</div>${comp.done && q.explain ? `<p class="why">${esc(q.explain)}</p>` : ""}</li>`;
+  }).join("");
+  const lineHtml = l => { const m = l.match(/^([A-Z][A-Za-z .'-]{0,24}):\s*(.+)$/); return `<p>${m ? `<b>${esc(m[1])}:</b> ${esc(m[2])}` : esc(l)}</p>`; };
+  const source = L
+    ? `<div class="player"><button class="btn primary" id="lPlay"${TTS ? "" : " disabled"}></button><label class="rate">速度 <select id="lRate">${[[0.75,"慢"],[0.9,"適中"],[1.05,"正常"]].map(([v, t]) => `<option value="${v}"${v === ttsRate ? " selected" : ""}>${t}</option>`).join("")}</select></label><span class="status" id="lCount"></span></div>`
+      + (comp.done || !TTS ? `<details class="script"${TTS ? "" : " open"}><summary>錄音原文</summary><div class="passage">${cur.text.split("\n").filter(Boolean).map(lineHtml).join("")}</div></details>` : "")
+    : `<div class="passage">${cur.text.split(/\n\n+/).map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("")}</div>`;
+  const ratio = right / n, st = ratio >= .9 ? ["EXCELLENT","優異"] : ratio >= .6 ? ["PASS","達標"] : ratio >= .4 ? ["ALMOST","差一點"] : ["KEEP GOING","再接再厲"];
+  const foot = comp.done
+    ? `<div class="cres"><span class="big">${right}<small> / ${n}</small></span><span class="xpnow"><b>+${compXP(right, n)}</b> XP</span><span class="stamp${ratio >= .6 ? " good" : ""}${comp.fresh ? " fresh" : ""}"><b>${st[0]}</b><small>練習評分 · ${st[1]}</small></span><button class="btn" id="compRetry">再做一次</button></div>`
+    : `<div class="sheet-f"><span class="status">已作答 ${Object.keys(comp.answers).length} / ${n} 題</span><span class="spacer"></span><button class="btn primary" id="compSubmit">交卷</button></div>`;
+  comp.fresh = false;
+  $("#compMain").innerHTML = `<article class="paper"><div class="paper-h"><span class="qno"><b>${L ? "Listening" : "Reading"}</b> · ${esc(levelOf(cur.level).exam)}</span><span class="qmeta">${n} 題</span></div><div class="paper-b"><h3>${esc(cur.title)}</h3>${cur.hint ? `<p class="zh">${esc(cur.hint)}</p>` : ""}${source}<ol class="qs">${qs}</ol></div>${foot}</article>`;
+  if (L) renderPlayerState();
+}
+function selectComp(id){ store.set(compKey(), id); resetComp(); renderComp(); }
+function compSubmit(){
+  const cur = currentComp(), n = cur.questions.length, answered = Object.keys(comp.answers).length;
+  if (answered < n && !comp.confirm) { comp.confirm = true; toast(`還有 ${n - answered} 題沒作答，再按一次「交卷」就會送出`); setTimeout(() => { comp.confirm = false; }, 4000); return; }
+  ttsStop();
+  comp.done = true; comp.fresh = true;
+  const right = cur.questions.filter((q, i) => comp.answers[i] === q.answer).length, xp = compXP(right, n);
+  renderComp();
+  $("#compMain").scrollIntoView({behavior: reduced() ? "auto" : "smooth", block:"start"});
+  if (right / n >= .6) setTimeout(() => confetti(), 400);
+  if (dbState === "ready") {
+    const now = Date.now();
+    col.doc().set({skill:state.skill, level:state.level, taskId:cur.id, taskTitle:cur.title, part:cur.part, type:state.skill, score:right, outOf:n, xp, words:0, total:null, scores:null, createdAt:now, updatedAt:now, ...(cur.gen ? {genComp:cur} : {})})
+      .then(() => toast(`答對 ${right} / ${n} · +${xp} XP`, "gold"))
+      .catch(e => toast(e?.code === "quota_exceeded" ? "紀錄空間已滿，請先刪除幾篇舊作品" : "儲存失敗，請再試一次"));
+  }
+}
+async function genComp(){
+  if (compBusy || needKey()) return;
+  if (!ai) { toast(aiState === "off" ? "此檢視無法使用 AI 出題" : "正在連線 Claude，請稍候再按一次"); return; }
+  const skill = state.skill, level = state.level, lv = levelOf(level), L = skill === "listening";
+  const nOpt = ["B2","C1","C2"].includes(level) ? 4 : 3;
+  const ex = COMP.find(c => c.skill === skill && c.level === level && !c.gen);
+  const titles = COMP.filter(c => c.skill === skill && c.level === level).map(c => c.title);
+  const prompt = `You write ${L ? "listening" : "reading"} practice in the style of the Cambridge English ${lv.exam} exam (CEFR ${lv.cefr})${lv.yle ? ", for children" : ""}. Write ONE new, original ${L ? "listening script (a short conversation between two named speakers, or a short talk by one speaker)" : "reading text"} with ${ex.questions.length} multiple-choice questions. Each question has exactly ${nOpt} options and one correct answer.
+Choose a fresh topic that is different from these: ${titles.join("; ")}.
+Match the real exam's length, vocabulary and difficulty for this level.${lv.yle ? " Use very simple English that a child at this level understands, and a topic children enjoy." : ""}
+${L ? 'Write the script one line per turn, each line starting with the speaker name and a colon, like "Anna: Hi, Tom!". Every answer must be clearly heard in the script, and some wrong options should also be mentioned so the task is not too easy.' : "Separate paragraphs with a blank line. The questions should test understanding, not just matching words."}
+
+Here is an existing example from this app:
+TITLE: ${ex.title}
+TEXT:
+${ex.text}
+FIRST QUESTION: ${JSON.stringify(ex.questions[0])}
+
+Reply with only a JSON object: {"title": "short English title", "text": "the ${L ? "script" : "reading text"}", "questions": [{"q": "question", "options": ["option", "..."], "answer": index of the correct option starting at 0, "explain": "one short sentence in Traditional Chinese (繁體中文) saying why this is the answer"}]}`;
+  compBusy = true; renderComp();
+  try {
+    const r = await ai.json(prompt, {modelTier:"default", cache:false, ...(STANDALONE ? {apiEffort:"low"} : {})});
+    const str = v => typeof v === "string" ? v.trim() : "";
+    const questions = (Array.isArray(r?.questions) ? r.questions : []).map(q => ({
+      q: str(q?.q), options: (Array.isArray(q?.options) ? q.options : []).map(str).filter(Boolean).slice(0, 4),
+      answer: Math.round(Number(q?.answer)), explain: str(q?.explain).slice(0, 160),
+    })).filter(q => q.q && q.options.length >= 2 && q.answer >= 0 && q.answer < q.options.length);
+    if (!str(r?.text) || questions.length < 3) throw {code:"invalid_json"};
+    const item = {id:`gc-${skill}-${level}-${Date.now().toString(36)}`, gen:true, skill, level, title:str(r.title).slice(0, 60) || "New practice", part:L ? "Listening" : "Reading", hint:ex.hint, text:str(r.text), questions};
+    const saved = store.get(compGenKey(skill, level), []).concat(item);
+    while (saved.length > 10) { const old = saved.shift(), i = COMP.findIndex(c => c.id === old.id); if (i >= 0) COMP.splice(i, 1); }
+    store.set(compGenKey(skill, level), saved);
+    COMP.push(item);
+    compBusy = false;
+    if (state.skill === skill && state.level === level) selectComp(item.id);
+    toast("新題目來了：" + item.title, "gold");
+  } catch (e) {
+    if (e?.code !== "cancelled") toast(e?.code === "invalid_json" ? "出題失敗，請再按一次" : aiMsg(e));
+    if (isFatal(e)) aiOff();
+  } finally {
+    compBusy = false; if (state.skill !== "writing") renderComp();
+  }
+}
+function renderSkill(){
+  const w = state.skill === "writing";
+  document.querySelectorAll("#skills [data-skill]").forEach(b => b.setAttribute("aria-selected", b.dataset.skill === state.skill));
+  document.querySelector("#view-practice .grid").hidden = !w;
+  $("#compView").hidden = w;
+  $("#daily").hidden = !w;
+  if (!w) renderComp();
+}
+function selectSkill(s){
+  if (s === state.skill) return;
+  persistWork(); timerPause(); resetComp();
+  state.skill = s; store.set("cw.skill", s);
+  renderSkill();
+}
+function openComp(a){
+  if (a.genComp && !COMP.some(c => c.id === a.taskId)) COMP.push(Object.assign({}, a.genComp, {gen:true}));
+  persistWork(); timerPause();
+  state.level = a.level; state.skill = a.skill; store.set("cw.skill", a.skill);
+  store.set(compKey(), a.taskId); resetComp();
+  showTab("practice"); renderAll(); scrollTo({top:0});
+}
+
 /* ---------- tabs and top-level render ---------- */
 function showTab(tab){
   $("#view-practice").hidden = tab !== "practice"; $("#view-history").hidden = tab !== "history";
   $("#tab-practice").setAttribute("aria-selected", tab === "practice"); $("#tab-history").setAttribute("aria-selected", tab === "history");
 }
-function renderAll(){ renderLevels(); renderDaily(); renderPlayer(); renderTaskList(); renderPaper(); renderGuide(); renderMeter(); renderTimer(); renderSaveStatus(); renderScores(); renderFeedback(); }
+function renderAll(){ renderSkill(); renderLevels(); renderDaily(); renderPlayer(); renderTaskList(); renderPaper(); renderGuide(); renderMeter(); renderTimer(); renderSaveStatus(); renderScores(); renderFeedback(); }
 function selectTask(id){
   if (id === state.taskId) return;
   persistWork(); timerPause(); asRun.ctl?.abort(); $("#assist").hidden = true;
@@ -1443,7 +1771,7 @@ function selectTask(id){
 }
 function selectLevel(k){
   if (k === state.level) return;
-  persistWork(); timerPause(); asRun.ctl?.abort(); $("#assist").hidden = true;
+  persistWork(); timerPause(); asRun.ctl?.abort(); $("#assist").hidden = true; resetComp();
   state.level = k;
   const remembered = store.get("cw.lastTask." + k, null);
   const id = remembered === "custom" || TASKS.some(t => t.id === remembered && t.level === k) ? remembered : TASKS.find(t => t.level === k).id;
@@ -1463,7 +1791,10 @@ function onAnswerInput(){
 
 /* ---------- events ---------- */
 $("#levels").addEventListener("click", e => { const b = e.target.closest("[data-lv]"); if (b) selectLevel(b.dataset.lv); });
-$("#tasklist").addEventListener("click", e => { const b = e.target.closest("[data-task]"); if (b) selectTask(b.dataset.task); });
+$("#tasklist").addEventListener("click", e => {
+  if (e.target.closest("#genBtn")) { genTask(); return; }
+  const b = e.target.closest("[data-task]"); if (b) selectTask(b.dataset.task);
+});
 document.querySelector(".gtabs").addEventListener("click", e => { const b = e.target.closest("[data-g]"); if (b) { state.guideTab = b.dataset.g; renderGuide(); } });
 $("#guideBody").addEventListener("click", e => { const b = e.target.closest("[data-phrase]"); if (b) insertAtCursor(b.dataset.phrase); });
 $("#paper").addEventListener("input", e => {
@@ -1504,6 +1835,20 @@ $("#modeBtn").addEventListener("click", () => {
   toast(simple ? "已簡化畫面" : "已顯示所有功能");
 });
 applyMode();
+$("#skills").addEventListener("click", e => { const b = e.target.closest("[data-skill]"); if (b) selectSkill(b.dataset.skill); });
+$("#compList").addEventListener("click", e => {
+  if (e.target.closest("#compGenBtn")) { genComp(); return; }
+  const b = e.target.closest("[data-comp]"); if (b) selectComp(b.dataset.comp);
+});
+$("#compMain").addEventListener("click", e => {
+  const o = e.target.closest(".opt[data-q]");
+  if (o && !comp.done) { comp.answers[+o.dataset.q] = +o.dataset.o; renderComp(); return; }
+  if (e.target.closest("#compSubmit")) { compSubmit(); return; }
+  if (e.target.closest("#compRetry")) { resetComp(); renderComp(); return; }
+  if (e.target.closest("#lPlay")) { if (ttsOn) { ttsStop(); renderPlayerState(); } else ttsPlay(currentComp().text); }
+});
+$("#compMain").addEventListener("change", e => { if (e.target.id === "lRate") ttsRate = +e.target.value; });
+if (TTS) speechSynthesis.addEventListener?.("voiceschanged", () => {});
 $("#daily").addEventListener("click", e => { const b = e.target.closest("[data-task]"); if (b) selectTask(b.dataset.task); });
 $("#bonus").addEventListener("click", e => {
   if (e.target.id === "reroll") { state.bonus = pickBonus(state.level); litPrev = null; persistSoon(); renderBonus(); return; }
@@ -1540,7 +1885,7 @@ $("#tab-practice").addEventListener("click", () => showTab("practice"));
 $("#tab-history").addEventListener("click", () => { persistWork(); showTab("history"); });
 $("#rows").addEventListener("click", e => {
   const o = e.target.closest("[data-open]");
-  if (o) { const a = attempts.find(x => x.id === o.dataset.open); if (a) openAttempt(a); return; }
+  if (o) { const a = attempts.find(x => x.id === o.dataset.open); if (a) (a.skill && a.skill !== "writing" ? openComp(a) : openAttempt(a)); return; }
   const d = e.target.closest("[data-del]");
   if (d) armed(d, "確定刪除？", async () => {
     try { await col.doc(d.dataset.del).delete(); if (state.attemptId === d.dataset.del) { state.attemptId = null; state.createdAt = null; state.dirty = true; persistWork(); renderSaveStatus(); } toast("已刪除"); }
@@ -1551,6 +1896,8 @@ document.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.ke
 addEventListener("pagehide", persistWork);
 
 /* ---------- boot ---------- */
+["reading","listening"].forEach(s => LEVELS.forEach(l => (store.get(compGenKey(s, l.k), []) || []).forEach(c => { if (c?.id && Array.isArray(c.questions) && !COMP.some(x => x.id === c.id)) COMP.push(Object.assign(c, {gen:true})); })));
+LEVELS.forEach(l => (store.get(genKey(l.k), []) || []).forEach(t => { if (t?.id && TYPES[t.type] && !TASKS.some(x => x.id === t.id)) TASKS.push(Object.assign(t, {gen:true})); }));
 const last = store.get("cw.last", null);
 if (last && LEVELS.some(l => l.k === last.level)) { state.level = last.level; state.taskId = last.taskId === "custom" || TASKS.some(t => t.id === last.taskId) ? last.taskId : TASKS.find(t => t.level === last.level).id; }
 loadWork(state.taskId);

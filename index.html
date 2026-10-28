@@ -1,0 +1,1543 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="寫作練習">
+<title>劍橋寫作練習室</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<style>
+/* Layout: an exam paper on a desk. Task sheet on the left, lined answer sheet on the right, the examiner's red pen marks the feedback. */
+:root{
+  --desk:#eef0f4; --sheet:#ffffff; --ink:#172031; --muted:#586379; --rule:#d9dee7; --line:#e4e9f1;
+  --accent:#23409e; --accent-ink:#ffffff; --accent-soft:#e7ecfa;
+  --pen:#c0392b; --pen-soft:#fbe8e5; --ok:#2b7549; --ok-soft:#e1f1e7; --warn:#9a6210; --warn-soft:#faefd9;
+  --shadow:0 1px 2px rgb(23 32 49 / .06), 0 6px 20px rgb(23 32 49 / .05);
+  --f-ui:"IBM Plex Sans","Noto Sans TC",system-ui,sans-serif;
+  --f-text:"Literata","Noto Sans TC",Georgia,serif;
+  --f-mono:"IBM Plex Mono","Noto Sans TC",ui-monospace,monospace;
+  --lh:32px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --desk:#0e1219; --sheet:#171c26; --ink:#e3e7ee; --muted:#97a1b3; --rule:#2a3141; --line:#232a37;
+  --accent:#93a8ff; --accent-ink:#0e1219; --accent-soft:#1e2846;
+  --pen:#ff8072; --pen-soft:#3b201e; --ok:#72cf98; --ok-soft:#16301f; --warn:#efb45c; --warn-soft:#352914;
+  --shadow:0 1px 2px rgb(0 0 0 / .3); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --desk:#0e1219; --sheet:#171c26; --ink:#e3e7ee; --muted:#97a1b3; --rule:#2a3141; --line:#232a37;
+  --accent:#93a8ff; --accent-ink:#0e1219; --accent-soft:#1e2846;
+  --pen:#ff8072; --pen-soft:#3b201e; --ok:#72cf98; --ok-soft:#16301f; --warn:#efb45c; --warn-soft:#352914;
+  --shadow:0 1px 2px rgb(0 0 0 / .3); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--desk);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3,h4{text-wrap:balance;margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* header */
+.top{background:var(--sheet);border-bottom:1px solid var(--rule)}
+.top-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding-block:14px}
+.brand h1{font-size:21px;font-weight:700;letter-spacing:.02em}
+.brand .eyebrow{display:block;margin-bottom:2px}
+.tabs{display:flex;gap:4px;background:var(--desk);padding:4px;border-radius:8px}
+.tabs button{border:0;background:transparent;padding:6px 14px;border-radius:6px;font-weight:500;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--sheet);color:var(--ink);box-shadow:var(--shadow)}
+.tabs .count{font-family:var(--f-mono);font-size:12px;margin-left:4px;color:var(--muted)}
+
+/* level bar */
+.levels{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,5fr);gap:10px 16px;padding-block:16px 6px}
+.lvgroup{display:grid;gap:6px;min-width:0}
+.lvrow{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:8px}
+@media (max-width:900px){.levels{grid-template-columns:minmax(0,1fr)}}
+.lv{border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:0;min-width:0}
+.lv b{font-family:var(--f-mono);font-size:20px;font-weight:500;line-height:1.2}
+.lv span{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.lv[aria-pressed="true"] span{color:var(--accent-ink);opacity:.85}
+.lvinfo{font-size:13px;color:var(--muted);padding-bottom:16px}
+@media (max-width:640px){.lvrow{gap:4px}.lv{padding:8px 6px;align-items:center}.lv b{font-size:15px}.lv span{font-size:11px}}
+.paper-b .zh{font-family:var(--f-ui);font-size:14px;color:var(--muted);margin-top:-4px}
+.pics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:4px 0 14px}
+.pics.one{max-width:480px}
+.pic{margin:0;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;position:relative;background:#d8edff}
+.pic svg{display:block;width:100%;height:auto}
+.pic figcaption{position:absolute;top:5px;left:5px;font-family:var(--f-mono);font-size:12px;font-weight:500;line-height:1;background:#ffffff;color:#2a2a33;border:1.5px solid #2a2a33;border-radius:50%;width:20px;height:20px;display:grid;place-items:center}
+
+/* practice grid */
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;align-items:start;padding-bottom:48px}
+@media (max-width:980px){
+  .grid{display:flex;flex-direction:column}
+  .grid > .col{display:contents}
+  #paper{order:2} #sheet{order:3} #assist{order:4} #guide{order:5} #scorePanel{order:6} #fbPanel{order:7}
+}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;min-width:0}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.panel-h h2{font-size:14px;font-weight:600}
+.panel-b{padding:14px 16px}
+
+/* task list */
+.tgroup+.tgroup{margin-top:10px}
+.tgroup .eyebrow{display:block;margin-bottom:6px}
+.tlist{display:flex;flex-wrap:wrap;gap:6px}
+.tbtn{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:5px 10px;font-size:13.5px;display:inline-flex;gap:6px;align-items:baseline;max-width:100%}
+.tbtn small{font-size:11.5px;color:var(--muted)}
+.tbtn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.tbtn .done{width:6px;height:6px;border-radius:50%;background:var(--ok);align-self:center}
+
+/* task sheet (exam paper) */
+.paper{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;box-shadow:var(--shadow)}
+.paper-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;padding:14px 20px 10px;border-bottom:2px solid var(--ink)}
+.qno{font-family:var(--f-mono);font-size:13px;letter-spacing:.06em}
+.qno b{font-weight:500;font-size:15px}
+.qmeta{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
+.paper-b{padding:16px 20px 20px;font-family:var(--f-text);font-size:15.5px;line-height:1.65}
+.paper-b h3{font-family:var(--f-text);font-size:19px;font-weight:600;margin-bottom:10px}
+.paper-b p{margin:0 0 10px}
+.paper-b ul{margin:0 0 10px;padding-left:22px}
+.paper-b .quote{border:1px solid var(--ink);padding:10px 14px;margin:4px 0 12px}
+.paper-b .quote .gap{height:8px}
+.note{font-family:var(--f-ui);font-size:12px;font-weight:500;color:var(--accent);border:1px dashed var(--accent);border-radius:999px;padding:0 8px;margin-left:4px;white-space:nowrap}
+.compulsory{font-family:var(--f-ui);font-size:12px;color:var(--pen);border:1px solid var(--pen);border-radius:4px;padding:0 6px;margin-left:8px;vertical-align:2px}
+.custom-form{display:grid;gap:10px;font-family:var(--f-ui);font-size:14px}
+.custom-form label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.custom-form textarea,.custom-form input,.custom-form select{font:inherit;color:var(--ink);background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;width:100%}
+.custom-form textarea{min-height:140px;resize:vertical;font-family:var(--f-text)}
+.row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+
+/* guide */
+.gtabs{display:flex;gap:4px;border-bottom:1px solid var(--rule);padding:0 12px;overflow-x:auto}
+.gtabs button{border:0;background:none;padding:10px 8px;font-size:13.5px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.gtabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent);font-weight:500}
+.struct{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+.struct li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;counter-increment:s}
+.struct li::before{content:counter(s);font-family:var(--f-mono);font-size:12px;color:var(--accent);border:1px solid var(--accent);border-radius:50%;width:22px;height:22px;display:grid;place-items:center;margin-top:1px}
+.struct b{font-weight:600;font-size:14px}
+.struct span{display:block;color:var(--muted);font-size:13.5px}
+.phr h4{font-size:12px;font-weight:600;color:var(--muted);margin:12px 0 6px}
+.phr h4:first-child{margin-top:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--rule);background:var(--desk);border-radius:6px;padding:3px 9px;font-family:var(--f-text);font-size:13.5px;text-align:left}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.hint{font-size:12.5px;color:var(--muted);margin-top:10px}
+.check{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.check input{margin-top:4px;accent-color:var(--ok)}
+
+/* answer sheet */
+.sheet-h{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.timer{display:flex;align-items:center;gap:8px}
+.clock{font-family:var(--f-mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;min-width:5ch}
+.clock.over{color:var(--pen)}
+.ibtn{border:1px solid var(--rule);background:var(--sheet);border-radius:6px;padding:4px 10px;font-size:13px}
+.wc{display:grid;gap:4px;min-width:200px;flex:1;max-width:320px}
+.wc-top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.wc-top b{font-family:var(--f-mono);font-weight:500;color:var(--ink);font-size:14px}
+.meter{position:relative;height:6px;background:var(--line);border-radius:3px}
+.meter i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--warn);transition:width .2s}
+.meter i.ok{background:var(--ok)}.meter i.over{background:var(--pen)}
+.meter u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--muted);text-decoration:none}
+.answer{display:block;width:100%;min-height:calc(var(--lh) * 15);border:0;resize:vertical;color:var(--ink);font-family:var(--f-text);font-size:16.5px;line-height:var(--lh);padding:calc(var(--lh) * .5) 20px calc(var(--lh)) 64px;
+  background-color:var(--sheet);
+  background-image:linear-gradient(to right, transparent 47px, var(--pen) 47px, var(--pen) 48px, transparent 48px), repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--lh) - 1px), var(--line) calc(var(--lh) - 1px), var(--line) var(--lh));
+  background-position:0 0, 0 calc(var(--lh) * .5 + 6px);background-attachment:local;outline-offset:-2px}
+.answer::placeholder{color:var(--muted);font-style:italic}
+@media (max-width:640px){.answer{padding-left:40px;background-image:linear-gradient(to right, transparent 27px, var(--pen) 27px, var(--pen) 28px, transparent 28px), repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--lh) - 1px), var(--line) calc(var(--lh) - 1px), var(--line) var(--lh))}}
+.sheet-f{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 16px;border-top:1px solid var(--rule)}
+.btn{border:1px solid var(--rule);background:var(--sheet);border-radius:6px;padding:7px 14px;font-weight:500;font-size:14px}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.armed{border-color:var(--pen);color:var(--pen)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.spacer{flex:1}
+.status{font-size:12.5px;color:var(--muted)}
+.status.dirty{color:var(--warn)}
+
+/* assistant output */
+.out{font-family:var(--f-text);font-size:15px;line-height:1.7;white-space:normal}
+.out h4{font-family:var(--f-ui);font-size:13.5px;font-weight:600;margin:14px 0 4px;color:var(--accent)}
+.out h4:first-child{margin-top:0}
+.out p{margin:0 0 8px}
+.out ul,.out ol{margin:0 0 8px;padding-left:22px}
+.out hr{border:0;border-top:1px dashed var(--rule);margin:14px 0}
+.thinking{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){.dot{animation:none}.meter i{transition:none}}
+.err-msg{color:var(--pen);font-size:14px}
+
+/* scoring */
+.crit{display:grid;gap:12px}
+.crow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:0;padding-bottom:0}
+.crow .nm b{font-size:14px;font-weight:600}
+.crow .nm small{font-size:12px;color:var(--muted);margin-left:6px}
+.crow .ds{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.crow .cm{grid-column:1/-1;font-size:14px}
+.pips{display:flex;gap:3px}
+.pips button{width:28px;height:28px;border:1px solid var(--rule);background:var(--sheet);border-radius:5px;font-family:var(--f-mono);font-size:13px;padding:0}
+.pips button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.total{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:14px 16px;border-top:1px solid var(--rule);background:var(--desk);border-radius:0 0 8px 8px}
+.total .big{font-family:var(--f-mono);font-size:28px;font-weight:500;font-variant-numeric:tabular-nums}
+.total .big small{font-size:15px;color:var(--muted)}
+.pill{font-size:12px;font-weight:500;border-radius:999px;padding:1px 9px;border:1px solid currentColor}
+.pill.ok{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.pill.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.pill.bad{color:var(--pen);background:var(--pen-soft);border-color:transparent}
+.pill.neutral{color:var(--muted);border-color:var(--rule)}
+
+/* feedback */
+.fb{display:grid;gap:18px}
+.fb h3{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.02em}
+.summary{font-size:15px}
+.marked{font-family:var(--f-text);font-size:15.5px;line-height:1.9;white-space:pre-wrap;background:var(--desk);border-radius:6px;padding:14px 16px;max-height:420px;overflow:auto}
+mark{background:transparent;color:inherit;cursor:pointer;border-radius:2px}
+mark.err{text-decoration:underline wavy var(--pen);text-underline-offset:4px;background:var(--pen-soft)}
+mark.up{text-decoration:underline dotted var(--accent);text-decoration-thickness:2px;text-underline-offset:4px;background:var(--accent-soft)}
+mark sup{font-family:var(--f-mono);font-size:10px;font-weight:500;margin-left:1px}
+mark.err sup{color:var(--pen)} mark.up sup{color:var(--accent)}
+.fixes{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.fixes li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;padding:8px;border-radius:6px}
+.fixes li.flash{background:var(--accent-soft)}
+.fixes .n{font-family:var(--f-mono);font-size:12px;font-weight:500;width:22px;height:22px;border-radius:50%;display:grid;place-items:center}
+.fixes.e .n{background:var(--pen-soft);color:var(--pen)} .fixes.u .n{background:var(--accent-soft);color:var(--accent)}
+.fixes .ln{font-family:var(--f-text);font-size:15px}
+.fixes del{color:var(--pen);text-decoration-color:var(--pen)}
+.fixes ins{color:var(--ok);text-decoration:none;font-weight:600}
+.fixes .why{font-size:13.5px;color:var(--muted);margin-top:2px}
+.tag{font-family:var(--f-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border:1px solid var(--rule);border-radius:4px;padding:0 5px;margin-left:6px;vertical-align:1px}
+.blist{margin:0;padding-left:20px;display:grid;gap:4px;font-size:14.5px}
+
+/* history */
+.hist{display:grid;gap:20px;padding-bottom:48px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:14px 16px}
+.stat b{display:block;font-family:var(--f-mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bars{display:grid;gap:12px}
+.bar{display:grid;grid-template-columns:7.5em minmax(0,1fr) 3em;gap:12px;align-items:center;font-size:14px}
+.bar .track{position:relative;height:10px;background:var(--line);border-radius:5px}
+.bar .track i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:5px}
+.bar .track i.weak{background:var(--pen)}
+.bar .track u{position:absolute;left:60%;top:-4px;bottom:-4px;width:1px;background:var(--muted);text-decoration:none}
+.bar .v{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.axis{display:grid;grid-template-columns:7.5em minmax(0,1fr) 3em;gap:12px;font-size:11.5px;color:var(--muted)}
+.axis div{position:relative;height:14px}
+.axis div span{position:absolute;transform:translateX(-50%);font-family:var(--f-mono)}
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.rows li:last-child{border-bottom:0}
+.rows .lvtag{font-family:var(--f-mono);font-size:12px;font-weight:500;border:1px solid var(--rule);border-radius:4px;padding:1px 6px}
+.rows .t{min-width:0}
+.rows .t b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rows .t small{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.rows .acts{display:flex;gap:6px;align-items:center}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:14px}
+.foot{font-size:12.5px;color:var(--muted);padding-bottom:28px}
+.foot a{color:var(--accent)}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--sheet);padding:8px 16px;border-radius:6px;font-size:14px;box-shadow:var(--shadow);z-index:20;max-width:calc(100% - 32px)}
+
+/* game layer: highlighter yellow for bonus words, gold for XP and badges */
+:root{--hi:#ffe066;--hi-ink:#3a2f00;--gold:#b98a00;--gold-ink:#1d1600}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--hi:#6b5a0c;--hi-ink:#fff1b8;--gold:#e8bb4f;--gold-ink:#1d1600} }
+:root[data-theme="dark"]{--hi:#6b5a0c;--hi-ink:#fff1b8;--gold:#e8bb4f;--gold-ink:#1d1600}
+.toast.gold{background:var(--gold);color:var(--gold-ink);font-weight:600}
+.player{display:flex;align-items:center;gap:16px;margin-left:auto}
+.plv{display:grid;line-height:1.25}
+.plv b{font-family:var(--f-mono);font-weight:500;font-size:15px}
+.plv span{font-size:12px;color:var(--muted)}
+.pxp{display:grid;gap:3px;width:130px}
+.pbar{height:7px;background:var(--line);border-radius:4px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--gold);border-radius:4px;transition:width .6s ease}
+.pxp small{font-family:var(--f-mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.streak{display:flex;align-items:center;gap:3px;color:var(--muted)}
+.streak.on{color:var(--pen)}
+.streak b{font-family:var(--f-mono);font-weight:500;font-size:17px;color:var(--ink)}
+.streak small{font-size:12px;color:var(--muted)}
+@media (max-width:720px){.player{order:3;width:100%;margin-left:0;justify-content:space-between}.pxp{flex:1;width:auto}}
+.daily{padding-bottom:16px}
+.daily-in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:10px 14px}
+.dtag{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--hi);color:var(--hi-ink);padding:2px 8px;border-radius:4px;font-weight:500}
+.dtxt{display:grid;min-width:0;flex:1 1 200px}
+.dtxt b{font-weight:600}
+.dtxt span{font-size:12.5px;color:var(--muted)}
+.dxp{font-family:var(--f-mono);font-size:13px;color:var(--gold);font-weight:500}
+.daily-in.done .dxp{color:var(--ok)}
+.bonus{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:10px 16px;border-bottom:1px solid var(--rule);background:var(--desk)}
+.bonus .chips{gap:6px}
+.bw{border:1px dashed var(--muted);background:var(--sheet);border-radius:999px;padding:2px 11px;font-family:var(--f-text);font-size:13.5px}
+.bw.lit{border:1px solid transparent;background:var(--hi);color:var(--hi-ink);font-weight:600}
+.bw.pop{animation:pop .45s ease}
+@keyframes pop{40%{transform:scale(1.22)}}
+.xpnow{margin-left:auto;font-size:12.5px;color:var(--muted)}
+.xpnow b{font-family:var(--f-mono);font-weight:500;color:var(--gold);font-size:15px}
+.stamp{margin-left:auto;display:inline-grid;justify-items:center;border:3px double var(--pen);color:var(--pen);border-radius:6px;padding:2px 12px;transform:rotate(-8deg);font-family:var(--f-mono);line-height:1.25}
+.stamp b{font-size:18px;letter-spacing:.12em;font-weight:500}
+.stamp small{font-size:10.5px;letter-spacing:.04em}
+.stamp.good{border-color:var(--ok);color:var(--ok)}
+.stamp.fresh{animation:stamp .55s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes stamp{0%{transform:rotate(-8deg) scale(2.6);opacity:0}55%{opacity:1}100%{transform:rotate(-8deg) scale(1);opacity:1}}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.badge{display:grid;grid-template-columns:46px minmax(0,1fr);gap:10px;align-items:center;padding:8px;border-radius:8px;opacity:.55}
+.badge.on{opacity:1;background:var(--desk)}
+.seal{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;font-weight:500;border:2px dashed var(--muted);color:var(--muted)}
+.badge.on .seal{border:3px double var(--gold);color:var(--gold);background:var(--sheet)}
+.badge b{display:block;font-size:14px;font-weight:600}
+.badge small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+.confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+@media (prefers-reduced-motion: reduce){.bw.pop,.stamp.fresh{animation:none}.pbar i{transition:none}}
+
+/* touch screens (iPad): finger-sized targets, no double-tap zoom, 16px inputs so Safari doesn't zoom on focus */
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (pointer: coarse){
+  .pips{gap:5px}
+  .pips button{width:40px;height:40px;font-size:15px}
+  .ibtn{padding:8px 14px;font-size:14px}
+  .btn{padding:11px 18px;font-size:15px}
+  .tbtn{padding:9px 13px;font-size:15px}
+  .chip,.bw{padding:7px 13px;font-size:15px}
+  .tabs button{padding:9px 18px}
+  .gtabs button{padding:13px 10px;font-size:14.5px}
+  .lv{padding:12px}
+  .check label{font-size:15.5px}
+  .check input{width:22px;height:22px;margin-top:1px}
+  .custom-form textarea,.custom-form input,.custom-form select{font-size:16px}
+  .rows .acts .ibtn{padding:8px 12px}
+}
+#apiPanel{margin-bottom:16px}
+.api{display:grid;gap:8px;max-width:600px}
+.api p{margin:0;font-size:14px}
+.api label{font-size:13px;color:var(--muted);margin-top:4px}
+.api input,.api select{font:inherit;font-size:16px;color:var(--ink);background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:9px 10px;width:100%}
+.api-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
+.hint a{color:var(--accent)}
+.backup{display:flex;gap:6px}
+.kidbtn{border:1px solid var(--rule);background:var(--sheet);border-radius:999px;padding:6px 14px;font-size:13.5px;color:var(--muted)}
+.kidbtn[aria-pressed="true"]{background:var(--hi);color:var(--hi-ink);border-color:transparent;font-weight:600}
+body.kid .answer{font-size:19.5px;--lh:38px}
+body.kid .paper-b{font-size:17px}
+</style>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand">
+      <span class="eyebrow">Cambridge English · Writing</span>
+      <h1>劍橋寫作練習室</h1>
+    </div>
+    <div class="player" id="player" hidden></div>
+    <button class="kidbtn" id="apiBtn" hidden>AI 設定</button>
+    <button class="kidbtn" id="kidBtn" aria-pressed="false" title="批改語氣更簡單、更鼓勵，字體放大，不自動計時">孩子模式</button>
+    <nav class="tabs" role="tablist" aria-label="檢視">
+      <button id="tab-practice" role="tab" aria-selected="true">練習</button>
+      <button id="tab-history" role="tab" aria-selected="false">我的紀錄<span class="count" id="histCount"></span></button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="view-practice">
+    <div class="levels" id="levels" role="group" aria-label="選擇級數"></div>
+    <div class="lvinfo" id="lvinfo"></div>
+    <div class="daily" id="daily"></div>
+    <div class="panel" id="apiPanel" hidden>
+      <div class="panel-h"><h2>AI 設定</h2><button class="ibtn" id="apiClose">關閉</button></div>
+      <div class="panel-b api">
+        <p>在 claude.ai 以外打開這個網站時，AI 批改、構思提示和範文要用你自己的 Anthropic API 金鑰。金鑰只存在這台裝置的瀏覽器裡，直接傳給 Anthropic，不經過其他伺服器。API 依用量計費，和 Claude 訂閱分開計算。</p>
+        <label for="apiKey">API 金鑰</label>
+        <input id="apiKey" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="sk-ant-…">
+        <label for="apiModel">批改用的模型</label>
+        <select id="apiModel"></select>
+        <div class="api-acts"><button class="btn primary" id="apiSave">儲存</button><button class="btn" id="apiClear">清除金鑰</button><span class="status" id="apiState"></span></div>
+        <p class="hint">還沒有金鑰？到 <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> 建立一把，並設定每月用量上限。不要在別人的裝置上輸入你的金鑰。</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="col">
+        <div class="panel">
+          <div class="panel-h"><h2>選擇題目</h2><span class="eyebrow" id="taskCount"></span></div>
+          <div class="panel-b" id="tasklist"></div>
+        </div>
+
+        <article class="paper" id="paper"></article>
+
+        <div class="panel" id="guide">
+          <div class="panel-h"><h2 id="guideTitle">寫作指引</h2></div>
+          <div class="gtabs" role="tablist">
+            <button role="tab" data-g="structure" aria-selected="true">段落結構</button>
+            <button role="tab" data-g="phrases" aria-selected="false">實用句型</button>
+            <button role="tab" data-g="check" aria-selected="false">交稿前檢查</button>
+          </div>
+          <div class="panel-b" id="guideBody"></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="panel" id="sheet">
+          <div class="sheet-h">
+            <div>
+              <span class="eyebrow">Answer sheet</span>
+              <div class="timer">
+                <span class="clock" id="clock">40:00</span>
+                <button class="ibtn" id="tStart">開始</button>
+                <button class="ibtn" id="tReset">重設</button>
+              </div>
+            </div>
+            <div class="wc">
+              <div class="wc-top"><span>字數 <b id="wcN">0</b></span><span id="wcTarget"></span></div>
+              <div class="meter" id="meter"><i id="meterFill"></i><u id="meterMin"></u></div>
+            </div>
+          </div>
+          <div class="bonus" id="bonus"></div>
+          <textarea id="answer" class="answer" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="在這裡用英文作答。開始輸入後計時器會自動開始。"></textarea>
+          <div class="sheet-f">
+            <button class="btn primary" id="btnFeedback">AI 批改</button>
+            <button class="btn" id="btnHint">構思提示</button>
+            <button class="btn" id="btnModel">AI 範文</button>
+            <span class="spacer"></span>
+            <span class="status" id="saveStatus"></span>
+            <button class="btn" id="btnNew">新的一篇</button>
+            <button class="btn" id="btnSave">儲存</button>
+          </div>
+        </div>
+
+        <div class="panel" id="assist" hidden>
+          <div class="panel-h"><h2 id="assistTitle"></h2><span><button class="ibtn" id="assistStop" hidden>停止</button> <button class="ibtn" id="assistClose">關閉</button></span></div>
+          <div class="panel-b out" id="assistBody"></div>
+        </div>
+
+        <div class="panel" id="scorePanel">
+          <div class="panel-h"><h2>評分與批改</h2><span id="scoredBy"></span></div>
+          <div class="panel-b">
+            <div id="fbTop"></div>
+            <div class="crit" id="crit"></div>
+          </div>
+          <div class="total" id="total"></div>
+        </div>
+
+        <div class="panel" id="fbPanel" hidden>
+          <div class="panel-h"><h2>紅筆批改</h2><span class="eyebrow" id="fbWhen"></span></div>
+          <div class="panel-b fb" id="fbBody"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-history" hidden>
+    <div class="hist" style="padding-top:20px">
+      <div class="stats" id="stats"></div>
+      <div class="panel">
+        <div class="panel-h"><h2>四項評分平均</h2><span class="eyebrow">最近 10 篇已評分</span></div>
+        <div class="panel-b" id="bars"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>成就徽章</h2><span class="eyebrow" id="badgeN"></span></div>
+        <div class="panel-b"><div class="badges" id="badges"></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>所有作品 <span class="eyebrow" id="histN"></span></h2><span class="backup" id="backupActs" hidden><button class="ibtn" id="btnExport">匯出備份</button><button class="ibtn" id="btnImport">匯入備份</button><input type="file" id="importFile" accept="application/json,.json" hidden></span></div>
+        <ul class="rows" id="rows"></ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="foot">題目為仿照劍橋考試形式自行編寫的練習題。官方樣題與評分標準請見 <a href="https://www.cambridgeenglish.org/exams-and-tests/" target="_blank" rel="noopener">cambridgeenglish.org</a>。AI 評分僅供練習參考，不代表正式成績。</p>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ---------- data ---------- */
+const LEVELS = [
+  {k:"PA1", cefr:"Pre A1", exam:"Pre A1 Starters", short:"Starters", yle:true, info:"Young Learners · Reading & Writing 20 分鐘。看圖回答問題，只要寫一、兩個英文字。"},
+  {k:"A1", cefr:"A1", exam:"A1 Movers", short:"Movers", yle:true, info:"Young Learners · Reading & Writing 30 分鐘。看圖完成句子，再寫兩個關於圖片的句子。"},
+  {k:"FLY", cefr:"A2", exam:"A2 Flyers", short:"Flyers", yle:true, info:"Young Learners · Reading & Writing 40 分鐘。Part 6 看圖完成句子並寫句子，Part 7 看三張圖寫故事（20 字以上）。"},
+  {k:"A2", cefr:"A2", exam:"A2 Key", short:"Key", info:"Reading & Writing 共 60 分鐘。寫作 Part 6 短訊（25 字以上）＋ Part 7 看圖寫故事（35 字以上）。"},
+  {k:"B1", cefr:"B1", exam:"B1 Preliminary", short:"Preliminary", info:"Writing 45 分鐘。Part 1 電子郵件必答，Part 2 文章或故事二選一，各約 100 字。"},
+  {k:"B2", cefr:"B2", exam:"B2 First", short:"First", info:"Writing 1 小時 20 分鐘。Part 1 議論文必答，Part 2 從文章、電子郵件、報告、評論中選一，各 140–190 字。"},
+  {k:"C1", cefr:"C1", exam:"C1 Advanced", short:"Advanced", info:"Writing 1 小時 30 分鐘。Part 1 議論文必答，Part 2 從提案、報告、評論、信函中選一，各 220–260 字。"},
+  {k:"C2", cefr:"C2", exam:"C2 Proficiency", short:"Proficiency", info:"Writing 1 小時 30 分鐘。Part 1 閱讀兩篇短文後寫摘要評論文 240–280 字，Part 2 選一題 280–320 字。"},
+];
+const TYPES = {
+  lookwrite:{zh:"看圖作答",en:"Look and write"}, aboutme:{zh:"寫寫自己",en:"About me"},
+  note:{zh:"短訊／電子郵件",en:"Short message"}, pictures:{zh:"看圖寫故事",en:"Picture story"},
+  email:{zh:"電子郵件",en:"Email"}, article:{zh:"文章",en:"Article"}, story:{zh:"故事",en:"Story"},
+  essay:{zh:"議論文",en:"Essay"}, essay2:{zh:"摘要評論文",en:"Essay"}, review:{zh:"評論",en:"Review"},
+  report:{zh:"報告",en:"Report"}, proposal:{zh:"提案",en:"Proposal"}, letter:{zh:"正式信函",en:"Letter"},
+};
+const T = (level, o) => Object.assign({level}, o);
+const TASKS = [
+  // Pre A1 Starters
+  T("PA1",{id:"st-1",part:"Part 5",type:"lookwrite",title:"In the park",min:5,max:30,open:true,minutes:8,pics:["park"],hint:"看圖，用一、兩個英文字回答每個問題。",key:"1 (a) kite  2 red  3 (under the) tree  4 two  5 sunny",prompt:
+"Look at the picture and read the questions. Write one-word answers.\n\n@pics\n\n1. What is the boy holding? a ______\n2. What colour is the ball? ______\n3. Where is the cat? under the ______\n4. How many birds are there? ______\n5. Is it rainy or sunny? ______"}),
+  T("PA1",{id:"st-2",part:"Part 5",type:"lookwrite",title:"The birthday party",min:5,max:30,open:true,minutes:8,pics:["party"],hint:"看圖，用一、兩個英文字回答每個問題。",key:"1 (a) cake  2 three  3 purple  4 (under the) table  5 two",prompt:
+"Look at the picture and read the questions. Write one-word answers.\n\n@pics\n\n1. What is on the table? a ______\n2. How many balloons are there? ______\n3. What colour is the girl's dress? ______\n4. Where is the cat? under the ______\n5. How many children are there? ______"}),
+  T("PA1",{id:"st-3",part:"Practice",type:"aboutme",title:"All about me",min:10,max:40,open:true,minutes:8,hint:"回答關於你自己的問題，每一題寫一個英文句子。",prompt:
+"Answer the questions about you. Write a sentence for each question.\n\n1. What's your name?\n2. How old are you?\n3. What's your favourite colour?\n4. What animal do you like?\n5. What do you like eating?"}),
+  // A1 Movers
+  T("A1",{id:"mv-1",part:"Part 6",type:"lookwrite",title:"At the bus stop",min:15,max:45,open:true,minutes:10,pics:["busstop"],hint:"先把句子填完整，再寫兩個關於圖片的句子。",key:"1 rainy / raining  2 yellow  3 bus  4 umbrella  5-6 any two correct sentences about the picture",prompt:
+"Look and read and write.\n\n@pics\n\nComplete the sentences.\n1. It's ______ today.\n2. The girl has got a ______ umbrella.\n3. The ______ is blue.\n4. The boy is sad because he hasn't got an ______.\n\nNow write **two sentences** about the picture.\n5. ______\n6. ______"}),
+  T("A1",{id:"mv-2",part:"Practice",type:"pictures",title:"The hungry dog",min:15,max:45,open:true,minutes:12,pics:["dog1","dog2","dog3"],hint:"看三張圖，用英文寫出這個故事。",prompt:
+"Look at the three pictures. Write about this story.\n\n@pics\n\nWrite **15 words or more**."}),
+  T("A1",{id:"mv-3",part:"Practice",type:"aboutme",title:"My weekend",min:15,max:45,open:true,minutes:10,hint:"寫一寫你的週末，回答下面的問題。",prompt:
+"Tell us about your weekend.\n\n1. Where did you go?\n2. Who did you see?\n3. What did you do?\n4. Was it fun? Why?\n\nWrite **15 words or more**."}),
+  // A2 Flyers
+  T("FLY",{id:"fl-1",part:"Part 6",type:"lookwrite",title:"In the garden",min:20,max:50,open:true,minutes:10,pics:["garden"],hint:"先把句子填完整，再寫兩個關於圖片的句子。",key:"1 bike / bicycle  2 book  3 flowers  4 watering  5-6 any two correct sentences about the picture",prompt:
+"Look and read and write.\n\n@pics\n\nComplete the sentences.\n1. The boy is riding a ______.\n2. The girl is reading a ______ under the tree.\n3. There are three ______ in the garden.\n4. The woman is ______ the flowers.\n\nNow write **two sentences** about the picture.\n5. ______\n6. ______"}),
+  T("FLY",{id:"fl-2",part:"Part 7",type:"pictures",title:"The kite in the tree",min:20,max:50,open:true,minutes:12,pics:["kite1","kite2","kite3"],hint:"看三張圖，用英文寫出這個故事，至少 20 個字。",prompt:
+"Look at the three pictures. Write about this story.\n\n@pics\n\nWrite **20 or more words**."}),
+  T("FLY",{id:"fl-3",part:"Part 7",type:"pictures",title:"The rainy picnic",min:20,max:50,open:true,minutes:12,pics:["picnic1","picnic2","picnic3"],hint:"看三張圖，用英文寫出這個故事，至少 20 個字。",prompt:
+"Look at the three pictures. Write about this story.\n\n@pics\n\nWrite **20 or more words**."}),
+  // A2 Key
+  T("A2",{id:"a2-6a",part:"Part 6",type:"note",title:"Borrow a bike",min:25,max:45,open:true,minutes:10,prompt:
+"You want to borrow your English friend Sam's bike this weekend.\n\nWrite an email to Sam. In your email:\n- ask to borrow Sam's bike\n- say why you need it\n- say when you will give it back\n\nWrite **25 words or more**."}),
+  T("A2",{id:"a2-6b",part:"Part 6",type:"note",title:"A friend is visiting",min:25,max:45,open:true,minutes:10,prompt:
+"Your English friend Alex is coming to visit your town next Saturday.\n\nWrite an email to Alex. In your email:\n- say where you will meet\n- say what you will do together\n- tell Alex what to bring\n\nWrite **25 words or more**."}),
+  T("A2",{id:"a2-6c",part:"Part 6",type:"note",title:"Missed class",min:25,max:45,open:true,minutes:10,prompt:
+"You did not go to your English class yesterday.\n\nWrite an email to your classmate Jo. In your email:\n- say why you were not at the class\n- ask about the homework\n- say when you can meet Jo\n\nWrite **25 words or more**."}),
+  T("A2",{id:"a2-7a",part:"Part 7",type:"pictures",title:"The birthday cake",min:35,max:60,open:true,minutes:15,pics:["cake1","cake2","cake3"],prompt:
+"Look at the three pictures. Write the story shown in the pictures.\n\n@pics\n\nWrite **35 words or more**."}),
+  T("A2",{id:"a2-7b",part:"Part 7",type:"pictures",title:"The missed bus",min:35,max:60,open:true,minutes:15,pics:["bus1","bus2","bus3"],prompt:
+"Look at the three pictures. Write the story shown in the pictures.\n\n@pics\n\nWrite **35 words or more**."}),
+  // B1 Preliminary
+  T("B1",{id:"b1-1a",part:"Part 1",type:"email",title:"Class picnic",min:90,max:120,about:100,minutes:22,compulsory:true,prompt:
+"Read this email from your English friend Chris and the notes you have made.\n\n> **From:** Chris\n> **Subject:** Class picnic\n>\n> Hi!\n> I'm organising a picnic for our English class next Saturday. Would you like to come? [Yes!]\n> We could have it by the lake or in the city park. Which place do you prefer? [Explain]\n> Everyone's bringing something to eat. What could you bring? [Tell Chris]\n> And what's the best way for us all to get there? [Suggest ...]\n> See you soon,\n> Chris\n\nWrite your email to Chris using **all the notes**.\n\nWrite your answer in about **100 words**."}),
+  T("B1",{id:"b1-1b",part:"Part 1",type:"email",title:"Science museum trip",min:90,max:120,about:100,minutes:22,compulsory:true,prompt:
+"Read this email from your English teacher, Mrs Harper, and the notes you have made.\n\n> **From:** Mrs Harper\n> **Subject:** Museum trip\n>\n> Dear students,\n> I'm planning a class trip to the new science museum. We can go on Thursday or Friday next week. Which day is better for you? [Say which]\n> The museum has a space exhibition and a robot workshop. Which would you most like to visit? [Tell Mrs Harper]\n> Should students bring a packed lunch or buy food at the museum café? [Give your opinion]\n> Let me know if you have any other ideas. [Suggest ...]\n> Best wishes,\n> Mrs Harper\n\nWrite your email to Mrs Harper using **all the notes**.\n\nWrite your answer in about **100 words**."}),
+  T("B1",{id:"b1-1c",part:"Part 1",type:"email",title:"Moving to your city",min:90,max:120,about:100,minutes:22,compulsory:true,prompt:
+"Read this email from your English friend Jamie and the notes you have made.\n\n> **From:** Jamie\n> **Subject:** Big news!\n>\n> Great news: I'm coming to study in your city next year!\n> Which part of the city do you think I should live in? [Recommend]\n> How do people usually get around? [Explain]\n> I'd love to make new friends. Where's a good place to meet people? [Suggest ...]\n> Can we meet up when I arrive? [Yes! Say when]\n> Jamie\n\nWrite your email to Jamie using **all the notes**.\n\nWrite your answer in about **100 words**."}),
+  T("B1",{id:"b1-2a",part:"Part 2",type:"article",title:"My favourite place to relax",min:90,max:120,about:100,minutes:22,prompt:
+"You see this announcement on an English-language website.\n\n> **Articles wanted!**\n> **My favourite place to relax**\n>\n> Where do you go when you want to relax? What do you do there? Why is this place special to you?\n> The best articles will appear on our website.\n\nWrite your **article** in about **100 words**."}),
+  T("B1",{id:"b1-2b",part:"Part 2",type:"article",title:"A day without my phone",min:90,max:120,about:100,minutes:22,prompt:
+"You see this announcement in an English-language magazine for teenagers.\n\n> **Articles wanted!**\n> **A day without my phone**\n>\n> Could you live without your phone for a whole day? What would you miss most? What would you do instead?\n> Write an article answering these questions and we will publish the best ones.\n\nWrite your **article** in about **100 words**."}),
+  T("B1",{id:"b1-2c",part:"Part 2",type:"story",title:"I couldn't believe my eyes",min:90,max:120,about:100,minutes:22,prompt:
+"Your English teacher has asked you to write a story.\n\nYour story must begin with this sentence:\n\n> *When I opened the front door, I couldn't believe my eyes.*\n\nWrite your **story** in about **100 words**."}),
+  T("B1",{id:"b1-2d",part:"Part 2",type:"story",title:"A strange day",min:90,max:120,about:100,minutes:22,prompt:
+"Your English teacher has asked you to write a story.\n\nYour story must begin with this sentence:\n\n> *Lucy knew it was going to be a strange day as soon as she woke up.*\n\nWrite your **story** in about **100 words**."}),
+  // B2 First
+  T("B2",{id:"b2-1a",part:"Part 1",type:"essay",title:"City or countryside?",min:140,max:190,minutes:40,compulsory:true,prompt:
+"In your English class you have been talking about where people live. Now your English teacher has asked you to write an essay.\n\nWrite an essay using **all** the notes and give reasons for your point of view.\n\n> **Is it better to grow up in a city than in the countryside?**\n>\n> Notes\n> Write about:\n> 1. education and opportunities\n> 2. health and quality of life\n> 3. ........ (your own idea)\n\nWrite your **essay** in **140–190** words in an appropriate style."}),
+  T("B2",{id:"b2-1b",part:"Part 1",type:"essay",title:"Volunteer work",min:140,max:190,minutes:40,compulsory:true,prompt:
+"In your English class you have been talking about young people and the community. Now your English teacher has asked you to write an essay.\n\nWrite an essay using **all** the notes and give reasons for your point of view.\n\n> **Should all young people do some unpaid volunteer work before they finish school?**\n>\n> Notes\n> Write about:\n> 1. personal development\n> 2. benefits to the community\n> 3. ........ (your own idea)\n\nWrite your **essay** in **140–190** words in an appropriate style."}),
+  T("B2",{id:"b2-1c",part:"Part 1",type:"essay",title:"Online learning",min:140,max:190,minutes:40,compulsory:true,prompt:
+"In your English class you have been talking about education and technology. Now your English teacher has asked you to write an essay.\n\nWrite an essay using **all** the notes and give reasons for your point of view.\n\n> **Will online learning ever replace traditional classrooms?**\n>\n> Notes\n> Write about:\n> 1. cost\n> 2. motivation and concentration\n> 3. ........ (your own idea)\n\nWrite your **essay** in **140–190** words in an appropriate style."}),
+  T("B2",{id:"b2-2a",part:"Part 2",type:"article",title:"A skill I'd love to learn",min:140,max:190,minutes:40,prompt:
+"You see this announcement in an international magazine for young people.\n\n> **Articles wanted**\n> **A skill I'd love to learn**\n>\n> What skill would you really like to learn, and why? How would learning it change your life?\n> We will publish the most interesting articles in next month's issue.\n\nWrite your **article** in **140–190** words."}),
+  T("B2",{id:"b2-2b",part:"Part 2",type:"review",title:"A café worth visiting",min:140,max:190,minutes:40,prompt:
+"You see this announcement on a local English-language website.\n\n> **Reviews wanted: cafés and restaurants**\n>\n> Tell us about a café or restaurant you know. Describe the atmosphere, the food and the service, and say whether you would recommend it to other young people.\n\nWrite your **review** in **140–190** words."}),
+  T("B2",{id:"b2-2c",part:"Part 2",type:"email",title:"Part-time job advice",min:140,max:190,minutes:40,prompt:
+"You have received this email from your English-speaking friend Sam.\n\n> I'm starting university in September and I'm thinking of getting a part-time job. Do you think it's a good idea? What kind of job would you recommend, and how can I make sure my studies don't suffer?\n\nWrite your **email** in **140–190** words."}),
+  T("B2",{id:"b2-2d",part:"Part 2",type:"report",title:"The student common room",min:140,max:190,minutes:40,prompt:
+"The director of your college wants to improve the student common room and has asked you to write a report.\n\nIn your report you should:\n- describe the facilities currently available\n- explain what students like and dislike about the room\n- recommend changes that would make it more popular\n\nWrite your **report** in **140–190** words."}),
+  // C1 Advanced
+  T("C1",{id:"c1-1a",part:"Part 1",type:"essay",title:"Healthier lifestyles",min:220,max:260,minutes:45,compulsory:true,prompt:
+"Your class has attended a panel discussion on what governments can do to encourage people to lead healthier lives. You have made the notes below.\n\n> **Ways governments can encourage healthier lifestyles**\n> - taxing unhealthy food and drinks\n> - providing free sports facilities\n> - running public health campaigns\n>\n> Some opinions expressed in the discussion:\n> \"Taxes like this hit poorer families hardest.\"\n> \"People won't exercise just because a gym is free.\"\n> \"Nobody pays attention to health adverts any more.\"\n\nWrite an **essay** discussing **two** of the methods in your notes. You should **explain which method you think is more effective**, giving reasons in support of your answer.\n\nYou may, if you wish, make use of the opinions expressed in the discussion, but you should use your own words as far as possible.\n\nWrite your essay in **220–260** words in an appropriate style."}),
+  T("C1",{id:"c1-1b",part:"Part 1",type:"essay",title:"Traffic in city centres",min:220,max:260,minutes:45,compulsory:true,prompt:
+"Your class has watched a documentary about how cities could reduce traffic congestion. You have made the notes below.\n\n> **Ways to reduce traffic in city centres**\n> - improving public transport\n> - charging drivers to enter the city centre\n> - encouraging more people to work from home\n>\n> Some opinions expressed in the documentary:\n> \"Buses and trains are only useful if they're reliable.\"\n> \"A congestion charge simply punishes people who have no alternative.\"\n> \"Not every job can be done from a laptop.\"\n\nWrite an **essay** discussing **two** of the methods in your notes. You should **explain which method you think is more effective**, giving reasons in support of your answer.\n\nYou may, if you wish, make use of the opinions expressed in the documentary, but you should use your own words as far as possible.\n\nWrite your essay in **220–260** words in an appropriate style."}),
+  T("C1",{id:"c1-1c",part:"Part 1",type:"essay",title:"Preparing for working life",min:220,max:260,minutes:45,compulsory:true,prompt:
+"Your class has had a discussion about how schools could better prepare young people for working life. You have made the notes below.\n\n> **How schools could prepare students for work**\n> - teaching practical financial skills\n> - offering work experience placements\n> - developing teamwork through group projects\n>\n> Some opinions expressed in the discussion:\n> \"Most adults learned about money the hard way.\"\n> \"Two weeks in an office tells you very little.\"\n> \"Group projects often mean one person does all the work.\"\n\nWrite an **essay** discussing **two** of the methods in your notes. You should **explain which method you think is more important**, giving reasons in support of your answer.\n\nYou may, if you wish, make use of the opinions expressed in the discussion, but you should use your own words as far as possible.\n\nWrite your essay in **220–260** words in an appropriate style."}),
+  T("C1",{id:"c1-2a",part:"Part 2",type:"proposal",title:"Facilities for young people",min:220,max:260,minutes:45,prompt:
+"The local council has a sum of money available to improve facilities for young people in your area and has invited residents to submit proposals.\n\nWrite a **proposal** for the council. In your proposal you should:\n- briefly describe the facilities that currently exist\n- suggest how the money should be spent\n- explain how young people and the wider community would benefit\n\nWrite your proposal in **220–260** words in an appropriate style."}),
+  T("C1",{id:"c1-2b",part:"Part 2",type:"report",title:"International exchange visit",min:220,max:260,minutes:45,prompt:
+"Your college recently hosted a group of international students for a two-week cultural exchange, and you helped to organise it. The principal has asked you to write a report evaluating the visit.\n\nYour **report** should:\n- outline the main activities that took place\n- assess which aspects were most and least successful\n- recommend improvements for future exchanges\n\nWrite your report in **220–260** words in an appropriate style."}),
+  T("C1",{id:"c1-2c",part:"Part 2",type:"review",title:"A museum worth the ticket",min:220,max:260,minutes:45,prompt:
+"A travel website has invited readers to submit reviews of a museum or gallery they have visited.\n\nWrite a **review** describing the exhibits, evaluating how engaging the experience is for different kinds of visitors, and saying whether the museum is worth the price of admission.\n\nWrite your review in **220–260** words in an appropriate style."}),
+  T("C1",{id:"c1-2d",part:"Part 2",type:"letter",title:"Do young people still read?",min:220,max:260,minutes:45,prompt:
+"You have read an article in an English-language newspaper claiming that young people today read less than any previous generation, and that this is damaging their education.\n\nWrite a **letter** to the editor responding to the article. In your letter you should explain whether you agree with the claim, and suggest how young people could be encouraged to read more.\n\nWrite your letter in **220–260** words in an appropriate style."}),
+  // C2 Proficiency
+  T("C2",{id:"c2-1a",part:"Part 1",type:"essay2",title:"Work and free time",min:240,max:280,minutes:45,compulsory:true,prompt:
+"Read the two texts below.\n\nWrite an **essay** summarising and evaluating the key points from both texts. Use your own words throughout as far as possible, and include your own ideas in your answer.\n\n> **Text 1: The promise that wasn't kept**\n> Economists once predicted that technological progress would deliver a fifteen-hour working week. Instead, devices that were meant to liberate us have quietly extended the working day into our kitchens and bedrooms. Because a reply is always possible, it is increasingly expected, and the boundary between labour and leisure has all but dissolved. The result is not more free time but a constant, low-level state of availability.\n\n> **Text 2: Freedom on our own terms**\n> Critics of flexible working overlook how much autonomy it has given ordinary employees. Parents can collect their children from school; carers can arrange their hours around those who depend on them. Answering an email in the evening may be a small price for being able to shape the rest of the day as one chooses. The challenge is not the technology itself but learning the discipline to switch off.\n\nWrite your essay in **240–280** words."}),
+  T("C2",{id:"c2-1b",part:"Part 1",type:"essay2",title:"Tourism and heritage",min:240,max:280,minutes:45,compulsory:true,prompt:
+"Read the two texts below.\n\nWrite an **essay** summarising and evaluating the key points from both texts. Use your own words throughout as far as possible, and include your own ideas in your answer.\n\n> **Text 1: Loved to death**\n> Each summer, historic towns are overwhelmed by visitors whose sheer numbers erode the very qualities they came to admire. Ancient stone wears away under millions of feet, rents climb as flats are turned into holiday lets, and local life retreats behind a façade staged for cameras. Unless numbers are firmly capped, the heritage we claim to treasure will survive only as a theme park of itself.\n\n> **Text 2: Why we need visitors**\n> Without tourist income, many monuments would have no money for maintenance at all. Ticket revenue pays for restoration, and visitors' interest persuades governments that heritage deserves protection. Travel also broadens minds: meeting another culture first-hand dissolves prejudice in a way no textbook can. The answer lies in better management, not in closing the gates.\n\nWrite your essay in **240–280** words."}),
+  T("C2",{id:"c2-2a",part:"Part 2",type:"article",title:"The object that defines our age",min:280,max:320,minutes:45,prompt:
+"An international magazine is running a series called *The object that defines our age*. Readers are invited to submit articles nominating an everyday object, explaining what it reveals about the way we live now, and considering whether future generations will judge us kindly for it.\n\nWrite your **article** in **280–320** words."}),
+  T("C2",{id:"c2-2b",part:"Part 2",type:"report",title:"The quiet library",min:280,max:320,minutes:45,prompt:
+"You are a member of a working group set up by your town council to investigate why fewer residents are using the public library.\n\nWrite a **report** for the council outlining the main reasons for the decline, assessing the library's potential value to the community, and making recommendations to reverse the trend.\n\nWrite your report in **280–320** words."}),
+  T("C2",{id:"c2-2c",part:"Part 2",type:"review",title:"A book that changed my mind",min:280,max:320,minutes:45,prompt:
+"A literary magazine has asked readers to review a book that changed the way they saw the world.\n\nWrite a **review** briefly describing the book, explaining how it affected your thinking, and assessing whether it would have the same impact on other readers today.\n\nWrite your review in **280–320** words."}),
+  T("C2",{id:"c2-2d",part:"Part 2",type:"letter",title:"Cars in the old town",min:280,max:320,minutes:45,prompt:
+"Your local newspaper has reported a proposal to ban private cars from the historic centre of your town.\n\nWrite a **letter** to the editor giving your views on the proposal. You should consider its likely effects on residents, businesses and visitors, and suggest how any problems could be addressed.\n\nWrite your letter in **280–320** words."}),
+];
+const LEVEL_DEFAULTS = {PA1:{min:5,max:30,minutes:8},A1:{min:15,max:45,minutes:10},FLY:{min:20,max:50,minutes:12},A2:{min:25,max:45,minutes:10},B1:{min:90,max:120,minutes:22},B2:{min:140,max:190,minutes:40},C1:{min:220,max:260,minutes:45},C2:{min:280,max:320,minutes:45}};
+
+const GUIDES = {
+  lookwrite:{structure:[["先看圖","找出圖裡的人、動物、東西、顏色和數量"],["一題一題回答","照題號寫，一行寫一題：1. kite"],["寫兩個句子（Movers、Flyers）","用 There is … / The boy is … 描述圖片"]],
+    phrases:[["描述圖片",["There is a …","There are two …","The girl is …","The boy has got a …","It's sunny.","It's raining."]],["顏色與數字",["red","blue","yellow","green","purple","two","three"]],["位置",["in","on","under","next to","behind","in front of"]]],
+    check:["每一題都有回答","拼字檢查過了","句子開頭是大寫，句尾有句點","寫句子的題目寫了完整句子"]},
+  aboutme:{structure:[["介紹自己","My name is … I am … years old."],["說說喜歡什麼","I like … / My favourite … is …"],["多說一點","用 and、because 把句子連起來"]],
+    phrases:[["開頭",["My name is","I am … years old.","I live in"]],["喜好",["I like","I love","My favourite colour is","My favourite animal is"]],["連接",["and","because","but","too"]]],
+    check:["每個問題都回答了","每個句子開頭大寫、句尾有句點","至少用了一次 and 或 because"]},
+  note:{structure:[["稱呼","Hi Sam, / Dear Alex,"],["回應三個要點","每個要點寫一到兩句，依照題目順序"],["結尾署名","See you soon, / Thanks! + 你的名字"]],
+    phrases:[["請求與提議",["Can I borrow your …?","Would you like to …?","Let's meet at …","Why don't we …?"]],["原因與時間",["I need it because …","I couldn't come because …","I'll give it back on Sunday.","Are you free on …?"]],["結尾",["See you soon,","Thanks a lot!","Write back soon,"]]],
+    check:["三個內容點都有寫到","至少 25 個字","有稱呼和結尾署名","每個句子都有主詞和動詞"]},
+  pictures:{structure:[["圖 1：開場","人物、地點、時間：One sunny afternoon, Mia …"],["圖 2：事件","發生了什麼問題或意外：Suddenly, …"],["圖 3：結局","最後怎麼解決、大家的感受：In the end, …"]],
+    phrases:[["時間與順序",["One morning,","Last Saturday,","Then","After that,","Suddenly,","In the end,"]],["感受",["She was very surprised.","He felt cold and wet.","Everyone laughed.","They were really happy."]]],
+    check:["三張圖都有寫到","全篇用過去式","至少 35 個字","有清楚的結局"]},
+  email:{structure:[["開頭","回應對方來信：Thanks for your email!"],["主體","依序回應每個要點或筆記，給理由與細節，適當分段"],["收尾","邀請回覆或約定下一步：Let me know what you think."],["署名","Best wishes, / Love, + 名字"]],
+    phrases:[["開頭",["Thanks for your email. It was great to hear from you.","It's great news that …","Sorry I haven't written for ages."]],["建議與意見",["Why don't you …?","How about …?","If I were you, I'd …","I'd definitely recommend …","It might be a good idea to …"]],["轉折與補充",["Anyway,","By the way,","As for …,","On top of that,"]],["結尾",["Let me know what you think.","Can't wait to see you!","Write back soon,","Best wishes,"]]],
+    check:["每一個要點或筆記都有回應","語氣符合收件人：朋友用輕鬆語氣，老師用較禮貌的語氣","有問候語與結尾署名","有分段","字數在要求範圍內"]},
+  article:{structure:[["標題","簡短、吸引人的標題"],["開頭","用問題、驚人事實或場景抓住讀者"],["主體","回答公告中的每個問題，加入個人經驗與例子"],["結尾","總結觀點，或把問題丟回給讀者"]],
+    phrases:[["吸引讀者",["Have you ever wondered …?","Imagine …","Believe it or not,","Let me tell you about …"]],["表達觀點",["To be honest,","Personally, I think …","What I love most about … is …","The best thing about … is …"]],["連接",["What's more,","On top of that,","Not only that, but …","That's why …"]],["結尾",["So, next time you …, why not …?","All in all,","What about you?"]]],
+    check:["有標題","直接對讀者說話（you）","回答了公告中的每個問題","有個人例子與觀點","語氣生動，但不過分口語"]},
+  story:{structure:[["開頭","一字不改地使用題目指定的第一句，交代人物與場景"],["發展","事件逐步展開，製造懸念"],["高潮","最關鍵或最意外的時刻"],["結局","問題如何解決、角色的感受"]],
+    phrases:[["推進情節",["At first,","As soon as …,","A few minutes later,","Meanwhile,","All of a sudden,"]],["製造驚喜",["To my surprise,","I couldn't believe it when …","It turned out that …","Just then,"]],["情緒描寫",["My heart was pounding.","She was absolutely terrified.","I breathed a sigh of relief.","I'll never forget that day."]]],
+    check:["第一句與題目完全相同","時態一致：過去簡單式、過去進行式、過去完成式","有開頭、發展與結局","用形容詞、副詞或直接引語讓故事生動"]},
+  essay:{structure:[["引言","改寫題目，點出爭議，說明立場或文章方向"],["主體段 1","第一個要點：主題句、理由、例子"],["主體段 2","第二個要點；B2 還要加上第三點「你自己的想法」"],["結論","總結並明確回答題目；C1 要說明哪個方法更有效"]],
+    phrases:[["引言",["It is often argued that …","These days, many people believe that …","There are strong arguments on both sides of this question."]],["表達論點",["One major advantage of … is that …","A compelling argument for … is that …","This is largely because …","For instance,","This would mean that …"]],["讓步與對比",["On the other hand,","However,","While it is true that …, …","Nevertheless,","This is not to say that …"]],["結論",["Taking everything into account,","On balance, I believe that …","In conclusion,","To sum up, the most effective approach would be …"]]],
+    check:["所有指定要點都有討論（B2 三點含自己的想法，C1 選兩個方法）","結論有清楚的個人立場","正式語氣，避免縮寫（don't → do not）","每段有主題句，段落之間有連接詞","字數在範圍內"]},
+  essay2:{structure:[["引言","點出兩篇文章共同討論的主題"],["Text 1","用自己的話摘要兩個重點，並評價其說服力"],["Text 2","摘要兩個重點，與 Text 1 比較並評價"],["結論","提出自己的觀點，說明較認同哪一方及原因"]],
+    phrases:[["摘要",["The first text contends that …","According to the writer of the first text, …","The second writer takes a rather different view, arguing that …","Both texts address the question of …"]],["評價",["This argument is persuasive insofar as …","However, it arguably overlooks …","This claim seems somewhat overstated, since …","A more convincing point is that …"]],["個人觀點",["In my view, the second writer's position is the more convincing, since …","Ultimately, …","What neither writer fully acknowledges is …"]]],
+    check:["兩篇文章各摘要兩個重點","全部用自己的話改寫，沒有照抄原文","不只摘要，也有評價","加入自己的觀點","正式的學術語氣"]},
+  review:{structure:[["標題","點出評論對象"],["開頭","介紹對象與背景，吸引讀者"],["描述","具體描述內容：菜色、展品、情節等"],["評價","優點與缺點，用精確生動的形容詞"],["推薦","推薦給誰、值不值得"]],
+    phrases:[["開頭",["If you're looking for …, look no further than …","Tucked away in …, … is a hidden gem.","I recently visited …"]],["描述與評價",["What impressed me most was …","The atmosphere is relaxed and welcoming.","The only drawback was …","It was slightly overpriced, but …","… falls short when it comes to …"]],["推薦",["I would thoroughly recommend it to …","It's well worth a visit.","It may not appeal to everyone, but …","Give it a miss if …"]]],
+    check:["有描述也有評價","明確說出推薦對象或結論","形容詞多樣且精確","語氣符合刊物的讀者"]},
+  report:{structure:[["標題（或 To / From / Subject）","說明報告對象與主題"],["Introduction","報告目的：The aim of this report is to …"],["分項小標","每段一個小標題，客觀呈現發現"],["Recommendations","具體建議與結論"]],
+    phrases:[["目的",["The aim of this report is to …","This report outlines …","It is based on a survey of …"]],["呈現發現",["It was found that …","The majority of students …","A significant number of respondents …","Only a small minority …","According to …"]],["建議",["It is recommended that …","I would suggest that …","The following measures should be taken:","In conclusion, …"]]],
+    check:["有標題和小標","正式、客觀，適當使用被動語態","涵蓋題目的每個要求","建議具體可行"]},
+  proposal:{structure:[["標題與目的","The purpose of this proposal is to …"],["現況","簡述目前的情況與問題"],["建議","分項提出具體建議"],["效益與結論","說明好處並總結，說服對方"]],
+    phrases:[["目的",["The purpose of this proposal is to …","This proposal sets out …"]],["提出建議",["I would like to suggest that …","One option would be to …","It would be advisable to …","Funds could be allocated to …"]],["說明效益",["This would enable …","Not only would this …, but it would also …","The community as a whole would benefit from …"]],["結尾",["I strongly recommend that …","I trust these suggestions will be given careful consideration."]]],
+    check:["有標題與小標","以未來與建議為導向","每個建議都說明好處","正式且有說服力"]},
+  letter:{structure:[["稱呼","Dear Sir or Madam, / Dear Editor,"],["寫信目的","第一段說明為何寫信、回應哪篇文章或事件"],["主體","分段提出論點與理由"],["結尾","總結並提出期望或建議"],["署名","Yours faithfully,（不知道對方姓名）/ Yours sincerely,（知道姓名）"]],
+    phrases:[["開頭",["I am writing in response to …","I am writing to express my concern about …","I read with interest your recent article on …"]],["表達立場",["I would like to draw your attention to …","While I appreciate that …, …","I strongly disagree with the claim that …","It is worth considering …"]],["建議與結尾",["I would therefore urge …","A more effective solution would be to …","I look forward to seeing …","Yours faithfully,"]]],
+    check:["稱呼與結尾搭配正確","第一段清楚說明寫信目的","正式語氣，不用縮寫","回應題目的每個要求"]},
+};
+/* ---------- picture cards: a small kit of flat drawings, composed into exam-style scenes ---------- */
+const PAL = {sky:"#d8edff", storm:"#bcc6d2", grass:"#b7e09c", road:"#c5c9d0", wall:"#f7ecdc", floor:"#d8b58f", skin:"#f2c7a0", hair:"#5b3b24", blond:"#d9aa3c", trunk:"#8b5a36", leaf:"#4ea95a", red:"#e2504a", blue:"#3c7bd6", yellow:"#f4c20d", green:"#3d9e57", purple:"#8b59cf", orange:"#ef8a22", pink:"#f27dab", white:"#ffffff", ink:"#2a2a33", brown:"#9b6b40", grey:"#8f98a3", water:"#7fc4ef"};
+const at = (x, y, s, body, flip) => `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})">${body}</g>`;
+const ln = (x1, y1, x2, y2, c = PAL.ink, w = 3) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+const G = {
+  sky: (c = "sky") => `<rect width="200" height="140" fill="${PAL[c]}"/>`,
+  ground: (c = "grass") => `<rect y="104" width="200" height="36" fill="${PAL[c]}"/>`,
+  room: () => `<rect width="200" height="140" fill="${PAL.wall}"/><rect y="104" width="200" height="36" fill="${PAL.floor}"/>`,
+  window: (x, y, rain) => `<rect x="${x}" y="${y}" width="44" height="34" fill="${rain ? PAL.storm : PAL.sky}" stroke="${PAL.brown}" stroke-width="3"/>` + ln(x+22, y, x+22, y+34, PAL.brown, 2) + (rain ? [6,14,30,38].map((d,i) => ln(x+d, y+5+i%2*10, x+d-3, y+13+i%2*10, PAL.blue, 1.5)).join("") : ""),
+  sun: (x = 176, y = 22) => `<circle cx="${x}" cy="${y}" r="10" fill="${PAL.yellow}"/>` + [0,1,2,3,4,5,6,7].map(i => { const a = i * Math.PI / 4; return ln(x+Math.cos(a)*14, y+Math.sin(a)*14, x+Math.cos(a)*19, y+Math.sin(a)*19, PAL.yellow, 2.5); }).join(""),
+  cloud: (x, y, c = "white") => `<g fill="${PAL[c]}"><ellipse cx="${x}" cy="${y}" rx="17" ry="9"/><ellipse cx="${x+11}" cy="${y-6}" rx="11" ry="9"/><ellipse cx="${x-10}" cy="${y-4}" rx="9" ry="7"/></g>`,
+  rain: () => Array.from({length:28}, (_, i) => { const x = (i * 41 + 7) % 200, y = (i * 29) % 88 + 8; return ln(x, y, x-3, y+8, PAL.blue, 1.6); }).join(""),
+  wind: (x, y) => [0, 9, 18].map(d => `<path d="M${x} ${y+d} q12 -5 24 0 t24 0" fill="none" stroke="${PAL.white}" stroke-width="2" stroke-linecap="round"/>`).join(""),
+  bird: (x, y) => `<path d="M${x-7} ${y} q3.5 -5 7 0 q3.5 -5 7 0" fill="none" stroke="${PAL.ink}" stroke-width="1.6" stroke-linecap="round"/>`,
+  tree: x => `<rect x="${x-4}" y="58" width="9" height="47" fill="${PAL.trunk}"/><circle cx="${x}" cy="46" r="21" fill="${PAL.leaf}"/><circle cx="${x-15}" cy="58" r="13" fill="${PAL.leaf}"/><circle cx="${x+15}" cy="58" r="13" fill="${PAL.leaf}"/>`,
+  house: x => `<rect x="${x}" y="58" width="56" height="47" fill="#f2d2a9"/><polygon points="${x-5},60 ${x+28},33 ${x+61},60" fill="${PAL.red}"/><rect x="${x+8}" y="78" width="14" height="27" fill="${PAL.brown}"/><rect x="${x+32}" y="70" width="15" height="13" fill="${PAL.sky}" stroke="${PAL.white}" stroke-width="2"/>`,
+  flower: (x, c = "pink") => ln(x, 104, x, 90, PAL.green, 2) + `<circle cx="${x}" cy="88" r="4.5" fill="${PAL[c]}"/><circle cx="${x}" cy="88" r="1.8" fill="${PAL.yellow}"/>`,
+  person: (x, o = {}) => {
+    const s = o.adult ? 1.28 : 1, shirt = PAL[o.shirt || "blue"], hair = PAL[o.hair || "hair"];
+    const arms = {down:[[-15,-20],[15,-20]], up:[[-16,-58],[16,-58]], right:[[-15,-20],[16,-56]], hold:[[-4,-27],[4,-27]], phone:[[-15,-20],[9,-49]]}[o.arms || "down"];
+    const face = {happy:`<path d="M-3.5 -46.5 q3.5 3.5 7 0" stroke="${PAL.ink}" stroke-width="1.4" fill="none"/>`, sad:`<path d="M-3.5 -44 q3.5 -3 7 0" stroke="${PAL.ink}" stroke-width="1.4" fill="none"/>`, wow:`<circle cy="-45" r="2" fill="${PAL.ink}"/>`}[o.face || "happy"];
+    const body = o.girl ? `<polygon points="-8,-40 8,-40 13,-14 -13,-14" fill="${shirt}"/>` : `<rect x="-9" y="-40" width="18" height="24" rx="4" fill="${shirt}"/>`;
+    return at(x, o.y ?? 104, s,
+      ln(-4, 0, -4, -16) + ln(4, 0, 4, -16) + (o.girl ? `<rect x="-11.5" y="-60" width="23" height="21" rx="9" fill="${hair}"/>` : "") + body +
+      ln(-8, -36, arms[0][0], arms[0][1], PAL.skin, 3.5) + ln(8, -36, arms[1][0], arms[1][1], PAL.skin, 3.5) +
+      `<circle cy="-50" r="10" fill="${PAL.skin}"/><path d="M-10 -51 a10 10 0 0 1 20 0 q-10 -6 -20 0z" fill="${hair}"/><circle cx="-3.5" cy="-51" r="1.3" fill="${PAL.ink}"/><circle cx="3.5" cy="-51" r="1.3" fill="${PAL.ink}"/>` + face +
+      (o.arms === "phone" ? `<rect x="7" y="-56" width="5" height="9" rx="1" fill="${PAL.ink}"/>` : "") +
+      (o.wet ? `<path d="M13 -60 q2.5 5 0 7 q-2.5 -2 0 -7z" fill="${PAL.water}"/>` : ""));
+  },
+  dog: (x, o = {}) => at(x, o.y ?? 104, o.s || 1,
+    ln(-9,0,-9,-9,PAL.brown) + ln(-3,0,-3,-9,PAL.brown) + ln(5,0,5,-9,PAL.brown) + ln(10,0,10,-9,PAL.brown) + ln(-13,-15,-20,-24,PAL.brown) +
+    `<ellipse cy="-14" rx="15" ry="8" fill="${PAL.brown}"/><circle cx="14" cy="-22" r="8" fill="${PAL.brown}"/><ellipse cx="10" cy="-24" rx="3.5" ry="6" fill="#6e4726"/><circle cx="17" cy="-24" r="1.3" fill="${PAL.ink}"/><circle cx="21.5" cy="-20.5" r="1.8" fill="${PAL.ink}"/>`, o.flip),
+  cat: (x, o = {}) => at(x, o.y ?? 104, o.s || 1,
+    `<path d="M8 -4 q14 -2 10 -16" stroke="${PAL.orange}" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cy="-10" rx="9" ry="11" fill="${PAL.orange}"/><circle cy="-25" r="7.5" fill="${PAL.orange}"/><polygon points="-7,-28 -5,-37 -1,-31" fill="${PAL.orange}"/><polygon points="7,-28 5,-37 1,-31" fill="${PAL.orange}"/><circle cx="-2.6" cy="-26" r="1.2" fill="${PAL.ink}"/><circle cx="2.6" cy="-26" r="1.2" fill="${PAL.ink}"/>`),
+  ball: (x, y = 98, c = "red") => `<circle cx="${x}" cy="${y}" r="6" fill="${PAL[c]}"/><path d="M${x-6} ${y} q6 -4 12 0" stroke="${PAL.white}" stroke-width="1.5" fill="none"/>`,
+  kite: (x, y, c = "purple", hx, hy) => (hx != null ? `<path d="M${x} ${y+12} Q${(x+hx)/2} ${(y+hy)/2+14} ${hx} ${hy}" stroke="${PAL.ink}" stroke-width="1" fill="none"/>` : "") + `<polygon points="${x},${y-12} ${x+9},${y} ${x},${y+12} ${x-9},${y}" fill="${PAL[c]}"/>` + ln(x, y-12, x, y+12, PAL.white, 1) + ln(x-9, y, x+9, y, PAL.white, 1) + `<path d="M${x} ${y+12} q-5 6 0 10 q5 4 0 9" stroke="${PAL[c]}" stroke-width="1.5" fill="none"/>`,
+  table: x => `<rect x="${x-28}" y="70" width="56" height="5" rx="1" fill="${PAL.brown}"/>` + ln(x-23, 75, x-23, 104, PAL.brown, 3.5) + ln(x+23, 75, x+23, 104, PAL.brown, 3.5),
+  cake: (x, y = 70) => `<rect x="${x-13}" y="${y-16}" width="26" height="16" rx="2" fill="${PAL.pink}"/><rect x="${x-13}" y="${y-19}" width="26" height="5" rx="2" fill="${PAL.white}"/>` + ln(x, y-19, x, y-27, PAL.blue, 2.5) + `<ellipse cx="${x}" cy="${y-30}" rx="2" ry="3" fill="${PAL.orange}"/>`,
+  plate: (x, y = 70) => `<ellipse cx="${x}" cy="${y-1}" rx="13" ry="3" fill="${PAL.white}" stroke="${PAL.grey}" stroke-width="1"/>`,
+  balloon: (x, y, c) => `<path d="M${x} ${y+9} q3 10 -1 20" stroke="${PAL.ink}" stroke-width="1" fill="none"/><ellipse cx="${x}" cy="${y}" rx="7" ry="9" fill="${PAL[c]}"/>`,
+  bus: (x, c = "yellow") => `<rect x="${x}" y="52" width="84" height="46" rx="6" fill="${PAL[c]}"/>` + [6, 24, 42, 60].map(d => `<rect x="${x+d}" y="58" width="14" height="13" rx="2" fill="${PAL.sky}"/>`).join("") + `<circle cx="${x+17}" cy="98" r="8" fill="${PAL.ink}"/><circle cx="${x+67}" cy="98" r="8" fill="${PAL.ink}"/><circle cx="${x+17}" cy="98" r="3" fill="${PAL.grey}"/><circle cx="${x+67}" cy="98" r="3" fill="${PAL.grey}"/>`,
+  car: (x, c = "red") => `<polygon points="${x+12},80 ${x+19},65 ${x+42},65 ${x+50},80" fill="${PAL[c]}"/><rect x="${x}" y="78" width="62" height="17" rx="5" fill="${PAL[c]}"/><rect x="${x+21}" y="68" width="18" height="10" rx="1" fill="${PAL.sky}"/><circle cx="${x+15}" cy="96" r="7" fill="${PAL.ink}"/><circle cx="${x+47}" cy="96" r="7" fill="${PAL.ink}"/>`,
+  speed: (x, y) => [0, 9, 18].map(d => ln(x, y+d, x-20, y+d, PAL.grey, 2)).join(""),
+  stop: x => ln(x, 104, x, 46, PAL.grey, 3) + `<rect x="${x-12}" y="34" width="24" height="15" rx="3" fill="${PAL.red}"/><text x="${x}" y="45" font-size="8" font-family="sans-serif" font-weight="700" fill="${PAL.white}" text-anchor="middle">BUS</text>`,
+  umbrella: (x, y, c = "yellow") => ln(x, y, x, y+20, PAL.ink, 2) + `<path d="M${x-18} ${y} a18 13 0 0 1 36 0z" fill="${PAL[c]}"/>`,
+  puddle: (x, y = 114) => `<ellipse cx="${x}" cy="${y}" rx="20" ry="4.5" fill="${PAL.water}"/>`,
+  splash: (x, y) => [[-8,-10],[0,-14],[8,-10]].map(([dx,dy]) => `<circle cx="${x+dx}" cy="${y+dy}" r="2.2" fill="${PAL.water}"/>`).join(""),
+  bike: x => `<circle cx="${x-16}" cy="95" r="9" fill="none" stroke="${PAL.ink}" stroke-width="2.5"/><circle cx="${x+16}" cy="95" r="9" fill="none" stroke="${PAL.ink}" stroke-width="2.5"/>` + ln(x-16, 95, x, 80, PAL.red) + ln(x, 80, x+16, 95, PAL.red) + ln(x-16, 95, x+6, 95, PAL.red) + ln(x, 80, x+12, 74, PAL.red) + ln(x-5, 78, x+3, 78, PAL.ink),
+  book: (x, y) => `<rect x="${x-7}" y="${y-5}" width="14" height="10" rx="1" fill="${PAL.blue}"/>` + ln(x, y-5, x, y+5, PAL.white, 1),
+  can: (x, y) => `<rect x="${x-6}" y="${y-8}" width="14" height="11" rx="2" fill="${PAL.green}"/>` + ln(x+8, y-4, x+16, y-11, PAL.green, 2.5) + [[18,-2],[16,6],[20,13]].map(([dx,dy]) => `<circle cx="${x+dx}" cy="${y+dy}" r="1.8" fill="${PAL.water}"/>`).join(""),
+  sandwich: (x, y) => `<polygon points="${x-8},${y} ${x+8},${y} ${x},${y-9}" fill="#f3d58a" stroke="#c08a3e" stroke-width="1.5"/>`,
+  bench: x => `<rect x="${x-26}" y="68" width="52" height="5" fill="${PAL.brown}"/><rect x="${x-26}" y="82" width="52" height="5" fill="${PAL.brown}"/>` + ln(x-22, 87, x-22, 104, PAL.brown) + ln(x+22, 87, x+22, 104, PAL.brown) + ln(x-22, 73, x-22, 82, PAL.brown) + ln(x+22, 73, x+22, 82, PAL.brown),
+  blanket: (x, w = 80, y = 104) => `<rect x="${x-w/2}" y="${y}" width="${w}" height="13" fill="${PAL.red}"/>` + Array.from({length: Math.floor(w/10)}, (_, i) => ln(x-w/2+5+i*10, y, x-w/2+5+i*10, y+13, PAL.white, 2)).join(""),
+  basket: (x, y = 104) => `<path d="M${x-8} ${y-11} q8 -12 16 0" stroke="${PAL.brown}" stroke-width="2.5" fill="none"/><rect x="${x-11}" y="${y-11}" width="22" height="11" rx="2" fill="${PAL.brown}"/>`,
+};
+const SCENES = {
+  park: {alt:"A park on a sunny day. A boy is holding a purple kite. A girl stands next to a red ball. A cat is sitting under a tree. A dog is on the grass. Two birds are flying in the sky.",
+    draw: () => G.sky() + G.sun(178, 20) + G.bird(62, 26) + G.bird(84, 36) + G.ground() + G.tree(32) + G.cat(32) + G.dog(72) + G.person(108, {shirt:"green", arms:"right"}) + G.kite(146, 30, "purple", 124, 49) + G.person(160, {girl:true, shirt:"yellow", hair:"blond"}) + G.ball(183)},
+  party: {alt:"A birthday party in a room. A cake is on the table. A cat is under the table. There are three balloons: red, blue and yellow. A girl in a purple dress has her arms up. A boy in a green T-shirt is standing next to the table.",
+    draw: () => G.room() + G.window(12, 22) + G.balloon(70, 28, "red") + G.balloon(85, 22, "blue") + G.balloon(100, 30, "yellow") + G.table(122) + G.cake(122) + G.cat(122, {s:.7}) + G.person(56, {girl:true, shirt:"purple", arms:"up"}) + G.person(176, {shirt:"green"})},
+  busstop: {alt:"A rainy day at a bus stop. A girl in a red coat is holding a yellow umbrella. A boy in a green T-shirt has no umbrella; he is wet and sad. A blue bus is coming. There is a puddle on the road.",
+    draw: () => G.sky("storm") + G.cloud(40, 20, "grey") + G.cloud(125, 16, "grey") + G.rain() + G.ground("road") + G.stop(18) + G.puddle(80) + G.person(44, {girl:true, shirt:"red", arms:"right"}) + G.umbrella(60, 30) + G.person(84, {shirt:"green", face:"sad", wet:true}) + G.bus(110, "blue")},
+  dog1: {alt:"A boy in an orange T-shirt is standing next to a bench in the park, holding a sandwich. A dog is looking at the sandwich.",
+    draw: () => G.sky() + G.sun() + G.ground() + G.bench(50) + G.person(108, {shirt:"orange", arms:"hold"}) + G.sandwich(108, 79) + G.dog(158, {flip:true})},
+  dog2: {alt:"The dog jumps up. The sandwich flies out of the boy's hands. The boy is surprised.",
+    draw: () => G.sky() + G.sun() + G.ground() + G.bench(50) + G.person(100, {shirt:"orange", arms:"up", face:"wow"}) + G.sandwich(124, 48) + G.dog(140, {flip:true, y:86})},
+  dog3: {alt:"The dog is eating the sandwich on the grass. The boy is laughing.",
+    draw: () => G.sky() + G.sun() + G.ground() + G.bench(50) + G.person(92, {shirt:"orange", arms:"up"}) + G.dog(142, {flip:true}) + G.sandwich(124, 100)},
+  garden: {alt:"A garden next to a house. A boy is riding a bike. A woman in a pink dress is watering three flowers with a green watering can. A girl is reading a book under a tree. The sun is shining.",
+    draw: () => G.sky() + G.sun(30, 20) + G.ground() + G.house(0) + G.bike(84) + G.person(82, {shirt:"blue", arms:"hold", y:90}) + G.flower(150) + G.flower(158, "purple") + G.flower(166, "red") + G.person(126, {adult:true, girl:true, shirt:"pink", arms:"hold"}) + G.can(130, 70) + G.tree(186) + G.person(184, {girl:true, shirt:"yellow", hair:"blond", arms:"hold"}) + G.book(184, 77)},
+  kite1: {alt:"It is a windy day in the park. A boy in a blue T-shirt is flying a red kite. There is a big tree.",
+    draw: () => G.sky() + G.cloud(36, 24) + G.wind(48, 44) + G.ground() + G.tree(166) + G.person(68, {arms:"right"}) + G.kite(118, 28, "red", 84, 49)},
+  kite2: {alt:"The red kite is stuck in the top of the tree. The boy is sad.",
+    draw: () => G.sky() + G.cloud(36, 24) + G.ground() + G.tree(166) + G.kite(160, 38, "red") + G.person(92, {face:"sad"})},
+  kite3: {alt:"A tall man gets the kite out of the tree and gives it to the boy. The boy is very happy.",
+    draw: () => G.sky() + G.sun(30, 22) + G.ground() + G.tree(166) + G.person(118, {adult:true, shirt:"green", arms:"right"}) + G.kite(140, 24, "red") + G.person(72, {arms:"up"})},
+  picnic1: {alt:"A family has a picnic in the park on a sunny day: a mother, a girl and a boy sit by a red blanket with a picnic basket.",
+    draw: () => G.sky() + G.sun() + G.ground() + G.tree(22) + G.blanket(118, 84) + G.basket(140) + G.person(70, {adult:true, girl:true, shirt:"pink"}) + G.person(108, {girl:true, shirt:"yellow", hair:"blond"}) + G.person(170, {shirt:"blue"})},
+  picnic2: {alt:"Suddenly dark clouds come and it starts to rain. The family is surprised and runs with the blanket and the basket.",
+    draw: () => G.sky("storm") + G.cloud(50, 20, "grey") + G.cloud(140, 18, "grey") + G.rain() + G.ground() + G.tree(22) + G.person(64, {adult:true, girl:true, shirt:"pink", arms:"up", face:"wow"}) + G.person(108, {girl:true, shirt:"yellow", hair:"blond", arms:"up", face:"wow", wet:true}) + G.person(150, {shirt:"blue", arms:"up", face:"wow", wet:true}) + G.basket(174)},
+  picnic3: {alt:"The family has the picnic inside the house on the floor. It is still raining outside the window. Everyone is happy.",
+    draw: () => G.room() + G.window(140, 18, true) + G.blanket(100, 90, 112) + G.basket(104, 116) + G.person(52, {adult:true, girl:true, shirt:"pink"}) + G.person(92, {girl:true, shirt:"yellow", hair:"blond", arms:"up"}) + G.person(140, {shirt:"blue", arms:"up"})},
+  cake1: {alt:"A girl in a purple dress carries a big birthday cake into the garden. There is a table next to the house.",
+    draw: () => G.sky() + G.sun() + G.ground() + G.house(0) + G.table(150) + G.person(94, {girl:true, shirt:"purple", arms:"hold"}) + G.cake(94, 80)},
+  cake2: {alt:"The cake is on the table. The girl's phone rings and she goes inside to talk. A dog jumps onto the table and eats the cake.",
+    draw: () => G.sky() + G.ground() + G.house(0) + G.person(76, {girl:true, shirt:"purple", arms:"phone"}) + G.table(150) + G.cake(166) + G.dog(140, {y:70, s:.9})},
+  cake3: {alt:"Her family arrives: there is only an empty plate on the table. Everyone laughs, and they decide to go to a café for ice cream.",
+    draw: () => G.sky() + G.sun() + G.ground() + G.house(0) + G.table(170) + G.plate(170) + G.person(74, {adult:true, shirt:"green"}) + G.person(102, {adult:true, girl:true, shirt:"pink", arms:"up"}) + G.person(128, {girl:true, shirt:"purple", arms:"up"})},
+  bus1: {alt:"A boy in a green T-shirt is waiting at a bus stop. It is raining and he has no umbrella.",
+    draw: () => G.sky("storm") + G.cloud(50, 20, "grey") + G.rain() + G.ground("road") + G.stop(150) + G.person(124, {shirt:"green", face:"sad", wet:true})},
+  bus2: {alt:"The yellow bus drives past him very fast without stopping and splashes water from a puddle. He is wet and unhappy.",
+    draw: () => G.sky("storm") + G.rain() + G.ground("road") + G.stop(24) + G.person(50, {shirt:"green", face:"wow", wet:true}) + G.puddle(82) + G.splash(82, 112) + G.bus(110) + G.speed(108, 62)},
+  bus3: {alt:"His neighbour, a woman in a pink dress, stops her red car and gives him a lift. He is happy and gets to school on time.",
+    draw: () => G.sky() + G.cloud(150, 22) + G.ground("road") + G.car(92) + G.person(68, {adult:true, girl:true, shirt:"pink", arms:"right"}) + G.person(176, {shirt:"green", arms:"up"})},
+};
+function renderPics(ids){
+  if (!ids?.length) return "";
+  return `<div class="pics${ids.length === 1 ? " one" : ""}">${ids.map((id, i) => `<figure class="pic">${ids.length > 1 ? `<figcaption>${i+1}</figcaption>` : ""}<svg viewBox="0 0 200 140" role="img" aria-label="${esc(SCENES[id].alt)}">${SCENES[id].draw()}</svg></figure>`).join("")}</div>`;
+}
+
+const CRIT = [
+  {k:"content",zh:"內容",en:"Content",ds:"是否回應題目所有要點，讀者能完全掌握資訊"},
+  {k:"communicative",zh:"溝通成效",en:"Communicative Achievement",ds:"文體格式與語氣是否恰當，能吸引並說服讀者"},
+  {k:"organisation",zh:"組織結構",en:"Organisation",ds:"段落安排、連接詞與指代是否讓文章連貫"},
+  {k:"language",zh:"語言運用",en:"Language",ds:"字彙與文法的廣度與準確度"},
+];
+
+const BONUS = {
+  PA1:["big","small","happy","red","blue","and","there is","there are","I like","in","on","under"],
+  A1:["because","and then","next to","behind","funny","hungry","wet","quickly","tired","favourite","there are","has got"],
+  FLY:["suddenly","after that","finally","because","so","when","excited","worried","the next day","laughed","decided to","was raining"],
+  A2:["because","but","then","after that","finally","beautiful","exciting","delicious","favourite","together","tomorrow","really"],
+  B1:["however","although","in my opinion","for example","I'd rather","amazing","prefer","suggest","as soon as","unfortunately","definitely","instead"],
+  B2:["nevertheless","furthermore","on the whole","whereas","significant","beneficial","a wide range of","tend to","in addition","as a result","drawback","it is worth"],
+  C1:["arguably","consequently","notwithstanding","to a large extent","detrimental","foster","outweigh","in light of","compelling","inevitably","mitigate","by no means"],
+  C2:["albeit","hitherto","insofar as","paradoxically","untenable","nuanced","exacerbate","underpin","ostensibly","by the same token","ubiquitous","conversely"],
+};
+const TITLES = [[13,"Proficiency 大師"],[10,"Advanced 作家"],[7,"First 寫手"],[5,"Preliminary 好手"],[3,"Key 闖關者"],[1,"見習考生"]];
+const BADGES = [
+  {id:"first", mark:"1st", name:"第一篇", desc:"儲存第一篇作品", test:A => A.length >= 1},
+  {id:"five", mark:"×5", name:"漸入佳境", desc:"完成 5 篇作品", test:A => A.length >= 5},
+  {id:"twenty", mark:"×20", name:"寫作常客", desc:"完成 20 篇作品", test:A => A.length >= 20},
+  {id:"k1", mark:"1K", name:"千字作家", desc:"累計寫滿 1,000 字", test:(A,s) => s.words >= 1000},
+  {id:"k10", mark:"10K", name:"萬字作家", desc:"累計寫滿 10,000 字", test:(A,s) => s.words >= 10000},
+  {id:"s3", mark:"3d", name:"三日不斷", desc:"連續 3 天練習", test:(A,s) => s.best >= 3},
+  {id:"s7", mark:"7d", name:"一週全勤", desc:"連續 7 天練習", test:(A,s) => s.best >= 7},
+  {id:"pass", mark:"12+", name:"達標", desc:"單篇 AI 評分 12 分以上", test:A => A.some(a => a.total >= 12)},
+  {id:"ace", mark:"17+", name:"考官點頭", desc:"單篇 AI 評分 17 分以上", test:A => A.some(a => a.total >= 17)},
+  {id:"even", mark:"3333", name:"四項均衡", desc:"四項評分都在 3 分以上", test:A => A.some(a => a.scores && CRIT.every(c => a.scores[c.k] >= 3))},
+  {id:"ontime", mark:"TIME", name:"準時交卷", desc:"在建議時間內寫完並達到字數", test:A => A.some(a => a.onTime)},
+  {id:"hunter", mark:"4/4", name:"單字獵人", desc:"一篇用上全部 4 個加分單字", test:A => A.some(a => a.bonusUsed >= 4)},
+  {id:"daily", mark:"DAY", name:"接受挑戰", desc:"完成一次今日挑戰", test:A => A.some(a => a.daily)},
+  {id:"genres", mark:"5×", name:"百變文體", desc:"寫過 5 種不同文體", test:A => new Set(A.map(a => a.type)).size >= 5},
+  {id:"high", mark:"C", name:"挑戰高階", desc:"嘗試 C1 或 C2 的題目", test:A => A.some(a => a.level === "C1" || a.level === "C2")},
+  {id:"clean", mark:"0", name:"零紅字", desc:"AI 批改沒有找到任何錯誤", test:A => A.some(a => a.feedback && !(a.feedback.corrections || []).length && a.words >= a.min)},
+];
+const FLAME = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.6 2.2c.7 3.3 3.6 5.3 4.9 8.2 1.6 3.6-.3 8.7-5.3 9.4-4.4.6-7.6-2.6-7.4-6.5.1-2.4 1.4-4 2.8-5.3.1 1.6.8 2.9 2 3.4-.3-3.6 1.3-6.6 3-9.2z"/></svg>';
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const countWords = t => (t.match(/[A-Za-z0-9À-ɏ]+(?:['’\-][A-Za-z0-9À-ɏ]+)*/g) || []).length;
+const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\*(.+?)\*/g,"<em>$1</em>");
+const inlineTask = s => inline(s).replace(/\[(.+?)\]/g,'<span class="note">$1</span>');
+const fmtTime = s => { const a = Math.abs(s); return (s < 0 ? "+" : "") + String(Math.floor(a/60)).padStart(2,"0") + ":" + String(a%60).padStart(2,"0"); };
+const fmtDate = ms => { const d = new Date(ms); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
+const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const toastQ = []; let toastBusy = false;
+function toast(msg, kind = ""){ toastQ.push([msg, kind]); if (toastQ.length > 6) toastQ.shift(); if (!toastBusy) nextToast(); }
+function nextToast(){
+  const t = $("#toast"), it = toastQ.shift();
+  if (!it) { t.hidden = true; toastBusy = false; return; }
+  toastBusy = true; t.textContent = it[0]; t.className = "toast " + it[1]; t.hidden = false;
+  setTimeout(nextToast, toastQ.length > 2 ? 1500 : 2300);
+}
+function confetti(n = 140){
+  if (reduced()) return;
+  const c = document.createElement("canvas"); c.className = "confetti"; document.body.appendChild(c);
+  const dpr = devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+  c.width = W * dpr; c.height = H * dpr;
+  const x = c.getContext("2d"); x.scale(dpr, dpr);
+  const cs = getComputedStyle(document.documentElement);
+  const cols = ["--accent","--pen","--hi","--ok","--gold"].map(v => cs.getPropertyValue(v).trim());
+  const P = Array.from({length:n}, () => ({x:W/2 + (Math.random()-.5)*W*.3, y:H*.4, vx:(Math.random()-.5)*14, vy:-Math.random()*13-5, r:Math.random()*6+5, a:Math.random()*6, va:(Math.random()-.5)*.35, c:cols[Math.floor(Math.random()*cols.length)]}));
+  const t0 = performance.now(); let last = t0;
+  (function frame(t){
+    const dt = Math.min(32, t - last) / 16; last = t;
+    x.clearRect(0, 0, W, H);
+    for (const p of P) { p.vy += .38*dt; p.vx *= .99; p.x += p.vx*dt; p.y += p.vy*dt; p.a += p.va*dt; x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.c; x.fillRect(-p.r/2, -p.r/4, p.r, p.r/2); x.restore(); }
+    if (t - t0 < 2400) requestAnimationFrame(frame); else c.remove();
+  })(t0);
+}
+function armed(btn, label, fn){
+  if (btn.dataset.armed) { delete btn.dataset.armed; btn.classList.remove("armed"); btn.textContent = btn.dataset.label; fn(); return; }
+  btn.dataset.label = btn.textContent; btn.dataset.armed = "1"; btn.classList.add("armed"); btn.textContent = label;
+  setTimeout(() => { if (btn.dataset.armed) { delete btn.dataset.armed; btn.classList.remove("armed"); btn.textContent = btn.dataset.label; } }, 3500);
+}
+
+function renderPrompt(src){
+  let html = "", mode = null, buf = [];
+  const flush = () => {
+    if (!buf.length) return;
+    if (mode === "q") html += `<div class="quote">${buf.map(l => l ? `<div>${inlineTask(l)}</div>` : '<div class="gap"></div>').join("")}</div>`;
+    else if (mode === "li") html += `<ul>${buf.map(l => `<li>${inlineTask(l)}</li>`).join("")}</ul>`;
+    else html += `<p>${buf.map(inlineTask).join("<br>")}</p>`;
+    buf = [];
+  };
+  for (const raw of src.split("\n")) {
+    let m, l = raw;
+    if (l.startsWith(">")) { m = "q"; l = l.replace(/^> ?/, ""); }
+    else if (l.startsWith("- ")) { m = "li"; l = l.slice(2); }
+    else if (!l.trim()) { flush(); mode = null; continue; }
+    else m = "p";
+    if (m !== mode) { flush(); mode = m; }
+    buf.push(l);
+  }
+  flush();
+  return html;
+}
+function md(src){
+  let html = "", list = null;
+  const close = () => { if (list) { html += `</${list}>`; list = null; } };
+  for (const raw of String(src).split("\n")) {
+    const l = raw.trim();
+    let m;
+    if (!l) { close(); continue; }
+    if (/^-{3,}$/.test(l)) { close(); html += "<hr>"; continue; }
+    if ((m = l.match(/^#{1,6}\s+(.*)$/))) { close(); html += `<h4>${inline(m[1])}</h4>`; continue; }
+    if ((m = l.match(/^[-*•]\s+(.*)$/))) { if (list !== "ul") { close(); html += "<ul>"; list = "ul"; } html += `<li>${inline(m[1])}</li>`; continue; }
+    if ((m = l.match(/^\d+[.)]\s+(.*)$/))) { if (list !== "ol") { close(); html += "<ol>"; list = "ol"; } html += `<li>${inline(m[1])}</li>`; continue; }
+    close(); html += `<p>${inline(l)}</p>`;
+  }
+  close();
+  return html;
+}
+
+/* ---------- state ---------- */
+const blankScores = () => ({content:null, communicative:null, organisation:null, language:null});
+const state = { level:"B2", taskId:"b2-1a", guideTab:"structure", attemptId:null, createdAt:null, scores:blankScores(), scoredBy:null, feedback:null, dirty:false, savedAt:null, bonus:[], justScored:false };
+let lastWords = null, litPrev = null, prevLv = null, badgesChecked = false;
+let kid = store.get("cw.kid", false);
+const KID_NOTE = "The learner is a child. Write every explanation in short, simple, warm Traditional Chinese that a 10-year-old can understand. Praise effort first, avoid grammar jargon (explain with a tiny example instead), and keep English suggestions simple.";
+const timer = { spent:0, running:false, h:null };
+let custom = store.get("cw.custom", {prompt:"", type:"essay", min:140, max:190});
+let attempts = [], col = null, dbState = "pending", ai = null, aiState = "pending";
+const $ans = $("#answer");
+
+function currentTask(){
+  if (state.taskId === "custom") {
+    const d = LEVEL_DEFAULTS[state.level];
+    return {id:"custom", level:state.level, part:"自訂", type:custom.type, title:"自訂題目", min:+custom.min || d.min, max:+custom.max || d.max, minutes:d.minutes, prompt:custom.prompt, custom:true};
+  }
+  return TASKS.find(t => t.id === state.taskId) || TASKS[0];
+}
+const levelOf = k => LEVELS.find(l => l.k === k);
+function targetLabel(t){ return t.open ? `${t.min} 字以上` : t.about ? `約 ${t.about} 字` : `${t.min}–${t.max} 字`; }
+function totalScore(sc = state.scores){ const v = CRIT.map(c => sc?.[c.k]); return v.every(x => typeof x === "number") ? v.reduce((a,b) => a+b, 0) : null; }
+function band(total){
+  if (total == null) return null;
+  if (total >= 17) return ["高於本級水準","ok"];
+  if (total >= 12) return ["達到本級水準","ok"];
+  if (total >= 8) return ["接近本級，仍需加強","warn"];
+  return ["低於本級水準","bad"];
+}
+
+/* ---------- local working copy per task ---------- */
+const workKey = id => "cw.work." + id;
+function persistWork(){
+  store.set(workKey(state.taskId), {text:$ans.value, spent:timer.spent, attemptId:state.attemptId, createdAt:state.createdAt, scores:state.scores, scoredBy:state.scoredBy, feedback:state.feedback, dirty:state.dirty, bonus:state.bonus});
+  store.set("cw.last", {level:state.level, taskId:state.taskId});
+  store.set("cw.lastTask." + state.level, state.taskId);
+}
+function loadWork(id){
+  const w = store.get(workKey(id), null) || {};
+  $ans.value = w.text || "";
+  timer.spent = w.spent || 0;
+  state.attemptId = w.attemptId || null;
+  state.createdAt = w.createdAt || null;
+  state.scores = Object.assign(blankScores(), w.scores || {});
+  state.scoredBy = w.scoredBy || null;
+  state.feedback = w.feedback || null;
+  state.dirty = !!w.dirty;
+  state.savedAt = null;
+  state.bonus = Array.isArray(w.bonus) && w.bonus.length && w.bonus.every(b => BONUS[state.level].includes(b)) ? w.bonus : pickBonus(state.level);
+  lastWords = countWords($ans.value); litPrev = null;
+}
+let persistT;
+const persistSoon = () => { clearTimeout(persistT); persistT = setTimeout(persistWork, 400); };
+
+/* ---------- rendering: levels and tasks ---------- */
+function renderLevels(){
+  const groups = [["Young Learners · 兒童", LEVELS.filter(l => l.yle)], ["Main Suite", LEVELS.filter(l => !l.yle)]];
+  $("#levels").innerHTML = groups.map(([g, ls]) => `<div class="lvgroup"><span class="eyebrow">${g}</span><div class="lvrow" style="--n:${ls.length}">${ls.map(l => `<button class="lv" data-lv="${l.k}" aria-pressed="${l.k === state.level}"><b>${l.cefr}</b><span>${l.short}</span></button>`).join("")}</div></div>`).join("");
+  $("#lvinfo").textContent = levelOf(state.level).exam + "　" + levelOf(state.level).info;
+}
+function renderTaskList(){
+  const list = TASKS.filter(t => t.level === state.level);
+  const done = new Set(attempts.filter(a => a.level === state.level).map(a => a.taskId));
+  const parts = [...new Set(list.map(t => t.part))];
+  $("#taskCount").textContent = `${list.length} 題`;
+  $("#tasklist").innerHTML = parts.map(p => {
+    const ts = list.filter(t => t.part === p);
+    const comp = ts[0].compulsory ? "必答" : "選答";
+    return `<div class="tgroup"><span class="eyebrow">${p} · ${comp}</span><div class="tlist">${ts.map(t =>
+      `<button class="tbtn" data-task="${t.id}" aria-pressed="${t.id === state.taskId}">${done.has(t.id) ? '<i class="done" title="已有紀錄"></i>' : ""}${esc(t.title)}<small>${TYPES[t.type].zh}</small></button>`).join("")}</div></div>`;
+  }).join("") + `<div class="tgroup"><span class="eyebrow">自己出題</span><div class="tlist"><button class="tbtn" data-task="custom" aria-pressed="${state.taskId === "custom"}">自訂題目<small>貼上任何題目</small></button></div></div>`;
+}
+function renderPaper(){
+  const t = currentTask(), ty = TYPES[t.type];
+  const head = `<div class="paper-h"><span class="qno"><b>${t.part}</b> · ${ty.en}${t.compulsory ? '<span class="compulsory">必答</span>' : ""}</span><span class="qmeta"><span>${targetLabel(t)}</span><span>建議 ${t.minutes} 分鐘</span></span></div>`;
+  if (t.custom) {
+    $("#paper").innerHTML = head + `<div class="paper-b"><h3>自訂題目</h3><div class="custom-form">
+      <label>題目內容（可貼上考古題或老師出的題目）<textarea id="cPrompt" placeholder="例如：Some people think that … Write an essay giving your opinion.">${esc(custom.prompt)}</textarea></label>
+      <div class="row3">
+        <label>文體<select id="cType">${Object.entries(TYPES).map(([k,v]) => `<option value="${k}"${k === custom.type ? " selected" : ""}>${v.zh}（${v.en}）</option>`).join("")}</select></label>
+        <label>最少字數<input id="cMin" type="number" min="10" max="600" value="${esc(custom.min)}"></label>
+        <label>最多字數<input id="cMax" type="number" min="10" max="800" value="${esc(custom.max)}"></label>
+      </div></div></div>`;
+    return;
+  }
+  const body = renderPrompt(t.prompt).replace("<p>@pics</p>", renderPics(t.pics));
+  $("#paper").innerHTML = head + `<div class="paper-b"><h3>${esc(t.title)}</h3>${t.hint ? `<p class="zh">${esc(t.hint)}</p>` : ""}${body}</div>`;
+}
+function renderGuide(){
+  const t = currentTask(), g = GUIDES[t.type];
+  $("#guideTitle").textContent = `寫作指引 · ${TYPES[t.type].zh}`;
+  document.querySelectorAll(".gtabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.g === state.guideTab));
+  let h = "";
+  if (state.guideTab === "structure") h = `<ol class="struct">${g.structure.map(([a,b]) => `<li><div><b>${esc(a)}</b><span>${esc(b)}</span></div></li>`).join("")}</ol>`;
+  else if (state.guideTab === "phrases") h = `<div class="phr">${g.phrases.map(([name, items]) => `<h4>${esc(name)}</h4><div class="chips">${items.map(p => `<button class="chip" data-phrase="${esc(p)}">${esc(p)}</button>`).join("")}</div>`).join("")}</div><p class="hint">點一下句型即可插入到答案卷游標位置。</p>`;
+  else h = `<ul class="check">${g.check.map((c,i) => `<li><label><input type="checkbox" id="chk-${i}"> <span>${esc(c)}</span></label></li>`).join("")}</ul>`;
+  $("#guideBody").innerHTML = h;
+}
+
+/* ---------- answer sheet ---------- */
+function renderMeter(){
+  const t = currentTask(), n = countWords($ans.value);
+  $("#wcN").textContent = n;
+  $("#wcTarget").textContent = "目標 " + targetLabel(t);
+  const scaleMax = t.max * 1.15;
+  const fill = $("#meterFill");
+  fill.style.width = Math.min(100, n / scaleMax * 100) + "%";
+  fill.className = n < t.min ? "" : (n > t.max && !t.open) ? "over" : "ok";
+  $("#meterMin").style.left = (t.min / scaleMax * 100) + "%";
+  renderBonus();
+}
+function renderTimer(){
+  const t = currentTask(), left = t.minutes * 60 - timer.spent;
+  const c = $("#clock"); c.textContent = fmtTime(left); c.classList.toggle("over", left < 0);
+  c.title = left < 0 ? "已超過建議時間" : "剩餘時間";
+  $("#tStart").textContent = timer.running ? "暫停" : timer.spent ? "繼續" : "開始";
+}
+function timerStart(){ if (timer.running) return; timer.running = true; timer.h = setInterval(() => { timer.spent++; renderTimer(); if (timer.spent % 10 === 0) persistSoon(); }, 1000); renderTimer(); }
+function timerPause(){ timer.running = false; clearInterval(timer.h); renderTimer(); }
+function renderSaveStatus(){
+  const s = $("#saveStatus");
+  if (dbState === "off") { s.textContent = "草稿保存在此瀏覽器"; s.className = "status"; }
+  else if (state.dirty) { s.textContent = "有未儲存的變更"; s.className = "status dirty"; }
+  else if (state.savedAt) { s.textContent = "已儲存 " + fmtDate(state.savedAt).split(" ")[1]; s.className = "status"; }
+  else if (state.attemptId) { s.textContent = "已在紀錄中"; s.className = "status"; }
+  else { s.textContent = ""; s.className = "status"; }
+  $("#btnSave").disabled = dbState !== "ready";
+  $("#btnSave").title = dbState === "off" ? "需要登入 claude.ai 才能儲存到紀錄" : "";
+}
+function insertAtCursor(text){
+  const el = $ans, s = el.selectionStart ?? el.value.length, e = el.selectionEnd ?? s;
+  const before = el.value.slice(0, s), after = el.value.slice(e);
+  const pad = before && !/\s$/.test(before) ? " " : "";
+  const ins = pad + text.replace(/…/g, "").replace(/\s+([,.?])/g, "$1").trimEnd() + (/[,.:?!]$/.test(text) ? " " : " ");
+  el.value = before + ins + after;
+  const pos = (before + ins).length;
+  el.focus(); el.setSelectionRange(pos, pos);
+  onAnswerInput();
+}
+
+/* ---------- scoring ---------- */
+function renderScores(){
+  const fb = state.feedback;
+  $("#crit").innerHTML = CRIT.map(c => {
+    const v = state.scores[c.k];
+    const cm = fb?.criteria?.[c.k];
+    return `<div class="crow"><div class="nm"><b>${c.zh}</b><small>${c.en}</small></div>
+      <div class="pips" role="group" aria-label="${c.zh} 分數">${[0,1,2,3,4,5].map(n => `<button data-score="${c.k}" data-v="${n}" aria-pressed="${v === n}">${n}</button>`).join("")}</div>
+      ${cm ? `<div class="cm">${esc(cm)}</div>` : `<div class="ds">${c.ds}</div>`}</div>`;
+  }).join("");
+  const tot = totalScore(), b = band(tot);
+  const shields = Math.max(1, Math.round((tot ?? 0) / 4));
+  const st = tot != null && state.feedback && String(state.scoredBy).startsWith("ai")
+    ? (levelOf(currentTask().level).yle ? [`${shields} SHIELD${shields > 1 ? "S" : ""}`, `練習評分 · ${shields} 個盾牌`] : stampFor(tot)) : null;
+  const fresh = state.justScored; state.justScored = false;
+  $("#total").innerHTML = `<span class="big">${tot ?? "–"}<small> / 20</small></span>${b ? `<span class="pill ${b[1]}">${b[0]}</span>` : `<span class="status">每項 0–5 分。3 分約為該級水準，5 分為該級的優秀表現。</span>`}${st ? `<span class="stamp${tot >= 12 ? " good" : ""}${fresh ? " fresh" : ""}"><b>${st[0]}</b><small>${st[1]}</small></span>` : ""}`;
+  if (fresh && tot > 0 && !reduced()) {
+    const node = $("#total .big").firstChild; let n = 0;
+    const step = () => { node.nodeValue = String(n); if (n++ < tot) setTimeout(step, 700 / tot); };
+    step();
+  }
+  $("#scoredBy").innerHTML = state.scoredBy === "ai" ? '<span class="pill neutral">AI 評分</span>' : state.scoredBy === "self" ? '<span class="pill neutral">自評</span>' : state.scoredBy === "ai+self" ? '<span class="pill neutral">AI 評分（已調整）</span>' : "";
+  const top = $("#fbTop");
+  if (fbRun.running) top.innerHTML = `<div class="thinking"><span class="dot"></span><span>考官批改中，通常需要 20–60 秒……</span><button class="ibtn" id="fbStop">停止</button></div><div style="height:12px"></div>`;
+  else if (fbRun.error) top.innerHTML = `<p class="err-msg">${esc(fbRun.error)}</p>`;
+  else if (fb?.summary) top.innerHTML = `<p class="summary" style="margin:0 0 14px">${esc(fb.summary)}</p>`;
+  else top.innerHTML = aiState === "off" ? `<p class="status" style="margin:0 0 12px">此檢視無法使用 AI 批改。你可以對照下方標準自我評分。</p>`
+    : STANDALONE && !apiConf().key ? `<p class="status" style="margin:0 0 12px">要使用 AI 批改，請先 <button class="ibtn" data-open-api>設定 API 金鑰</button>。也可以自己點分數自評。</p>` : `<p class="status" style="margin:0 0 12px">寫完後按「AI 批改」，Claude 會依劍橋寫作的四項標準評分並用紅筆標出錯誤。也可以自己點分數自評。</p>`;
+}
+function findPos(text, frag){
+  frag = String(frag || "").trim(); if (frag.length < 2) return null;
+  let s = text.indexOf(frag);
+  if (s < 0) s = text.toLowerCase().indexOf(frag.toLowerCase());
+  return s < 0 ? null : {s, e: s + frag.length};
+}
+function renderFeedback(){
+  const fb = state.feedback, panel = $("#fbPanel");
+  if (!fb) { panel.hidden = true; return; }
+  panel.hidden = false;
+  $("#fbWhen").textContent = fb.at ? "批改於 " + fmtDate(fb.at) : "";
+  const text = fb.answered || "";
+  const marks = [];
+  (fb.corrections || []).forEach((c, i) => { const p = findPos(text, c.original); if (p) marks.push({...p, kind:"err", label:String(i+1), ref:`e${i}`}); });
+  (fb.upgrades || []).forEach((u, i) => { const p = findPos(text, u.original); if (p) marks.push({...p, kind:"up", label:String.fromCharCode(65+i), ref:`u${i}`}); });
+  marks.sort((a,b) => a.s - b.s);
+  let marked = "", pos = 0;
+  for (const m of marks) { if (m.s < pos) continue; marked += esc(text.slice(pos, m.s)) + `<mark class="${m.kind}" data-ref="${m.ref}">${esc(text.slice(m.s, m.e))}<sup>${m.label}</sup></mark>`; pos = m.e; }
+  marked += esc(text.slice(pos));
+  const changed = text.trim() !== $ans.value.trim();
+  let h = "";
+  if (fb.strengths?.length) h += `<div><h3>做得好的地方</h3><ul class="blist">${fb.strengths.map(s => `<li>${esc(s)}</li>`).join("")}</ul></div>`;
+  h += `<div><h3>批改稿${changed ? "（批改時的版本，之後你已修改過）" : ""}</h3><div class="marked">${marked}</div></div>`;
+  if (fb.corrections?.length) h += `<div><h3>需要修正 · ${fb.corrections.length}</h3><ol class="fixes e">${fb.corrections.map((c,i) => `<li id="fx-e${i}"><span class="n">${i+1}</span><div><div class="ln"><del>${esc(c.original)}</del> → <ins>${esc(c.corrected)}</ins>${c.type ? `<span class="tag">${esc(c.type)}</span>` : ""}</div>${c.note ? `<div class="why">${esc(c.note)}</div>` : ""}</div></li>`).join("")}</ol></div>`;
+  else h += `<div><h3>需要修正</h3><p class="status" style="margin:0">沒有找到明顯錯誤。</p></div>`;
+  if (fb.upgrades?.length) h += `<div><h3>升級表達 · 讓文章更上一級</h3><ol class="fixes u">${fb.upgrades.map((u,i) => `<li id="fx-u${i}"><span class="n">${String.fromCharCode(65+i)}</span><div><div class="ln">${esc(u.original)} → <ins>${esc(u.better)}</ins></div>${u.note ? `<div class="why">${esc(u.note)}</div>` : ""}</div></li>`).join("")}</ol></div>`;
+  if (fb.next_steps?.length) h += `<div><h3>下一步練習</h3><ul class="blist">${fb.next_steps.map(s => `<li>${esc(s)}</li>`).join("")}</ul></div>`;
+  $("#fbBody").innerHTML = h;
+}
+
+/* ---------- Claude: feedback, hints, model answer ---------- */
+const fbRun = { running:false, ctl:null, error:"" };
+const asRun = { kind:null, ctl:null };
+const AI_ERR = {
+  not_granted:"你沒有允許此頁面使用 Claude，AI 功能已停用。", sampling_disabled:"此帳號無法使用 Claude。", not_declared:"此頁面無法使用 Claude。",
+  capability_disabled:"此檢視無法使用 Claude。", capability_removed:"此檢視無法使用 Claude。",
+  rate_limited:"使用量暫時達到上限，請稍後再試。", session_expired:"登入已過期，請重新登入 claude.ai。",
+  refused:"Claude 無法處理這段內容，請修改後再試。", invalid_json:"批改結果格式不完整，請再按一次「AI 批改」。",
+  empty_completion:"沒有收到回覆，請再試一次。", prompt_too_large:"文章太長，請縮短後再試。",
+  no_key:"請先在「AI 設定」輸入 Anthropic API 金鑰。", bad_key:"API 金鑰無效或已停用，請到「AI 設定」檢查。",
+  no_credit:"API 帳戶的額度不足，請到 console.anthropic.com 儲值後再試。", network:"連不上 Anthropic，請檢查網路後再試一次。",
+};
+const aiMsg = e => AI_ERR[e?.code] || "連線中斷，請再試一次。";
+const isFatal = e => ["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e?.code);
+function aiOff(){ aiState = "off"; ["#btnFeedback","#btnHint","#btnModel"].forEach(s => { $(s).disabled = true; $(s).title = "此檢視無法使用 Claude"; }); renderScores(); }
+
+function taskBrief(t){
+  const lv = levelOf(t.level);
+  const pics = (t.pics || []).map((id, i) => `Picture ${i+1}: ${SCENES[id].alt}`).join("\n");
+  return `EXAM: Cambridge ${lv.exam} (CEFR ${lv.cefr})${lv.yle ? " (Young Learners, for children)" : ""}, ${t.part}\nTASK TYPE: ${TYPES[t.type].en}${t.type === "essay2" ? " (summary and evaluation of two texts)" : ""}\nWORD RANGE: ${t.open ? t.min + " words or more" : t.about ? "about " + t.about + " words" : t.min + "-" + t.max + " words"}\nTASK:\n${t.prompt.replace(/\*\*/g, "").replace(/^@pics$/m, "[pictures]")}${pics ? `\nPICTURES (the candidate sees these drawings, described here):\n${pics}` : ""}${t.key ? `\nEXPECTED ANSWERS: ${t.key}` : ""}`;
+}
+async function runFeedback(){
+  const text = $ans.value.trim(), t = currentTask();
+  if (t.custom && !custom.prompt.trim()) { toast("請先輸入自訂題目的內容"); return; }
+  if (countWords(text) < (levelOf(t.level).yle ? 3 : 15)) { toast("多寫一點再請 Claude 批改"); return; }
+  if (needKey()) return;
+  if (!ai) { if (aiState === "off") return; toast("正在連線 Claude，請稍候再按一次"); return; }
+  const yle = !!levelOf(t.level).yle, kidish = kid || yle;
+  fbRun.running = true; fbRun.error = ""; fbRun.ctl = new AbortController();
+  $("#btnFeedback").disabled = true; renderScores();
+  const prompt = `You are an experienced Cambridge English writing examiner. Assess the candidate's answer using the official Cambridge English Writing Assessment Scale for this exam. Mark each of the four subscales from 0 to 5: Content, Communicative Achievement, Organisation, Language. Band 3 means adequate performance at this exam's level; band 5 means strong performance at this level. Be calibrated and honest: do not inflate marks. If the answer is off-task, misses required points, or is far outside the word range, reflect that in Content.
+${yle ? "\nThis is a Cambridge Young Learners task for a child. One- or two-word answers are correct where the task asks for them. Read the four subscales simply: Content = every question answered correctly and the pictures described; Communicative Achievement = a reader understands easily; Organisation = answers or sentences are clear and in order, and a story has a beginning, middle and end; Language = spelling, capital letters, full stops and simple grammar. In corrections, point out wrong answers as well as language errors.\n" : ""}
+The learner is a Traditional Chinese speaker in Taiwan. Write all explanations in Traditional Chinese (繁體中文); keep quoted English exactly as English.${kidish ? " " + KID_NOTE + " Keep the marks honest." : ""}
+
+${taskBrief(t)}
+
+CANDIDATE ANSWER (${countWords(text)} words):
+"""
+${text}
+"""
+
+Reply with ONLY one JSON object of this exact shape:
+{"scores":{"content":0,"communicative":0,"organisation":0,"language":0},
+"summary":"2-3 sentence overall comment",
+"criteria":{"content":"1-2 sentences","communicative":"1-2 sentences","organisation":"1-2 sentences","language":"1-2 sentences"},
+"strengths":["up to 3 short points"],
+"corrections":[{"original":"an exact excerpt copied character-for-character from the answer, 2-10 words, containing the error","corrected":"the corrected version of that excerpt","type":"grammar|vocabulary|spelling|punctuation|register|cohesion","note":"short explanation"}],
+"upgrades":[{"original":"an exact excerpt copied from the answer","better":"a more natural or more advanced phrasing suited to a higher band","note":"why it is better"}],
+"next_steps":["3 concrete things to practise next"]}
+Include up to ${kidish ? 6 : 12} corrections (real errors only, most important first) and up to ${kidish ? 3 : 5} upgrades.`;
+  try {
+    const r = await ai.json(prompt, { signal: fbRun.ctl.signal, modelTier: "default" });
+    if (!r || typeof r !== "object" || !r.scores) throw {code:"invalid_json"};
+    const clamp = v => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : null; };
+    const arr = v => Array.isArray(v) ? v : [];
+    const str = v => typeof v === "string" ? v : "";
+    state.feedback = {
+      at: Date.now(), answered: text, summary: str(r.summary),
+      criteria: Object.fromEntries(CRIT.map(c => [c.k, str(r.criteria?.[c.k])])),
+      strengths: arr(r.strengths).map(String).slice(0, 3),
+      corrections: arr(r.corrections).filter(c => c && c.original).slice(0, 12).map(c => ({original:str(c.original), corrected:str(c.corrected), type:str(c.type), note:str(c.note)})),
+      upgrades: arr(r.upgrades).filter(u => u && u.original).slice(0, 5).map(u => ({original:str(u.original), better:str(u.better), note:str(u.note)})),
+      next_steps: arr(r.next_steps).map(String).slice(0, 4),
+    };
+    state.scores = Object.fromEntries(CRIT.map(c => [c.k, clamp(r.scores[c.k])]));
+    state.scoredBy = "ai"; state.dirty = true; state.justScored = true;
+    fbRun.running = false; persistWork();
+    $("#scorePanel").scrollIntoView({behavior: reduced() ? "auto" : "smooth", block:"start"});
+    renderScores(); renderFeedback(); renderBonus();
+    if (totalScore() >= 12) setTimeout(() => confetti(), 450);
+    if (dbState === "ready") saveAttempt(true).then(r => { if (r) toast(`批改完成 · 本篇 +${r.xp} XP`, "gold"); });
+  } catch (e) {
+    fbRun.running = false;
+    fbRun.error = e?.code === "cancelled" ? "" : aiMsg(e);
+    if (isFatal(e)) aiOff();
+    renderScores();
+  } finally {
+    if (aiState !== "off") $("#btnFeedback").disabled = false;
+    renderSaveStatus();
+  }
+}
+async function runAssist(kind){
+  const t = currentTask();
+  if (t.custom && !custom.prompt.trim()) { toast("請先輸入自訂題目的內容"); return; }
+  if (needKey()) return;
+  if (!ai) { if (aiState === "off") return; toast("正在連線 Claude，請稍候再按一次"); return; }
+  asRun.ctl?.abort();
+  const ctl = asRun.ctl = new AbortController(); asRun.kind = kind;
+  const lv = levelOf(t.level);
+  const prompt = kind === "hint"
+    ? `You are a Cambridge English writing tutor helping a Traditional Chinese speaker in Taiwan prepare for ${lv.exam}. Help them plan their answer to the task below WITHOUT writing the answer for them.${kid || lv.yle ? " " + KID_NOTE : ""}
+
+${taskBrief(t)}
+
+Write in Traditional Chinese (繁體中文), with English for example phrases. Use these sections, each starting with a "## " heading:
+## 審題重點 (what the task requires, every point that must be covered, the target reader and the right register)
+## 段落規劃 (a paragraph-by-paragraph plan, one bullet per paragraph, saying what to write; include 1-2 idea options where useful)
+## 實用表達 (8 useful phrases or collocations at ${lv.cefr} level that fit this task, each as "- English — 中文意思")
+## 常見錯誤 (3 mistakes candidates often make on this kind of task)
+Keep it concise. Use "- " bullets. No tables.`
+    : `Write a model answer to this Cambridge ${lv.exam} writing task.
+
+${taskBrief(t)}
+
+Requirements: write as a strong ${lv.cefr}${lv.yle ? " child" : ""} candidate would (band 5 at this level, natural and accurate, not beyond the level). Stay within the word range. Use the layout conventions of the task type (a title for an article or review, headings for a report or proposal, the correct greeting and sign-off for an email or letter). Output the answer as plain text paragraphs; do not use Markdown symbols in the answer itself.
+After the answer, write a line containing only "---", then a heading line "## 範文重點", then 3-4 "- " bullets in Traditional Chinese explaining the techniques used (structure, linking, vocabulary, register) that the learner can copy.`;
+  $("#assist").hidden = false;
+  $("#assistTitle").textContent = kind === "hint" ? "構思提示" : `AI 範文 · ${lv.exam}`;
+  $("#assistStop").hidden = false;
+  $("#assistBody").innerHTML = `<div class="thinking"><span class="dot"></span><span>Claude 思考中……</span></div>`;
+  $("#assist").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"nearest"});
+  try {
+    const r = await ai(prompt, { signal: ctl.signal, modelTier: "default", ...(STANDALONE ? {apiEffort: "low"} : {}), onText: ({text}) => { $("#assistBody").innerHTML = md(text); } });
+    $("#assistBody").innerHTML = md(r.text) + (r.truncated ? `<p class="status">回覆被截斷。</p>` : "");
+  } catch (e) {
+    if (e?.code === "cancelled") { if (asRun.ctl === ctl) $("#assistBody").innerHTML = e.text ? md(e.text) : `<p class="status">已停止。</p>`; }
+    else { $("#assistBody").innerHTML = (e?.text ? md(e.text) : "") + `<p class="err-msg">${esc(aiMsg(e))}</p>`; if (isFatal(e)) aiOff(); }
+  } finally {
+    if (asRun.ctl === ctl) $("#assistStop").hidden = true;
+  }
+}
+
+/* ---------- saving and history ---------- */
+let saveChain = Promise.resolve();
+function saveAttempt(silent){
+  if (dbState !== "ready") { toast("需要登入 claude.ai 才能儲存到紀錄"); return Promise.resolve(null); }
+  const text = $ans.value;
+  if (!text.trim()) { toast("先寫點內容再儲存"); return Promise.resolve(null); }
+  const t = currentTask(), now = Date.now(), g = attemptXP();
+  const ref = state.attemptId ? col.doc(state.attemptId) : col.doc();
+  const body = {
+    level:t.level, taskId:t.id, taskTitle:t.title, part:t.part, type:t.type, min:t.min, max:t.max,
+    text, words:countWords(text), spent:timer.spent, scores:state.scores, total:totalScore(), scoredBy:state.scoredBy || null,
+    feedback:state.feedback || null, createdAt:state.createdAt || now, updatedAt:now,
+    bonus:state.bonus, bonusUsed:g.used, daily:g.daily, onTime:g.onTime, xp:g.xp,
+  };
+  if (t.custom) body.customPrompt = custom.prompt;
+  state.attemptId = ref.id; state.createdAt = body.createdAt;
+  saveChain = saveChain.then(() => ref.set(body)).then(() => {
+    if ($ans.value === text) state.dirty = false;
+    state.savedAt = now; persistWork(); renderSaveStatus();
+    if (!silent) toast(`已儲存 · 本篇 +${g.xp} XP`, "gold");
+    return {xp: g.xp};
+  }).catch(e => {
+    toast(e?.code === "quota_exceeded" ? "紀錄空間已滿，請先刪除幾篇舊作品" : "儲存失敗，請再試一次");
+    return null;
+  });
+  renderSaveStatus();
+  return saveChain;
+}
+function openAttempt(a){
+  persistWork(); timerPause();
+  state.level = a.level;
+  if (a.taskId === "custom") { custom = {prompt:a.customPrompt || "", type:a.type, min:a.min, max:a.max}; store.set("cw.custom", custom); }
+  state.taskId = a.taskId === "custom" || TASKS.some(t => t.id === a.taskId) ? a.taskId : state.taskId;
+  $ans.value = a.text || ""; timer.spent = a.spent || 0;
+  state.attemptId = a.id; state.createdAt = a.createdAt; state.scores = Object.assign(blankScores(), a.scores || {});
+  state.scoredBy = a.scoredBy || null; state.feedback = a.feedback || null; state.dirty = false; state.savedAt = a.updatedAt;
+  state.bonus = Array.isArray(a.bonus) && a.bonus.length ? a.bonus : pickBonus(a.level); litPrev = null; lastWords = countWords($ans.value);
+  fbRun.error = ""; persistWork(); showTab("practice"); renderAll();
+  scrollTo({top:0});
+}
+function renderHistory(){
+  $("#histCount").textContent = attempts.length ? attempts.length : "";
+  const rows = $("#rows");
+  if (dbState === "off") {
+    $("#stats").innerHTML = ""; renderBadges(); $("#bars").innerHTML = `<p class="status" style="margin:0">登入 claude.ai 後才能保存紀錄。</p>`;
+    rows.innerHTML = `<li class="empty" style="display:block">紀錄功能在此檢視無法使用。你的草稿仍會保存在這個瀏覽器中。</li>`; $("#histN").textContent = ""; return;
+  }
+  if (dbState === "pending") { rows.innerHTML = `<li class="empty" style="display:block">載入紀錄中……</li>`; return; }
+  const words = attempts.reduce((s,a) => s + (a.words || 0), 0);
+  const scored = attempts.filter(a => typeof a.total === "number").slice(0, 10);
+  const avg = scored.length ? (scored.reduce((s,a) => s + a.total, 0) / scored.length) : null;
+  const p = playerLevel(totalXP()), sk = streak();
+  $("#stats").innerHTML = `<div class="stat"><b>Lv ${p.lv}</b><span>${title(p.lv)} · 共 ${totalXP()} XP</span></div><div class="stat"><b>${sk.n}<small style="font-size:14px;color:var(--muted)"> 天</small></b><span>連續練習 · 最長 ${sk.best} 天</span></div><div class="stat"><b>${attempts.length}</b><span>篇作品 · 共 ${words.toLocaleString()} 字</span></div><div class="stat"><b>${avg == null ? "–" : avg.toFixed(1)}<small style="font-size:14px;color:var(--muted)"> / 20</small></b><span>最近 10 篇平均分</span></div>`;
+  renderBadges();
+  if (!scored.length) $("#bars").innerHTML = `<p class="status" style="margin:0">還沒有評分過的作品。用「AI 批改」或自評後儲存，這裡會顯示你的強項與弱項。</p>`;
+  else {
+    const av = CRIT.map(c => ({c, v: scored.reduce((s,a) => s + (a.scores?.[c.k] || 0), 0) / scored.length}));
+    const min = Math.min(...av.map(x => x.v));
+    $("#bars").innerHTML = `<div class="bars">${av.map(({c,v}) => `<div class="bar"><span>${c.zh}</span><div class="track"><i class="${v === min && av.some(x => x.v !== min) ? "weak" : ""}" style="width:${v/5*100}%"></i><u title="3 分 = 本級水準"></u></div><span class="v">${v.toFixed(1)}</span></div>`).join("")}
+      <div class="axis"><span></span><div>${[0,1,2,3,4,5].map(n => `<span style="left:${n*20}%">${n}</span>`).join("")}</div><span></span></div></div>
+      ${av.some(x => x.v !== min) ? `<p class="hint">最需要加強：<b style="color:var(--pen)">${av.filter(x => x.v === min).map(x => x.c.zh).join("、")}</b>。直線標示 3 分（本級水準）。</p>` : ""}`;
+  }
+  $("#histN").textContent = attempts.length ? `${attempts.length} 篇` : "";
+  if (!attempts.length) { rows.innerHTML = `<li class="empty" style="display:block">還沒有紀錄。寫完一篇後按「儲存」或「AI 批改」，作品就會出現在這裡。</li>`; return; }
+  rows.innerHTML = attempts.map(a => {
+    const b = band(a.total);
+    return `<li><span class="lvtag">${esc(levelOf(a.level)?.short || a.level)}</span><div class="t"><b>${esc(a.taskTitle)}</b><small>${fmtDate(a.updatedAt)} · ${esc(a.part)} ${esc(TYPES[a.type]?.zh || "")} · ${a.words || 0} 字${a.spent ? " · " + Math.round(a.spent/60) + " 分鐘" : ""}</small></div>
+      <div class="acts">${typeof a.total === "number" ? `<span class="pill ${b[1]}">${a.total}/20</span>` : `<span class="pill neutral">未評分</span>`}<button class="ibtn" data-open="${esc(a.id)}">開啟</button><button class="ibtn" data-del="${esc(a.id)}">刪除</button></div></li>`;
+  }).join("");
+}
+
+/* ---------- game layer: bonus words, XP, streaks, badges ---------- */
+function pickBonus(level){
+  const bank = [...BONUS[level]];
+  for (let i = bank.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bank[i], bank[j]] = [bank[j], bank[i]]; }
+  return bank.slice(0, 4);
+}
+const bonusRe = w => new RegExp("\\b" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/'/g, "['\u2019]").replace(/\s+/g, "\\s+") + "\\b", "i");
+const bonusUsed = () => state.bonus.filter(w => bonusRe(w).test($ans.value));
+const dayKey = ms => { const d = new Date(ms); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; };
+const hashStr = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; };
+function dailyTask(level){ const list = TASKS.filter(t => t.level === level); return list[hashStr(dayKey(Date.now()) + level) % list.length]; }
+const dailyDone = level => { const t = dailyTask(level), today = dayKey(Date.now()); return attempts.some(a => a.taskId === t.id && a.daily && dayKey(a.updatedAt) === today); };
+function calcXP({words, max, total, used, daily, onTime}){
+  if (words < 10) return 0;
+  return Math.round(Math.min(words, max * 1.2) / 5) + (typeof total === "number" ? total * 4 : 0) + used * 10 + (daily ? 50 : 0) + (onTime ? 20 : 0);
+}
+function attemptXP(){
+  const t = currentTask(), words = countWords($ans.value), used = bonusUsed().length;
+  const onTime = timer.spent > 0 && timer.spent <= t.minutes * 60 && words >= t.min;
+  const daily = !t.custom && t.id === dailyTask(t.level).id;
+  return {xp: calcXP({words, max:t.max, total:totalScore(), used, daily, onTime}), used, onTime, daily};
+}
+const totalXP = () => attempts.reduce((s, a) => s + (a.xp || 0), 0);
+function playerLevel(xp){ let lv = 1, need = 150, acc = 0; while (xp >= acc + need) { acc += need; lv++; need = 150 + 50 * (lv - 1); } return {lv, into: xp - acc, need}; }
+const title = lv => TITLES.find(([n]) => lv >= n)[1];
+function streak(){
+  const days = new Set(); attempts.forEach(a => { days.add(dayKey(a.createdAt || a.updatedAt)); days.add(dayKey(a.updatedAt)); });
+  const d = new Date(), today = days.has(dayKey(d)); let n = 0;
+  if (!today) d.setDate(d.getDate() - 1);
+  while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+  const sorted = [...days].map(k => { const [y,m,dd] = k.split("-").map(Number); return new Date(y, m-1, dd).getTime(); }).sort((a,b) => a - b);
+  let best = 0, run = 0, prev = null;
+  for (const t of sorted) { run = prev != null && Math.round((t - prev) / 864e5) === 1 ? run + 1 : 1; best = Math.max(best, run); prev = t; }
+  return {n, today, best};
+}
+function unlocked(){ const s = {...streak(), words: attempts.reduce((x, a) => x + (a.words || 0), 0)}; return BADGES.filter(b => b.test(attempts, s)); }
+function renderBonus(){
+  const used = new Set(bonusUsed());
+  const fresh = litPrev ? [...used].filter(w => !litPrev.has(w)) : [];
+  fresh.forEach(w => toast(`+10 XP · 用上加分單字「${w}」`, "gold"));
+  litPrev = used;
+  $("#bonus").innerHTML = `<span class="eyebrow">加分單字</span><div class="chips">${state.bonus.map(w => `<button class="bw${used.has(w) ? " lit" : ""}${fresh.includes(w) ? " pop" : ""}" data-bw="${esc(w)}" title="${used.has(w) ? "已使用，+10 XP" : "點一下插入答案卷"}">${esc(w)}</button>`).join("")}</div><button class="ibtn" id="reroll">換一組</button><span class="xpnow">本篇預估 <b>+${attemptXP().xp}</b> XP</span>`;
+}
+function renderDaily(){
+  const t = dailyTask(state.level), done = dbState === "ready" && dailyDone(state.level), here = state.taskId === t.id;
+  $("#daily").innerHTML = `<div class="daily-in${done ? " done" : ""}"><span class="dtag">今日挑戰</span><div class="dtxt"><b>${esc(t.title)}</b><span>${t.part} · ${TYPES[t.type].zh} · ${targetLabel(t)}${here && !done ? " · 就是這一題，寫完儲存即可" : ""}</span></div><span class="dxp">${done ? "已完成" : "+50 XP"}</span>${here || done ? "" : `<button class="btn" data-task="${t.id}">接受挑戰</button>`}</div>`;
+}
+function renderPlayer(){
+  const el = $("#player");
+  el.hidden = dbState !== "ready";
+  if (el.hidden) return;
+  const p = playerLevel(totalXP()), s = streak();
+  el.innerHTML = `<div class="plv"><b>Lv ${p.lv}</b><span>${title(p.lv)}</span></div><div class="pxp"><div class="pbar"><i style="width:${(p.into / p.need * 100).toFixed(1)}%"></i></div><small>${p.into} / ${p.need} XP</small></div><div class="streak${s.today ? " on" : ""}" title="${s.today ? "今天已練習" : "今天還沒練習"}">${FLAME}<b>${s.n}</b><small>天</small></div>`;
+}
+function renderBadges(){
+  const got = new Set(dbState === "ready" ? unlocked().map(b => b.id) : []);
+  $("#badgeN").textContent = `${got.size} / ${BADGES.length}`;
+  $("#badges").innerHTML = BADGES.map(b => `<div class="badge${got.has(b.id) ? " on" : ""}"><span class="seal">${esc(b.mark)}</span><div><b>${b.name}</b><small>${b.desc}</small></div></div>`).join("");
+}
+function checkProgress(){
+  const p = playerLevel(totalXP());
+  if (prevLv != null && p.lv > prevLv) { toast(`升級！Lv ${p.lv} · ${title(p.lv)}`, "gold"); confetti(); }
+  prevLv = p.lv;
+  const got = unlocked().map(b => b.id), seen = new Set(store.get("cw.badges.seen", []));
+  if (!badgesChecked) {
+    badgesChecked = true;
+    if (!store.get("cw.badges.init", false)) { store.set("cw.badges.seen", got); store.set("cw.badges.init", true); return; }
+  }
+  const fresh = BADGES.filter(b => got.includes(b.id) && !seen.has(b.id));
+  if (fresh.length) {
+    store.set("cw.badges.seen", got);
+    fresh.forEach(b => toast(`解鎖成就：${b.name}`, "gold"));
+    confetti(90);
+  }
+}
+const stampFor = t => t >= 17 ? ["EXCELLENT","練習評分 · 優異"] : t >= 12 ? ["PASS","練習評分 · 達標"] : t >= 8 ? ["ALMOST","練習評分 · 差一點"] : ["KEEP GOING","練習評分 · 再接再厲"];
+
+/* ---------- standalone mode (opened outside claude.ai, e.g. GitHub Pages):
+   records live in this browser, and AI calls go straight to the Claude API with the viewer's own key ---------- */
+const STANDALONE = !(window.claude && window.claude.use);
+const LOCAL_KEY = "cw.local.attempts";
+const API_MODELS = [["claude-opus-5-5","Claude Opus 5.5（批改最準，預設）"],["claude-sonnet-5-5","Claude Sonnet 5.5（費用約一半）"],["claude-haiku-5-5","Claude Haiku 5.5（最便宜）"]];
+const apiConf = () => Object.assign({key:"", model:"claude-opus-5-5"}, store.get("cw.api", {}));
+function localDb(){
+  let subs = [];
+  const all = () => store.get(LOCAL_KEY, {});
+  const write = a => { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(a)); } catch { throw {code:"quota_exceeded"}; } };
+  const snap = () => {
+    const docs = Object.entries(all()).map(([id, d]) => ({id, exists:true, data:() => d, metadata:{fromCache:false, hasPendingWrites:false}}))
+      .sort((a, b) => (b.data().updatedAt || 0) - (a.data().updatedAt || 0));
+    return {docs, size:docs.length, empty:!docs.length};
+  };
+  const emit = () => { const s = snap(); subs.forEach(f => f(s)); };
+  addEventListener("storage", e => { if (e.key === LOCAL_KEY) emit(); });
+  const c = {
+    orderBy(){ return c; }, limit(){ return c; },
+    onSnapshot(f){ subs.push(f); setTimeout(() => f(snap()), 0); return () => { subs = subs.filter(x => x !== f); }; },
+    doc(id){
+      id = id || "a" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+      return {id,
+        set: async body => { const a = all(); a[id] = JSON.parse(JSON.stringify(body)); write(a); emit(); },
+        delete: async () => { const a = all(); delete a[id]; write(a); emit(); }};
+    },
+    merge(incoming){ write(Object.assign(all(), incoming)); emit(); },
+  };
+  return c;
+}
+function apiSample(){
+  const call = async (prompt, opts = {}) => {
+    const {key, model} = apiConf();
+    if (!key) throw {code:"no_key", message:"no API key"};
+    const body = {model, max_tokens:64000, stream:true, output_config:{effort: opts.apiEffort || "medium"}, messages:[{role:"user", content:prompt}]};
+    const headers = {"content-type":"application/json", "x-api-key":key, "anthropic-version":"2026-10-21", "anthropic-dangerous-direct-browser-access":"true"};
+    if (!model.startsWith("claude-haiku")) { body.fallbacks = "default"; headers["anthropic-beta"] = "server-side-fallback-2026-07-01"; }
+    let res;
+    try { res = await fetch("https://api.anthropic.com/v1/messages", {method:"POST", headers, body:JSON.stringify(body), signal:opts.signal}); }
+    catch (e) { throw {code: e?.name === "AbortError" ? "cancelled" : "network", message:String(e)}; }
+    if (!res.ok) {
+      let msg = ""; try { msg = (await res.json())?.error?.message || ""; } catch {}
+      const s = res.status;
+      throw {code: s === 401 || s === 403 ? "bad_key" : s === 429 ? "rate_limited" : s === 402 || /credit/i.test(msg) ? "no_credit" : s === 400 ? "invalid_request" : "upstream_error", message:msg};
+    }
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let buf = "", text = "", stop = null;
+    try {
+      for (;;) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, {stream:true}).replace(/\r\n/g, "\n");
+        let i;
+        while ((i = buf.indexOf("\n\n")) >= 0) {
+          const data = buf.slice(0, i).split("\n").filter(l => l.startsWith("data:")).map(l => l.slice(5).trim()).join("");
+          buf = buf.slice(i + 2);
+          if (!data) continue;
+          let ev; try { ev = JSON.parse(data); } catch { continue; }
+          if (ev.type === "content_block_delta" && ev.delta?.type === "text_delta") { text += ev.delta.text; opts.onText?.({text, delta:ev.delta.text}); }
+          else if (ev.type === "message_delta" && ev.delta?.stop_reason) stop = ev.delta.stop_reason;
+          else if (ev.type === "error") throw {code: ev.error?.type === "rate_limit_error" ? "rate_limited" : "upstream_error", message:ev.error?.message || "", text};
+        }
+      }
+    } catch (e) {
+      if (e?.code) throw e;
+      throw {code: e?.name === "AbortError" ? "cancelled" : "upstream_error", message:String(e), text};
+    }
+    if (stop === "refusal") throw {code:"refused", message:"refused"};
+    if (!text.trim()) throw {code:"empty_completion", message:"empty"};
+    return {text, truncated: stop === "max_tokens"};
+  };
+  call.json = async (prompt, opts = {}) => {
+    const r = await call(prompt + "\n\nReply with only the JSON object and no other text.", opts);
+    const t = r.text.trim();
+    for (const s of [t, (t.match(/```(?:json)?\s*([\s\S]*?)```/) || [])[1], t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1)]) {
+      if (!s) continue;
+      try { return JSON.parse(s); } catch {}
+    }
+    throw {code:"invalid_json", message:"invalid JSON", text:r.text};
+  };
+  return call;
+}
+function renderApiPanel(){
+  const c = apiConf();
+  $("#apiModel").innerHTML = API_MODELS.map(([id, label]) => `<option value="${id}"${id === c.model ? " selected" : ""}>${label}</option>`).join("");
+  $("#apiKey").value = c.key;
+  $("#apiState").textContent = c.key ? "已設定金鑰，AI 批改可以使用。" : "還沒有設定金鑰。";
+}
+function openApiPanel(){ renderApiPanel(); $("#apiPanel").hidden = false; showTab("practice"); $("#apiPanel").scrollIntoView({block:"start"}); $("#apiKey").focus(); }
+function needKey(){ if (STANDALONE && !apiConf().key) { openApiPanel(); toast("請先輸入 Anthropic API 金鑰"); return true; } return false; }
+function exportBackup(){
+  const data = JSON.stringify({app:"cambridge-writing", version:1, exportedAt:Date.now(), attempts:store.get(LOCAL_KEY, {})}, null, 1);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([data], {type:"application/json"}));
+  a.download = `writing-backup-${dayKey(Date.now())}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+async function importBackup(file){
+  try {
+    const j = JSON.parse(await file.text());
+    if (!j || typeof j.attempts !== "object") throw 0;
+    col.merge(j.attempts);
+    toast(`已匯入 ${Object.keys(j.attempts).length} 篇作品`);
+  } catch { toast("這個檔案不是有效的備份"); }
+}
+
+/* ---------- tabs and top-level render ---------- */
+function showTab(tab){
+  $("#view-practice").hidden = tab !== "practice"; $("#view-history").hidden = tab !== "history";
+  $("#tab-practice").setAttribute("aria-selected", tab === "practice"); $("#tab-history").setAttribute("aria-selected", tab === "history");
+}
+function renderAll(){ renderLevels(); renderDaily(); renderPlayer(); renderTaskList(); renderPaper(); renderGuide(); renderMeter(); renderTimer(); renderSaveStatus(); renderScores(); renderFeedback(); }
+function selectTask(id){
+  if (id === state.taskId) return;
+  persistWork(); timerPause(); asRun.ctl?.abort(); $("#assist").hidden = true;
+  state.taskId = id; fbRun.error = ""; loadWork(id); persistWork(); renderAll();
+}
+function selectLevel(k){
+  if (k === state.level) return;
+  persistWork(); timerPause(); asRun.ctl?.abort(); $("#assist").hidden = true;
+  state.level = k;
+  const remembered = store.get("cw.lastTask." + k, null);
+  const id = remembered === "custom" || TASKS.some(t => t.id === remembered && t.level === k) ? remembered : TASKS.find(t => t.level === k).id;
+  state.taskId = id; fbRun.error = ""; loadWork(id); persistWork(); renderAll();
+  if (levelOf(k).yle && !kid && !store.get("cw.kidTip", false)) { store.set("cw.kidTip", true); toast("小提示：右上角可以打開「孩子模式」"); }
+}
+function onAnswerInput(){
+  if (!kid && !timer.running && timer.spent === 0 && $ans.value.trim()) timerStart();
+  const t = currentTask(), n = countWords($ans.value);
+  if (lastWords != null) {
+    if (lastWords < t.min && n >= t.min) toast(t.open ? `達到 ${t.min} 字了！` : `達到 ${t.min} 字了！上限是 ${t.max} 字`);
+    else if (!t.open && lastWords <= t.max && n > t.max) toast(`超過 ${t.max} 字囉，可以精簡一下`);
+  }
+  lastWords = n;
+  state.dirty = true; renderMeter(); renderSaveStatus(); persistSoon();
+}
+
+/* ---------- events ---------- */
+$("#levels").addEventListener("click", e => { const b = e.target.closest("[data-lv]"); if (b) selectLevel(b.dataset.lv); });
+$("#tasklist").addEventListener("click", e => { const b = e.target.closest("[data-task]"); if (b) selectTask(b.dataset.task); });
+document.querySelector(".gtabs").addEventListener("click", e => { const b = e.target.closest("[data-g]"); if (b) { state.guideTab = b.dataset.g; renderGuide(); } });
+$("#guideBody").addEventListener("click", e => { const b = e.target.closest("[data-phrase]"); if (b) insertAtCursor(b.dataset.phrase); });
+$("#paper").addEventListener("input", e => {
+  const id = e.target.id; if (!["cPrompt","cType","cMin","cMax"].includes(id)) return;
+  custom = {prompt:$("#cPrompt").value, type:$("#cType").value, min:+$("#cMin").value || 0, max:+$("#cMax").value || 0};
+  store.set("cw.custom", custom);
+  if (id === "cType") { renderGuide(); }
+  renderMeter();
+});
+$ans.addEventListener("input", onAnswerInput);
+$("#apiBtn").addEventListener("click", openApiPanel);
+$("#apiClose").addEventListener("click", () => { $("#apiPanel").hidden = true; });
+$("#apiSave").addEventListener("click", () => {
+  const key = $("#apiKey").value.trim();
+  store.set("cw.api", {key, model:$("#apiModel").value});
+  renderApiPanel(); renderScores();
+  toast(key ? "已儲存 AI 設定" : "已儲存模型設定");
+  if (key) $("#apiPanel").hidden = true;
+});
+$("#apiClear").addEventListener("click", e => armed(e.currentTarget, "確定清除？", () => { store.set("cw.api", {key:"", model:apiConf().model}); renderApiPanel(); renderScores(); toast("已清除金鑰"); }));
+$("#btnExport").addEventListener("click", exportBackup);
+$("#btnImport").addEventListener("click", () => $("#importFile").click());
+$("#importFile").addEventListener("change", e => { const f = e.target.files?.[0]; if (f) importBackup(f); e.target.value = ""; });
+function applyKid(){ document.body.classList.toggle("kid", kid); $("#kidBtn").setAttribute("aria-pressed", kid); $ans.placeholder = kid ? "在這裡用英文寫寫看！想好了再按「開始」計時。" : "在這裡用英文作答。開始輸入後計時器會自動開始。"; }
+$("#kidBtn").addEventListener("click", () => { kid = !kid; store.set("cw.kid", kid); applyKid(); toast(kid ? "孩子模式：批改更簡單、更鼓勵，字體放大，不自動計時" : "已切回一般模式"); });
+applyKid();
+$("#daily").addEventListener("click", e => { const b = e.target.closest("[data-task]"); if (b) selectTask(b.dataset.task); });
+$("#bonus").addEventListener("click", e => {
+  if (e.target.id === "reroll") { state.bonus = pickBonus(state.level); litPrev = null; persistSoon(); renderBonus(); return; }
+  const b = e.target.closest("[data-bw]"); if (b) insertAtCursor(b.dataset.bw);
+});
+$("#tStart").addEventListener("click", () => timer.running ? timerPause() : timerStart());
+$("#tReset").addEventListener("click", e => armed(e.currentTarget, "確定重設？", () => { timerPause(); timer.spent = 0; renderTimer(); persistSoon(); }));
+$("#btnSave").addEventListener("click", () => saveAttempt(false));
+$("#btnNew").addEventListener("click", e => {
+  const go = () => { timerPause(); $ans.value = ""; timer.spent = 0; state.attemptId = null; state.createdAt = null; state.scores = blankScores(); state.scoredBy = null; state.feedback = null; state.dirty = false; state.savedAt = null; fbRun.error = ""; state.bonus = pickBonus(state.level); litPrev = null; lastWords = 0; persistWork(); renderAll(); $ans.focus(); };
+  if (state.dirty && $ans.value.trim()) armed(e.currentTarget, "未儲存，確定清空？", go); else go();
+});
+$("#btnFeedback").addEventListener("click", runFeedback);
+$("#btnHint").addEventListener("click", () => runAssist("hint"));
+$("#btnModel").addEventListener("click", () => runAssist("model"));
+$("#assistStop").addEventListener("click", () => asRun.ctl?.abort());
+$("#assistClose").addEventListener("click", () => { asRun.ctl?.abort(); $("#assist").hidden = true; });
+$("#scorePanel").addEventListener("click", e => {
+  if (e.target.id === "fbStop") { fbRun.ctl?.abort(); return; }
+  if (e.target.closest("[data-open-api]")) { openApiPanel(); return; }
+  const b = e.target.closest("[data-score]"); if (!b) return;
+  const k = b.dataset.score, v = +b.dataset.v;
+  state.scores[k] = state.scores[k] === v ? null : v;
+  state.scoredBy = state.feedback ? "ai+self" : "self"; state.dirty = true;
+  persistSoon(); renderScores(); renderSaveStatus();
+});
+$("#fbBody").addEventListener("click", e => {
+  const m = e.target.closest("mark[data-ref]"); if (!m) return;
+  const li = document.getElementById("fx-" + m.dataset.ref); if (!li) return;
+  li.scrollIntoView({block:"center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+  li.classList.add("flash"); setTimeout(() => li.classList.remove("flash"), 1400);
+});
+$("#tab-practice").addEventListener("click", () => showTab("practice"));
+$("#tab-history").addEventListener("click", () => { persistWork(); showTab("history"); });
+$("#rows").addEventListener("click", e => {
+  const o = e.target.closest("[data-open]");
+  if (o) { const a = attempts.find(x => x.id === o.dataset.open); if (a) openAttempt(a); return; }
+  const d = e.target.closest("[data-del]");
+  if (d) armed(d, "確定刪除？", async () => {
+    try { await col.doc(d.dataset.del).delete(); if (state.attemptId === d.dataset.del) { state.attemptId = null; state.createdAt = null; state.dirty = true; persistWork(); renderSaveStatus(); } toast("已刪除"); }
+    catch { toast("刪除失敗，請再試一次"); }
+  });
+});
+document.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); saveAttempt(false); } });
+addEventListener("pagehide", persistWork);
+
+/* ---------- boot ---------- */
+const last = store.get("cw.last", null);
+if (last && LEVELS.some(l => l.k === last.level)) { state.level = last.level; state.taskId = last.taskId === "custom" || TASKS.some(t => t.id === last.taskId) ? last.taskId : TASKS.find(t => t.level === last.level).id; }
+loadWork(state.taskId);
+renderAll(); renderHistory();
+
+const C = window.claude;
+const use = n => C?.use ? C.use(n).catch(() => null) : Promise.resolve(null);
+if (STANDALONE) { ai = apiSample(); aiState = "ready"; $("#apiBtn").hidden = false; $("#backupActs").hidden = false; renderScores(); }
+else use("sample").then(s => { ai = s; if (!s) aiOff(); else aiState = "ready"; });
+(async () => {
+  if (STANDALONE) col = localDb();
+  else {
+    const [db, user] = await Promise.all([use("db"), use("user")]);
+    const uid = user ? await user.id() : null;
+    if (!db || !uid) { dbState = "off"; renderSaveStatus(); renderHistory(); return; }
+    col = db.collection("data/users/" + uid);
+  }
+  dbState = "ready"; renderSaveStatus(); renderPlayer();
+  col.orderBy("updatedAt", "desc").limit(300).onSnapshot(snap => {
+    attempts = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    renderHistory(); renderTaskList(); renderPlayer(); renderDaily(); checkProgress();
+  }, () => { dbState = "off"; renderSaveStatus(); renderHistory(); });
+})();
+</script>
+</body>
+</html>

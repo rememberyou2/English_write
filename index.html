@@ -325,6 +325,23 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .api-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
 .hint a{color:var(--accent)}
 .backup{display:flex;gap:6px}
+/* simple mode: only the four steps (level, task, write, marking) stay on screen */
+.only-simple{display:none}
+.steph{font-size:15px;font-weight:600;align-items:center;gap:8px;padding-top:16px;margin:0}
+body.simple .steph{display:flex}
+body.simple .stepi{display:inline-grid}
+.steph i,.stepi{font-style:normal;font-family:var(--f-mono);font-size:12px;font-weight:500;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);place-items:center;flex:none}
+.steph i{display:inline-grid}
+.stepi{margin-right:8px;vertical-align:1px}
+.stepl{font-size:15px;font-weight:600;align-items:center;gap:8px}
+body.simple .stepl{display:flex}
+body.simple .levels{padding-top:8px}
+body.simple #lvinfo,body.simple #daily,body.simple #guide,body.simple #bonus,body.simple .timer,body.simple .sheet-h .eyebrow,
+body.simple #btnModel,body.simple #btnSave,body.simple #saveStatus,body.simple .pxp,body.simple #tasklist .customg{display:none}
+body.simple .grid{padding-top:16px}
+body.simple #btnFeedback{font-size:16px;padding:12px 22px}
+.sval{font-family:var(--f-mono);font-size:18px;font-weight:500}
+.sval small{font-size:13px;color:var(--muted)}
 .kidbtn{border:1px solid var(--rule);background:var(--sheet);border-radius:999px;padding:6px 14px;font-size:13.5px;color:var(--muted)}
 .kidbtn[aria-pressed="true"]{background:var(--hi);color:var(--hi-ink);border-color:transparent;font-weight:600}
 body.kid .answer{font-size:19.5px;--lh:38px}
@@ -339,6 +356,7 @@ body.kid .paper-b{font-size:17px}
     </div>
     <div class="player" id="player" hidden></div>
     <button class="kidbtn" id="apiBtn" hidden>AI 設定</button>
+    <button class="kidbtn" id="modeBtn">顯示更多功能</button>
     <button class="kidbtn" id="kidBtn" aria-pressed="false" title="批改語氣更簡單、更鼓勵，字體放大，不自動計時">孩子模式</button>
     <nav class="tabs" role="tablist" aria-label="檢視">
       <button id="tab-practice" role="tab" aria-selected="true">練習</button>
@@ -349,6 +367,7 @@ body.kid .paper-b{font-size:17px}
 
 <main class="wrap">
   <section id="view-practice">
+    <h2 class="steph only-simple"><i>1</i>選級數</h2>
     <div class="levels" id="levels" role="group" aria-label="選擇級數"></div>
     <div class="lvinfo" id="lvinfo"></div>
     <div class="daily" id="daily"></div>
@@ -368,7 +387,7 @@ body.kid .paper-b{font-size:17px}
     <div class="grid">
       <div class="col">
         <div class="panel">
-          <div class="panel-h"><h2>選擇題目</h2><span class="eyebrow" id="taskCount"></span></div>
+          <div class="panel-h"><h2><i class="stepi only-simple">2</i>選擇題目</h2><span class="eyebrow" id="taskCount"></span></div>
           <div class="panel-b" id="tasklist"></div>
         </div>
 
@@ -389,6 +408,7 @@ body.kid .paper-b{font-size:17px}
         <div class="panel" id="sheet">
           <div class="sheet-h">
             <div>
+              <span class="stepl only-simple"><i class="stepi">3</i>寫在這裡</span>
               <span class="eyebrow">Answer sheet</span>
               <div class="timer">
                 <span class="clock" id="clock">40:00</span>
@@ -420,7 +440,7 @@ body.kid .paper-b{font-size:17px}
         </div>
 
         <div class="panel" id="scorePanel">
-          <div class="panel-h"><h2>評分與批改</h2><span id="scoredBy"></span></div>
+          <div class="panel-h"><h2><i class="stepi only-simple">4</i>評分與批改</h2><span id="scoredBy"></span></div>
           <div class="panel-b">
             <div id="fbTop"></div>
             <div class="crit" id="crit"></div>
@@ -838,6 +858,7 @@ const blankScores = () => ({content:null, communicative:null, organisation:null,
 const state = { level:"B2", taskId:"b2-1a", guideTab:"structure", attemptId:null, createdAt:null, scores:blankScores(), scoredBy:null, feedback:null, dirty:false, savedAt:null, bonus:[], justScored:false };
 let lastWords = null, litPrev = null, prevLv = null, badgesChecked = false;
 let kid = store.get("cw.kid", false);
+let simple = store.get("cw.simple", true);
 const KID_NOTE = "The learner is a child. Write every explanation in short, simple, warm Traditional Chinese that a 10-year-old can understand. Praise effort first, avoid grammar jargon (explain with a tiny example instead), and keep English suggestions simple.";
 const timer = { spent:0, running:false, h:null };
 let custom = store.get("cw.custom", {prompt:"", type:"essay", min:140, max:190});
@@ -902,7 +923,7 @@ function renderTaskList(){
     const comp = ts[0].compulsory ? "必答" : "選答";
     return `<div class="tgroup"><span class="eyebrow">${p} · ${comp}</span><div class="tlist">${ts.map(t =>
       `<button class="tbtn" data-task="${t.id}" aria-pressed="${t.id === state.taskId}">${done.has(t.id) ? '<i class="done" title="已有紀錄"></i>' : ""}${esc(t.title)}<small>${TYPES[t.type].zh}</small></button>`).join("")}</div></div>`;
-  }).join("") + `<div class="tgroup"><span class="eyebrow">自己出題</span><div class="tlist"><button class="tbtn" data-task="custom" aria-pressed="${state.taskId === "custom"}">自訂題目<small>貼上任何題目</small></button></div></div>`;
+  }).join("") + `<div class="tgroup customg"><span class="eyebrow">自己出題</span><div class="tlist"><button class="tbtn" data-task="custom" aria-pressed="${state.taskId === "custom"}">自訂題目<small>貼上任何題目</small></button></div></div>`;
 }
 function renderPaper(){
   const t = currentTask(), ty = TYPES[t.type];
@@ -975,11 +996,12 @@ function insertAtCursor(text){
 /* ---------- scoring ---------- */
 function renderScores(){
   const fb = state.feedback;
+  $("#scorePanel").hidden = simple && !fb && !fbRun.running && !fbRun.error && totalScore() == null;
   $("#crit").innerHTML = CRIT.map(c => {
     const v = state.scores[c.k];
     const cm = fb?.criteria?.[c.k];
     return `<div class="crow"><div class="nm"><b>${c.zh}</b><small>${c.en}</small></div>
-      <div class="pips" role="group" aria-label="${c.zh} 分數">${[0,1,2,3,4,5].map(n => `<button data-score="${c.k}" data-v="${n}" aria-pressed="${v === n}">${n}</button>`).join("")}</div>
+      ${simple ? `<span class="sval">${v ?? "–"}<small> / 5</small></span>` : `<div class="pips" role="group" aria-label="${c.zh} 分數">${[0,1,2,3,4,5].map(n => `<button data-score="${c.k}" data-v="${n}" aria-pressed="${v === n}">${n}</button>`).join("")}</div>`}
       ${cm ? `<div class="cm">${esc(cm)}</div>` : `<div class="ds">${c.ds}</div>`}</div>`;
   }).join("");
   const tot = totalScore(), b = band(tot);
@@ -1429,7 +1451,7 @@ function selectLevel(k){
   if (levelOf(k).yle && !kid && !store.get("cw.kidTip", false)) { store.set("cw.kidTip", true); toast("小提示：右上角可以打開「孩子模式」"); }
 }
 function onAnswerInput(){
-  if (!kid && !timer.running && timer.spent === 0 && $ans.value.trim()) timerStart();
+  if (!kid && !simple && !timer.running && timer.spent === 0 && $ans.value.trim()) timerStart();
   const t = currentTask(), n = countWords($ans.value);
   if (lastWords != null) {
     if (lastWords < t.min && n >= t.min) toast(t.open ? `達到 ${t.min} 字了！` : `達到 ${t.min} 字了！上限是 ${t.max} 字`);
@@ -1468,6 +1490,20 @@ $("#importFile").addEventListener("change", e => { const f = e.target.files?.[0]
 function applyKid(){ document.body.classList.toggle("kid", kid); $("#kidBtn").setAttribute("aria-pressed", kid); $ans.placeholder = kid ? "在這裡用英文寫寫看！想好了再按「開始」計時。" : "在這裡用英文作答。開始輸入後計時器會自動開始。"; }
 $("#kidBtn").addEventListener("click", () => { kid = !kid; store.set("cw.kid", kid); applyKid(); toast(kid ? "孩子模式：批改更簡單、更鼓勵，字體放大，不自動計時" : "已切回一般模式"); });
 applyKid();
+function applyMode(){
+  document.body.classList.toggle("simple", simple);
+  $("#modeBtn").textContent = simple ? "顯示更多功能" : "簡化畫面";
+  $("#modeBtn").title = simple ? "顯示計時器、寫作指引、加分單字、範文和自評" : "只留下選級數、選題目、寫作和批改";
+  $("#btnFeedback").textContent = simple ? "交給老師批改" : "AI 批改";
+  $("#btnHint").textContent = simple ? "給我一點提示" : "構思提示";
+  renderScores();
+}
+$("#modeBtn").addEventListener("click", () => {
+  simple = !simple; store.set("cw.simple", simple); applyMode();
+  if (simple && timer.running) timerPause();
+  toast(simple ? "已簡化畫面" : "已顯示所有功能");
+});
+applyMode();
 $("#daily").addEventListener("click", e => { const b = e.target.closest("[data-task]"); if (b) selectTask(b.dataset.task); });
 $("#bonus").addEventListener("click", e => {
   if (e.target.id === "reroll") { state.bonus = pickBonus(state.level); litPrev = null; persistSoon(); renderBonus(); return; }

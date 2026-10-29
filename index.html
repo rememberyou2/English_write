@@ -56,7 +56,7 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .tabs .count{font-family:var(--f-mono);font-size:12px;margin-left:4px;color:var(--muted)}
 
 /* level bar */
-.levels{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,5fr);gap:10px 16px;padding-block:16px 6px}
+.levels{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,5fr) minmax(0,2fr);gap:10px 16px;padding-block:16px 6px}
 .lvgroup{display:grid;gap:6px;min-width:0}
 .lvrow{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:8px}
 @media (max-width:900px){.levels{grid-template-columns:minmax(0,1fr)}}
@@ -72,6 +72,19 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .pics.one{max-width:480px}
 .pic{margin:0;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;position:relative;background:#d8edff}
 .pic svg{display:block;width:100%;height:auto}
+.chart{margin:4px 0 14px;max-width:560px;border:1.5px solid #2a2a33;border-radius:4px;background:#ffffff;color:#2a2a33;overflow:hidden}
+.chart svg{display:block;width:100%;height:auto}
+.chart .dtable{width:100%;border-collapse:collapse;font-family:var(--f-ui);font-size:14px;font-variant-numeric:tabular-nums}
+.chart .dtable caption{font-weight:600;padding:10px 12px 6px;text-align:left}
+.chart .dtable th,.chart .dtable td{border-top:1px solid #d4d8e0;padding:6px 12px;text-align:right}
+.chart .dtable th:first-child,.chart .dtable td:first-child{text-align:left}
+.chart .dtable thead th{background:#eef1f6}
+.chart .proc-t{font-family:var(--f-ui);font-weight:600;padding:10px 12px 4px;font-size:14px}
+.chart .proc{list-style:none;margin:0;padding:6px 12px 12px;display:flex;flex-direction:column;align-items:flex-start;font-family:var(--f-ui);font-size:13.5px;counter-reset:st}
+.chart .proc li{display:flex;flex-direction:column;align-items:flex-start;counter-increment:st}
+.chart .proc li span{border:1.5px solid #2a2a33;border-radius:6px;padding:5px 9px;background:#eef1f6}
+.chart .proc li span::before{content:counter(st) ". ";font-family:var(--f-mono);font-size:12px;color:#586379}
+.chart .proc li:not(:last-child)::after{content:"↓";padding:1px 0 1px 14px;line-height:1.3;color:#586379}
 .pic figcaption{position:absolute;top:5px;left:5px;font-family:var(--f-mono);font-size:12px;font-weight:500;line-height:1;background:#ffffff;color:#2a2a33;border:1.5px solid #2a2a33;border-radius:50%;width:20px;height:20px;display:grid;place-items:center}
 
 /* practice grid */
@@ -187,7 +200,8 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .crow .nm small{font-size:12px;color:var(--muted);margin-left:6px}
 .crow .ds{grid-column:1/-1;font-size:13px;color:var(--muted)}
 .crow .cm{grid-column:1/-1;font-size:14px}
-.pips{display:flex;gap:3px}
+.pips{display:flex;flex-wrap:wrap;gap:3px}
+.pips.nine button{width:25px}
 .pips button{width:28px;height:28px;border:1px solid var(--rule);background:var(--sheet);border-radius:5px;font-family:var(--f-mono);font-size:13px;padding:0}
 .pips button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
 .total{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:14px 16px;border-top:1px solid var(--rule);background:var(--desk);border-radius:0 0 8px 8px}
@@ -307,6 +321,8 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 @media (pointer: coarse){
   .pips{gap:5px}
   .pips button{width:40px;height:40px;font-size:15px}
+  .pips.nine{gap:3px}
+  .pips.nine button{width:31px}
   .ibtn{padding:8px 14px;font-size:14px}
   .btn{padding:11px 18px;font-size:15px}
   .tbtn{padding:9px 13px;font-size:15px}
@@ -381,7 +397,7 @@ body.kid .paper-b{font-size:17px}
 <header class="top">
   <div class="wrap top-in">
     <div class="brand">
-      <span class="eyebrow">Cambridge English · Writing</span>
+      <span class="eyebrow">Cambridge English · IELTS · Writing</span>
       <h1>劍橋寫作練習室</h1>
     </div>
     <div class="player" id="player" hidden></div>
@@ -520,7 +536,7 @@ body.kid .paper-b{font-size:17px}
     </div>
   </section>
 
-  <p class="foot">題目為仿照劍橋考試形式自行編寫的練習題。官方樣題與評分標準請見 <a href="https://www.cambridgeenglish.org/exams-and-tests/" target="_blank" rel="noopener">cambridgeenglish.org</a>。AI 評分僅供練習參考，不代表正式成績。</p>
+  <p class="foot">題目為仿照劍橋考試與雅思（IELTS）形式自行編寫的練習題，圖表數據為虛構。官方樣題與評分標準請見 <a href="https://www.cambridgeenglish.org/exams-and-tests/" target="_blank" rel="noopener">cambridgeenglish.org</a> 與 <a href="https://ielts.org" target="_blank" rel="noopener">ielts.org</a>。AI 評分僅供練習參考，不代表正式成績。</p>
 </main>
 <div class="toast" id="toast" hidden></div>
 
@@ -535,6 +551,8 @@ const LEVELS = [
   {k:"B2", cefr:"B2", exam:"B2 First", short:"First", info:"Writing 1 小時 20 分鐘。Part 1 議論文必答，Part 2 從文章、電子郵件、報告、評論中選一，各 140–190 字。"},
   {k:"C1", cefr:"C1", exam:"C1 Advanced", short:"Advanced", info:"Writing 1 小時 30 分鐘。Part 1 議論文必答，Part 2 從提案、報告、評論、信函中選一，各 220–260 字。"},
   {k:"C2", cefr:"C2", exam:"C2 Proficiency", short:"Proficiency", info:"Writing 1 小時 30 分鐘。Part 1 閱讀兩篇短文後寫摘要評論文 240–280 字，Part 2 選一題 280–320 字。"},
+  {k:"IA", cefr:"IELTS", exam:"IELTS Academic", short:"Academic 學術", tag:"IELTS A", ielts:true, info:"Writing 60 分鐘，兩題都要寫。Task 1 描述圖表或流程 150 字以上（約 20 分鐘），Task 2 議論文 250 字以上（約 40 分鐘，配分是 Task 1 的兩倍）。"},
+  {k:"IG", cefr:"IELTS", exam:"IELTS General Training", short:"General 一般", tag:"IELTS GT", ielts:true, info:"Writing 60 分鐘，兩題都要寫。Task 1 書信 150 字以上（約 20 分鐘），Task 2 議論文 250 字以上（約 40 分鐘，配分是 Task 1 的兩倍）。"},
 ];
 const TYPES = {
   lookwrite:{zh:"看圖作答",en:"Look and write"}, aboutme:{zh:"寫寫自己",en:"About me"},
@@ -543,6 +561,7 @@ const TYPES = {
   email:{zh:"電子郵件",en:"Email"}, article:{zh:"文章",en:"Article"}, story:{zh:"故事",en:"Story"},
   essay:{zh:"議論文",en:"Essay"}, essay2:{zh:"摘要評論文",en:"Essay"}, review:{zh:"評論",en:"Review"},
   report:{zh:"報告",en:"Report"}, proposal:{zh:"提案",en:"Proposal"}, letter:{zh:"正式信函",en:"Letter"},
+  chart:{zh:"圖表描述",en:"Data description"}, gtletter:{zh:"書信",en:"Letter"}, ielts2:{zh:"雅思議論文",en:"Essay"},
 };
 const T = (level, o) => Object.assign({level}, o);
 const TASKS = [
@@ -658,8 +677,46 @@ const TASKS = [
 "A literary magazine has asked readers to review a book that changed the way they saw the world.\n\nWrite a **review** briefly describing the book, explaining how it affected your thinking, and assessing whether it would have the same impact on other readers today.\n\nWrite your review in **280–320** words."}),
   T("C2",{id:"c2-2d",part:"Part 2",type:"letter",title:"Cars in the old town",min:280,max:320,minutes:45,prompt:
 "Your local newspaper has reported a proposal to ban private cars from the historic centre of your town.\n\nWrite a **letter** to the editor giving your views on the proposal. You should consider its likely effects on residents, businesses and visitors, and suggest how any problems could be addressed.\n\nWrite your letter in **280–320** words."}),
+  // IELTS Academic
+  T("IA",{id:"ia-1a",part:"Task 1",type:"chart",title:"Daily internet use by age",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"先寫一句改寫題目，再寫總覽（Overview），最後分兩段比較重要數據。",chart:{kind:"line",title:"Adults using the internet every day",unit:"%",x:["2005","2010","2015","2020","2025"],series:[{name:"Aged 16–34",values:[62,78,89,95,97]},{name:"Aged 35–54",values:[41,60,77,88,93]},{name:"Aged 55+",values:[14,26,45,63,76]}]},prompt:
+"You should spend about 20 minutes on this task.\n\nThe line graph below shows the percentage of adults in one country who used the internet every day, by age group, between 2005 and 2025.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\n@chart\n\nWrite **at least 150 words**."}),
+  T("IA",{id:"ia-1b",part:"Task 1",type:"chart",title:"Leisure time by gender",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"先寫一句改寫題目，再寫總覽（Overview），最後分兩段比較重要數據。",chart:{kind:"bar",title:"Average hours per week on leisure activities, 2024",unit:"hours",x:["Watching TV","Sport","Reading","Video games","Socialising"],series:[{name:"Men",values:[12,5,3,6,7]},{name:"Women",values:[11,3,5,2,8]}]},prompt:
+"You should spend about 20 minutes on this task.\n\nThe bar chart below shows the average number of hours per week that men and women in one country spent on five leisure activities in 2024.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\n@chart\n\nWrite **at least 150 words**."}),
+  T("IA",{id:"ia-1c",part:"Task 1",type:"chart",title:"Sources of electricity",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"先寫一句改寫題目，再寫總覽（Overview），最後分兩段比較重要數據。",chart:{kind:"pie",title:"Electricity generation by source",unit:"%",x:["Coal","Natural gas","Nuclear","Renewables","Other"],series:[{name:"2000",values:[48,22,18,7,5]},{name:"2025",values:[15,30,17,35,3]}]},prompt:
+"You should spend about 20 minutes on this task.\n\nThe pie charts below show the sources of electricity in one country in 2000 and 2025.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\n@chart\n\nWrite **at least 150 words**."}),
+  T("IA",{id:"ia-1d",part:"Task 1",type:"chart",title:"Metro passengers in four cities",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"先寫一句改寫題目，再寫總覽（Overview），最後分兩段比較重要數據。",chart:{kind:"table",title:"Average daily metro passengers (millions)",unit:"millions",x:["2005","2015","2025"],series:[{name:"Northport",values:[1.2,1.9,2.6]},{name:"Eastvale",values:[0.8,0.7,0.6]},{name:"Riverton",values:[2.4,3.1,3]},{name:"Lakeside",values:[0.3,0.9,1.8]}]},prompt:
+"You should spend about 20 minutes on this task.\n\nThe table below shows the average number of passengers using the metro systems of four cities each day in 2005, 2015 and 2025.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\n@chart\n\nWrite **at least 150 words**."}),
+  T("IA",{id:"ia-1e",part:"Task 1",type:"chart",title:"Recycling glass bottles",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"流程圖：先改寫題目，總覽說明共有幾個階段、從哪裡開始到哪裡結束，再依序描述。",chart:{kind:"process",title:"How glass bottles are recycled",steps:["Used bottles are collected from homes","Bottles are sorted by colour","Glass is washed to remove labels","Glass is crushed into small pieces (cullet)","Cullet is melted with sand at 1,500°C","Liquid glass is moulded into new bottles","New bottles are filled and sent to shops"]},prompt:
+"You should spend about 20 minutes on this task.\n\nThe diagram below shows how glass bottles are recycled.\n\nSummarise the information by selecting and reporting the main features.\n\n@chart\n\nWrite **at least 150 words**."}),
+  T("IA",{id:"ia-2a",part:"Task 2",type:"ielts2",title:"Working from home",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> Some people believe that working from home benefits both employees and employers, while others think it causes more problems than it solves.\n>\n> Discuss both these views and give your own opinion.\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
+  T("IA",{id:"ia-2b",part:"Task 2",type:"ielts2",title:"Free university education",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> University education should be free for every student, paid for by the government.\n>\n> To what extent do you agree or disagree?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
+  T("IA",{id:"ia-2c",part:"Task 2",type:"ielts2",title:"Traffic in cities",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> In many cities around the world, traffic congestion is becoming a serious problem.\n>\n> What are the causes of this problem, and what measures could be taken to solve it?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
+  T("IA",{id:"ia-2d",part:"Task 2",type:"ielts2",title:"Shopping online",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> More and more people are choosing to shop online rather than in physical stores.\n>\n> Do the advantages of this development outweigh the disadvantages?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
+  T("IA",{id:"ia-2e",part:"Task 2",type:"ielts2",title:"Young people and social media",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> Many young people today spend several hours a day on social media.\n>\n> Why is this the case? Is this a positive or a negative development?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
+  // IELTS General Training
+  T("IG",{id:"ig-1a",part:"Task 1",type:"gtletter",title:"A damaged delivery",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"依照三個要點寫一封信，注意收件人決定的語氣。",prompt:
+"You should spend about 20 minutes on this task.\n\nYou recently bought a piece of furniture online, but it was damaged when it was delivered.\n\nWrite a letter to the company. In your letter\n- describe what you bought and when it arrived\n- explain what was wrong with it\n- say what you would like the company to do\n\nWrite **at least 150 words**.\n\nYou do NOT need to write any addresses.\n\nBegin your letter as follows:\n\n> *Dear Sir or Madam,*"}),
+  T("IG",{id:"ig-1b",part:"Task 1",type:"gtletter",title:"Asking for time off",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"依照三個要點寫一封信，注意收件人決定的語氣。",prompt:
+"You should spend about 20 minutes on this task.\n\nYou would like to take a few days off work to attend an important family event.\n\nWrite a letter to your manager. In your letter\n- explain why you need time off\n- say how long you will be away\n- suggest how your work could be covered\n\nWrite **at least 150 words**.\n\nYou do NOT need to write any addresses.\n\nBegin your letter as follows:\n\n> *Dear ............,*"}),
+  T("IG",{id:"ig-1c",part:"Task 1",type:"gtletter",title:"Thanking a friend",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"依照三個要點寫一封信，注意收件人決定的語氣。",prompt:
+"You should spend about 20 minutes on this task.\n\nYou recently spent a week staying with a friend who lives in another country.\n\nWrite a letter to your friend. In your letter\n- thank your friend for having you\n- describe what you enjoyed most about the visit\n- invite your friend to come and stay with you\n\nWrite **at least 150 words**.\n\nYou do NOT need to write any addresses.\n\nBegin your letter as follows:\n\n> *Dear ............,*"}),
+  T("IG",{id:"ig-1d",part:"Task 1",type:"gtletter",title:"Noise from a new restaurant",min:150,max:220,open:true,minutes:20,compulsory:true,hint:"依照三個要點寫一封信，注意收件人決定的語氣。",prompt:
+"You should spend about 20 minutes on this task.\n\nA new restaurant has opened near your home, and it is causing problems for local residents.\n\nWrite a letter to the local council. In your letter\n- describe the problems the restaurant is causing\n- explain how these problems affect you\n- suggest what the council should do\n\nWrite **at least 150 words**.\n\nYou do NOT need to write any addresses.\n\nBegin your letter as follows:\n\n> *Dear Sir or Madam,*"}),
+  T("IG",{id:"ig-2a",part:"Task 2",type:"ielts2",title:"Living alone",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> Nowadays, many people choose to live alone rather than with their families.\n>\n> What are the reasons for this? Is it a positive or a negative trend?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
+  T("IG",{id:"ig-2b",part:"Task 2",type:"ielts2",title:"Paying by phone",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> Many people now use their mobile phones to pay for things instead of using cash.\n>\n> Do the advantages of this outweigh the disadvantages?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
+  T("IG",{id:"ig-2c",part:"Task 2",type:"ielts2",title:"Everyone should learn to cook",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> Learning how to cook is an essential life skill that should be taught to every child at school.\n>\n> To what extent do you agree or disagree?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
+  T("IG",{id:"ig-2d",part:"Task 2",type:"ielts2",title:"Starting school",min:250,max:350,open:true,minutes:40,compulsory:true,hint:"寫 4–5 段：引言（立場）、兩到三個主體段、結論。",prompt:
+"You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\n> Some people think children should start school at a very young age, while others believe they should not begin until they are at least seven.\n>\n> Discuss both these views and give your own opinion.\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite **at least 250 words**."}),
 ];
-const LEVEL_DEFAULTS = {PA1:{min:5,max:30,minutes:8},A1:{min:15,max:45,minutes:10},FLY:{min:20,max:50,minutes:12},A2:{min:25,max:45,minutes:10},B1:{min:90,max:120,minutes:22},B2:{min:140,max:190,minutes:40},C1:{min:220,max:260,minutes:45},C2:{min:280,max:320,minutes:45}};
+const LEVEL_DEFAULTS = {PA1:{min:5,max:30,minutes:8},A1:{min:15,max:45,minutes:10},FLY:{min:20,max:50,minutes:12},A2:{min:25,max:45,minutes:10},B1:{min:90,max:120,minutes:22},B2:{min:140,max:190,minutes:40},C1:{min:220,max:260,minutes:45},IA:{min:250,max:350,minutes:40},IG:{min:250,max:350,minutes:40},C2:{min:280,max:320,minutes:45}};
 
 const GUIDES = {
   lookwrite:{structure:[["先看圖","找出圖裡的人、動物、東西、顏色和數量"],["一題一題回答","照題號寫，一行寫一題：1. kite"],["寫兩個句子（Movers、Flyers）","用 There is … / The boy is … 描述圖片"]],
@@ -702,9 +759,19 @@ const GUIDES = {
     phrases:[["開頭",["I am writing in response to …","I am writing to express my concern about …","I read with interest your recent article on …"]],["表達立場",["I would like to draw your attention to …","While I appreciate that …, …","I strongly disagree with the claim that …","It is worth considering …"]],["建議與結尾",["I would therefore urge …","A more effective solution would be to …","I look forward to seeing …","Yours faithfully,"]]],
     check:["稱呼與結尾搭配正確","第一段清楚說明寫信目的","正式語氣，不用縮寫","回應題目的每個要求"]},
 };
+GUIDES.chart = {structure:[["改寫題目","用自己的話改寫題目一句話：The line graph illustrates …"],["總覽 Overview","兩句話點出最明顯的趨勢或差異，這裡不放數字：Overall, …"],["細節段 1","挑一組主要特徵，引用數據並比較"],["細節段 2","描述其餘特徵與對比；流程圖則依序說明每個階段"]],
+  phrases:[["開頭與總覽",["The line graph illustrates …","The chart compares …","Overall, it is clear that …","The most striking feature is …"]],["描述趨勢",["rose steadily from … to …","fell sharply","peaked at …","remained stable at around …","fluctuated between … and …"]],["比較",["whereas","compared with","twice as high as","the highest proportion of","By contrast,"]],["流程",["The process begins with …","Once …, the … is …","After that,","is then transported to","Finally,"]]],
+  check:["第一句改寫了題目，沒有照抄","有清楚的 Overview（總覽）","引用數據並互相比較，而不是逐項列數字","沒有寫個人意見或猜測原因","時態正確：過去的年份用過去式","至少 150 字"]};
+GUIDES.gtletter = {structure:[["稱呼","照題目指定：Dear Sir or Madam, / Dear Mr Lee, / Dear Anna,"],["寫信目的","第一段一、兩句說明為什麼寫信"],["三個要點","每個要點一段，依題目順序，加上具體細節"],["結尾與署名","正式：Yours faithfully／Yours sincerely；朋友：Best wishes + 名字"]],
+  phrases:[["開頭",["I am writing to …","I am writing with regard to …","I hope you are well.","It was great to hear from you."]],["請求與抱怨",["I would be grateful if you could …","I would like to request …","Unfortunately, …","I was disappointed to find that …"]],["結尾",["I look forward to hearing from you.","Thank you for your attention to this matter.","I can't wait to see you!","Yours faithfully,","Yours sincerely,"]]],
+  check:["三個要點都寫到，並有具體細節","語氣符合收件人：公司與機關用正式語氣，朋友用輕鬆語氣","稱呼與結尾搭配正確：Sir or Madam → faithfully，寫出名字 → sincerely","至少 150 字","不需要寫地址"]};
+GUIDES.ielts2 = {structure:[["引言","改寫題目，清楚寫出你的立場（thesis）"],["主體段 1","主題句、解釋、例子"],["主體段 2","第二個論點或另一方的看法，同樣要解釋並舉例"],["結論","重申立場、總結論點，不加入新的想法"]],
+  phrases:[["引言",["It is often argued that …","This essay will argue that …","While some people believe …, I would argue that …"]],["論證",["The main reason for this is that …","A clear example of this is …","As a result,","This means that …"]],["讓步與反駁",["Admittedly, …","Although it is true that …,","On the other hand,","Nevertheless,"]],["結論",["In conclusion,","To sum up, I firmly believe that …","Overall, the advantages clearly outweigh the disadvantages."]]],
+  check:["回答了題目的每個部分（例如兩方看法＋自己的意見）","立場從頭到尾一致","每段有主題句、解釋和例子","正式語氣，避免縮寫和口語","至少 250 字"]};
+
 /* ---------- reading and listening: a text or script plus multiple-choice questions ---------- */
 const Q = (q, options, answer) => ({q, options, answer});
-const R_HINT = "讀短文，選出正確答案。", L_HINT = "按「播放錄音」聽，再選出正確答案。可以多聽幾次。";
+const R_HINT = "讀短文，選出正確答案。", L_HINT = "按「播放錄音」聽，再選出正確答案。可以多聽幾次。", IL_HINT = "按「播放錄音」聽，再選出正確答案。雅思考試的錄音只播放一次，可以先試著只聽一次。";
 const COMP = [
   {id:"r-pa1-1", skill:"reading", level:"PA1", title:"Lucy's cat", part:"Reading", hint:R_HINT,
     text:"Hello! My name is Lucy. I am seven. I have got a cat. Her name is Kiki.\n\nKiki is black and white. She likes fish and milk. She sleeps on my bed. I play with Kiki in the garden.",
@@ -754,6 +821,18 @@ const COMP = [
   {id:"l-c2-1", skill:"listening", level:"C2", title:"The myth of multitasking", part:"Listening", hint:L_HINT,
     text:"Lecturer: We like to believe we're good at multitasking, and in a narrow sense some of us are. But what most people call multitasking is really task-switching: the brain moving rapidly between activities rather than doing them simultaneously.\nLecturer: Each switch carries a cost, often only a fraction of a second, but those fractions accumulate, and they're accompanied by a rise in errors.\nLecturer: What I find most striking in the research is the gap between perception and performance. The people who rate themselves as the most accomplished multitaskers tend, when tested, to be among the worst at it. One plausible explanation is that they're drawn to multitasking not because they're skilled, but because they find it hard to resist distraction.\nLecturer: That's not to say all simultaneous activity is harmful. Walking while talking, or listening to music while doing something routine, causes little interference, because the tasks draw on different mental resources. The trouble begins when two tasks compete for the same resource, as when you try to read an email while following a conversation.",
     questions:[Q("What does the lecturer say most 'multitasking' really is?",["doing two things at once","switching quickly between tasks","a skill that can be learned","a modern invention"],1), Q("What is the effect of switching between tasks?",["It saves time overall.","It costs time and increases errors.","It has no measurable effect.","It improves concentration."],1), Q("What does the lecturer find most striking?",["Young people multitask better.","People who think they multitask well often do it badly.","Multitasking is becoming more common.","Music always harms concentration."],1), Q("Why might some people multitask a lot?",["They are naturally skilled.","They find it hard to ignore distractions.","Their jobs require it.","They get bored easily."],1), Q("When is doing two things at once least harmful?",["when both tasks involve language","when the tasks use different mental resources","when one task is reading","when the person is experienced"],1)]},
+  {id:"r-ia-1", skill:"reading", level:"IA", title:"The return of the urban bee", part:"Reading", hint:R_HINT,
+    text:"For much of the twentieth century, cities were regarded as hostile places for bees. Concrete replaced meadows, and gardens were often planted with decorative flowers that offered little nectar. It was therefore a surprise when a ten-year survey of one European capital found that the number of wild bee species recorded within the city had risen by almost a third.\n\nResearchers attribute the change largely to new planting policies. Since 2012, the city council has required that at least half of all flowers in public parks be native species, and many roadside verges are now mown only twice a year. Private gardeners have followed suit, encouraged by a popular campaign that offers free seed packets.\n\nHowever, the authors caution against drawing broad conclusions. The species that have benefited most are those that nest in the ground or in hollow stems, while bees that depend on old woodland remain rare. Moreover, the rapid growth in hobby beekeeping may be creating a new problem: honeybees compete with wild species for the same flowers, and in some districts there may now be more hives than the local flowers can support.",
+    questions:[Q("What did the ten-year survey find?",["Bees had disappeared from the city centre.","The number of wild bee species had increased.","Honeybees had replaced wild bees.","Decorative flowers attracted the most bees."],1), Q("What does the council require in public parks?",["that parks are mown twice a month","that half of the flowers are native species","that no decorative flowers are planted","that every park has beehives"],1), Q("How have private gardeners been encouraged to help?",["by tax reductions","by free seed packets","by a competition","by new laws"],1), Q("Which bees have benefited most?",["those that live in old woodland","those that nest in the ground or hollow stems","those kept by beekeepers","those that feed on decorative flowers"],1), Q("What concern do the authors raise about hobby beekeeping?",["Honeybees may compete with wild bees for food.","Beekeepers are destroying nests.","Honey production is falling.","Hives are too expensive for most people."],0)]},
+  {id:"l-ia-1", skill:"listening", level:"IA", title:"Joining the university library", part:"Listening", hint:IL_HINT,
+    text:"Librarian: Good morning. How can I help?\nStudent: Hi. I've just started my master's course and I'd like to join the library.\nLibrarian: Of course. Can I see your student card?\nStudent: Here you are. It's a temporary one. The proper card won't be ready until next Friday.\nLibrarian: That's fine. This will work for two weeks. Now, as a postgraduate, you can borrow up to twenty books at a time, not ten like undergraduates.\nStudent: Great. And how long can I keep them?\nLibrarian: Four weeks, and you can renew them online twice, unless someone else has requested the book.\nStudent: What happens if I return something late?\nLibrarian: It's fifty pence a day for normal loans, but short-loan books cost two pounds a day, so be careful with those.\nStudent: OK. Is the library open at weekends?\nLibrarian: The main building is open until ten on Saturdays, but on Sundays only the ground-floor study area is open, from twelve until six.",
+    questions:[Q("When will the student's proper card be ready?",["today","next Monday","next Friday","in two weeks"],2), Q("How many books can a postgraduate borrow at a time?",["ten","twelve","fifteen","twenty"],3), Q("How many times can a loan be renewed online?",["once","twice","three times","as often as you like"],1), Q("How much is the fine for a late short-loan book?",["fifty pence a day","one pound a day","two pounds a day","five pounds a week"],2), Q("What is open on Sundays?",["the whole library","only the ground-floor study area","nothing","the main building until ten"],1)]},
+  {id:"r-ig-1", skill:"reading", level:"IG", title:"New staff: car parking rules", part:"Reading", hint:R_HINT,
+    text:"Welcome to Harbour Logistics. Please read the following information about parking at our main site.\n\nStaff parking is in Car Park B, behind the warehouse. Car Park A, at the front of the building, is reserved for visitors and delivery drivers, and staff cars parked there will be asked to move. You will need a parking permit, which can be collected from reception during your first week. Please bring your vehicle registration number with you.\n\nThe car park gates open at 6 a.m. and close at 9 p.m. Staff working night shifts should use the side entrance on Mill Road, which is open 24 hours.\n\nAs spaces are limited, we encourage staff to share journeys. Employees who car-share at least three days a week can apply for a reserved space close to the entrance. Bicycle racks and showers are also available next to the staff canteen.",
+    questions:[Q("Where should staff park?",["in Car Park A","in Car Park B","on Mill Road","in front of the warehouse"],1), Q("What do you need to bring to collect a permit?",["your contract","a photo","your vehicle registration number","a deposit"],2), Q("How should night-shift workers enter the site?",["through the main gate","through the side entrance on Mill Road","through reception","through Car Park A"],1), Q("Who can apply for a reserved space near the entrance?",["managers","visitors","staff who car-share three days a week","staff who cycle to work"],2), Q("Where are the bicycle racks?",["behind the warehouse","next to the staff canteen","at reception","in Car Park A"],1)]},
+  {id:"l-ig-1", skill:"listening", level:"IG", title:"Riverside Community Centre", part:"Listening", hint:IL_HINT,
+    text:"Speaker: Good evening, everyone, and thank you for coming to hear about the new Riverside Community Centre, which opens on the first of March.\nSpeaker: The centre is on Bridge Street, in the old fire station, so it's only five minutes' walk from the train station. There's no car park, I'm afraid, but there is a bus stop right outside.\nSpeaker: On the ground floor you'll find a café and a large hall, which can be booked for private parties at weekends. Upstairs there are three smaller rooms for classes.\nSpeaker: Our most popular classes so far are cookery and photography. Cookery is on Tuesday evenings, and it's already almost full. Photography is on Thursday mornings, and there are still plenty of places.\nSpeaker: Membership costs twenty pounds a year, but it's free for anyone over sixty-five. Members get ten per cent off all classes and in the café.",
+    questions:[Q("What was the building used for before?",["a school","a fire station","a train station","a library"],1), Q("How can visitors best get to the centre?",["drive and use the car park","take the bus or walk from the station","take a boat","use the centre's minibus"],1), Q("What can be booked for private parties?",["the café","the large hall","the upstairs rooms","the garden"],1), Q("Which class still has plenty of places?",["cookery","painting","photography","yoga"],2), Q("Who can become a member for free?",["students","people over sixty-five","volunteers","families with children"],1)]},
 ];
 
 /* ---------- picture cards: a small kit of flat drawings, composed into exam-style scenes ---------- */
@@ -856,12 +935,96 @@ function renderPics(ids){
   return `<div class="pics${ids.length === 1 ? " one" : ""}">${ids.map((id, i) => `<figure class="pic">${ids.length > 1 ? `<figcaption>${i+1}</figcaption>` : ""}<svg viewBox="0 0 200 140" role="img" aria-label="${esc(SCENES[id].alt)}">${SCENES[id].draw()}</svg></figure>`).join("")}</div>`;
 }
 
+/* ---------- IELTS Academic Task 1: charts drawn from data, so the examiner prompt reads the same numbers the learner sees ---------- */
+const CHART_COLS = ["#2f6fca","#d6453f","#2f8a3e","#b7791f","#7b4fb8","#5f6b7a"];
+const fmtN = v => Number.isInteger(v) ? String(v) : String(+v.toFixed(2));
+const niceMax = v => { const p = 10 ** Math.floor(Math.log10(v || 1)), m = v / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p; };
+function chartLegend(names, y, W){
+  const w = names.map(n => n.length * 6.4 + 30), total = w.reduce((a, b) => a + b, 0);
+  let x = (W - total) / 2;
+  return names.map((n, i) => { const g = `<rect x="${x}" y="${y - 9}" width="12" height="12" rx="2" fill="${CHART_COLS[i % CHART_COLS.length]}"/><text x="${x + 17}" y="${y + 1}">${esc(n)}</text>`; x += w[i]; return g; }).join("");
+}
+function chartSvg(c){
+  const W = 480, H = 300;
+  let g = `<text x="${W/2}" y="20" text-anchor="middle" font-size="13" font-weight="600">${esc(c.title)}</text>`;
+  if (c.kind === "pie") {
+    const n = c.series.length, r = Math.min(78, W / n / 2 - 16);
+    c.series.forEach((s, k) => {
+      const cx = W / n * (k + .5), cy = 136, sum = s.values.reduce((a, b) => a + b, 0) || 1;
+      let a0 = -Math.PI / 2;
+      s.values.forEach((v, i) => {
+        const a1 = a0 + v / sum * Math.PI * 2, big = a1 - a0 > Math.PI ? 1 : 0, col = CHART_COLS[i % CHART_COLS.length];
+        const p = (a, rr) => `${(cx + rr * Math.cos(a)).toFixed(1)} ${(cy + rr * Math.sin(a)).toFixed(1)}`;
+        g += v / sum > .999 ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${col}"/>` : `<path d="M${cx} ${cy}L${p(a0, r)}A${r} ${r} 0 ${big} 1 ${p(a1, r)}Z" fill="${col}" stroke="#fff" stroke-width="1.5"/>`;
+        if (v / sum >= .05) { const m = (a0 + a1) / 2; g += `<text x="${(cx + r * .64 * Math.cos(m)).toFixed(1)}" y="${(cy + r * .64 * Math.sin(m) + 4).toFixed(1)}" text-anchor="middle" fill="#fff" font-weight="600">${fmtN(v)}${c.unit === "%" ? "%" : ""}</text>`; }
+        a0 = a1;
+      });
+      g += `<text x="${cx}" y="${cy + r + 18}" text-anchor="middle" font-weight="600">${esc(s.name)}</text>`;
+    });
+    return g + chartLegend(c.x, H - 12, W);
+  }
+  const L = 48, R = 466, T = 44, B = 226, n = c.x.length;
+  const top = niceMax(Math.max(...c.series.flatMap(s => s.values))), y = v => B - v / top * (B - T);
+  g += `<text x="${L - 6}" y="${T - 12}" text-anchor="end" fill="#586379">${esc(c.unit)}</text>`;
+  for (let i = 0; i <= 5; i++) { const v = top / 5 * i, yy = y(v).toFixed(1); g += `<line x1="${L}" x2="${R}" y1="${yy}" y2="${yy}" stroke="${i ? "#e3e6ec" : "#2a2a33"}"/><text x="${L - 6}" y="${+yy + 4}" text-anchor="end">${fmtN(v)}</text>`; }
+  const slot = (R - L) / n, cxAt = i => c.kind === "line" ? L + 18 + (R - L - 36) * (n === 1 ? .5 : i / (n - 1)) : L + slot * (i + .5);
+  c.x.forEach((x, i) => { g += `<text x="${cxAt(i).toFixed(1)}" y="${B + 17}" text-anchor="middle">${esc(x)}</text>`; });
+  c.series.forEach((s, k) => {
+    const col = CHART_COLS[k % CHART_COLS.length];
+    if (c.kind === "line") {
+      g += `<polyline points="${s.values.map((v, i) => `${cxAt(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>`;
+      g += s.values.map((v, i) => `<circle cx="${cxAt(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.5" fill="${col}"/>`).join("");
+    } else {
+      const bw = slot * .72 / c.series.length;
+      g += s.values.map((v, i) => `<rect x="${(cxAt(i) - slot * .36 + bw * k).toFixed(1)}" y="${y(v).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${(B - y(v)).toFixed(1)}" fill="${col}"/>`).join("");
+    }
+  });
+  return g + chartLegend(c.series.map(s => s.name), H - 12, W);
+}
+function renderChart(c){
+  if (!c) return "";
+  if (c.kind === "process") return `<figure class="chart"><div class="proc-t">${esc(c.title)}</div><ol class="proc">${c.steps.map(s => `<li><span>${esc(s)}</span></li>`).join("")}</ol></figure>`;
+  if (c.kind === "table") return `<figure class="chart"><table class="dtable"><caption>${esc(c.title)}</caption><thead><tr><th></th>${c.x.map(x => `<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>${c.series.map(s => `<tr><th>${esc(s.name)}</th>${s.values.map(v => `<td>${fmtN(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></figure>`;
+  return `<figure class="chart"><svg viewBox="0 0 480 300" role="img" aria-label="${esc(chartText(c))}" font-size="11" font-family="IBM Plex Sans, system-ui, sans-serif" fill="#2a2a33">${chartSvg(c)}</svg></figure>`;
+}
+function chartText(c){
+  if (c.kind === "process") return `Process diagram "${c.title}", ${c.steps.length} stages: ` + c.steps.map((s, i) => `${i + 1}. ${s}`).join("; ");
+  const head = `${{line:"Line graph", bar:"Bar chart", pie:"Pie charts", table:"Table"}[c.kind]} "${c.title}"${c.unit ? ` (unit: ${c.unit})` : ""}.`;
+  return c.kind === "pie"
+    ? head + "\n" + c.series.map(s => `${s.name}: ` + c.x.map((x, i) => `${x} ${fmtN(s.values[i])}`).join(", ")).join("\n")
+    : head + `\nCategories: ${c.x.join(", ")}\n` + c.series.map(s => `${s.name}: ${s.values.map(fmtN).join(", ")}`).join("\n");
+}
+function normChart(c){
+  if (!c || typeof c !== "object") return null;
+  const str = v => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, 60) : "";
+  const title = str(c.title) || "Chart";
+  if (c.kind === "process") { const steps = (Array.isArray(c.steps) ? c.steps : []).map(str).filter(Boolean).slice(0, 9); return steps.length >= 3 ? {kind:"process", title, steps} : null; }
+  if (!["line","bar","pie","table"].includes(c.kind)) return null;
+  const x = (Array.isArray(c.x) ? c.x : []).map(str).filter(Boolean).slice(0, 8);
+  const series = (Array.isArray(c.series) ? c.series : []).slice(0, c.kind === "pie" ? 3 : 5)
+    .map(s => ({name:str(s?.name), values:(Array.isArray(s?.values) ? s.values : []).map(Number)}))
+    .filter(s => s.name && s.values.length === x.length && s.values.every(v => Number.isFinite(v) && v >= 0));
+  if (x.length < 2 || !series.length || !series.some(s => s.values.some(v => v > 0))) return null;
+  return {kind:c.kind, title, unit:str(c.unit).slice(0, 20), x, series};
+}
+
 const CRIT = [
   {k:"content",zh:"內容",en:"Content",ds:"是否回應題目所有要點，讀者能完全掌握資訊"},
   {k:"communicative",zh:"溝通成效",en:"Communicative Achievement",ds:"文體格式與語氣是否恰當，能吸引並說服讀者"},
   {k:"organisation",zh:"組織結構",en:"Organisation",ds:"段落安排、連接詞與指代是否讓文章連貫"},
   {k:"language",zh:"語言運用",en:"Language",ds:"字彙與文法的廣度與準確度"},
 ];
+/* IELTS reads the same four score slots as its own four criteria, each marked as a band from 0 to 9 */
+const IELTS_CRIT = [
+  {k:"content",zh:"任務回應",en:"Task Achievement / Response",ds:"是否完整回應題目每個部分：Task 1 有清楚的總覽與重點數據，Task 2 立場清楚並充分發展"},
+  {k:"organisation",zh:"連貫與銜接",en:"Coherence & Cohesion",ds:"段落安排是否合理，連接詞與指代是否自然、不機械"},
+  {k:"communicative",zh:"詞彙",en:"Lexical Resource",ds:"字彙是否多樣、精確，搭配詞自然，拼字正確"},
+  {k:"language",zh:"文法",en:"Grammatical Range & Accuracy",ds:"是否有多樣句型（複合句、從屬子句），錯誤少且不影響理解"},
+];
+const isIelts = level => !!LEVELS.find(l => l.k === level)?.ielts;
+const critFor = level => isIelts(level) ? IELTS_CRIT : CRIT;
+const scoreMax = level => isIelts(level) ? 9 : 5;
+const passed = (total, level) => total != null && total >= (isIelts(level) ? 6 : 12);
 
 const BONUS = {
   PA1:["big","small","happy","red","blue","and","there is","there are","I like","in","on","under"],
@@ -871,6 +1034,8 @@ const BONUS = {
   B1:["however","although","in my opinion","for example","I'd rather","amazing","prefer","suggest","as soon as","unfortunately","definitely","instead"],
   B2:["nevertheless","furthermore","on the whole","whereas","significant","beneficial","a wide range of","tend to","in addition","as a result","drawback","it is worth"],
   C1:["arguably","consequently","notwithstanding","to a large extent","detrimental","foster","outweigh","in light of","compelling","inevitably","mitigate","by no means"],
+  IA:["overall","a steady increase","peaked at","fluctuated","whereas","respectively","accounted for","in contrast","approximately","furthermore","it could be argued","consequently"],
+  IG:["I am writing to","I would be grateful if","unfortunately","inconvenience","as a result","I look forward to","in my view","furthermore","on the other hand","therefore","convenient","apologise"],
   C2:["albeit","hitherto","insofar as","paradoxically","untenable","nuanced","exacerbate","underpin","ostensibly","by the same token","ubiquitous","conversely"],
 };
 const TITLES = [[13,"Proficiency 大師"],[10,"Advanced 作家"],[7,"First 寫手"],[5,"Preliminary 好手"],[3,"Key 闖關者"],[1,"見習考生"]];
@@ -882,9 +1047,11 @@ const BADGES = [
   {id:"k10", mark:"10K", name:"萬字作家", desc:"累計寫滿 10,000 字", test:(A,s) => s.words >= 10000},
   {id:"s3", mark:"3d", name:"三日不斷", desc:"連續 3 天練習", test:(A,s) => s.best >= 3},
   {id:"s7", mark:"7d", name:"一週全勤", desc:"連續 7 天練習", test:(A,s) => s.best >= 7},
-  {id:"pass", mark:"12+", name:"達標", desc:"單篇 AI 評分 12 分以上", test:A => A.some(a => a.total >= 12)},
-  {id:"ace", mark:"17+", name:"考官點頭", desc:"單篇 AI 評分 17 分以上", test:A => A.some(a => a.total >= 17)},
-  {id:"even", mark:"3333", name:"四項均衡", desc:"四項評分都在 3 分以上", test:A => A.some(a => a.scores && CRIT.every(c => a.scores[c.k] >= 3))},
+  {id:"pass", mark:"12+", name:"達標", desc:"單篇 AI 評分 12 分以上", test:A => A.some(a => !isIelts(a.level) && a.total >= 12)},
+  {id:"ace", mark:"17+", name:"考官點頭", desc:"單篇 AI 評分 17 分以上", test:A => A.some(a => !isIelts(a.level) && a.total >= 17)},
+  {id:"even", mark:"3333", name:"四項均衡", desc:"四項評分都在 3 分以上", test:A => A.some(a => !isIelts(a.level) && a.scores && CRIT.every(c => a.scores[c.k] >= 3))},
+  {id:"band6", mark:"6.0", name:"雅思門檻", desc:"雅思單篇 AI 評分 Band 6 以上", test:A => A.some(a => isIelts(a.level) && a.total >= 6)},
+  {id:"band7", mark:"7.0", name:"Band 7", desc:"雅思單篇 AI 評分 Band 7 以上", test:A => A.some(a => isIelts(a.level) && a.total >= 7)},
   {id:"ontime", mark:"TIME", name:"準時交卷", desc:"在建議時間內寫完並達到字數", test:A => A.some(a => a.onTime)},
   {id:"hunter", mark:"4/4", name:"單字獵人", desc:"一篇用上全部 4 個加分單字", test:A => A.some(a => a.bonusUsed >= 4)},
   {id:"daily", mark:"DAY", name:"接受挑戰", desc:"完成一次今日挑戰", test:A => A.some(a => a.daily)},
@@ -998,9 +1165,15 @@ function currentTask(){
 }
 const levelOf = k => LEVELS.find(l => l.k === k);
 function targetLabel(t){ return t.open ? `${t.min} 字以上` : t.about ? `約 ${t.about} 字` : `${t.min}–${t.max} 字`; }
-function totalScore(sc = state.scores){ const v = CRIT.map(c => sc?.[c.k]); return v.every(x => typeof x === "number") ? v.reduce((a,b) => a+b, 0) : null; }
-function band(total){
+function totalScore(sc = state.scores, level = state.level){
+  const v = CRIT.map(c => sc?.[c.k]);
+  if (!v.every(x => typeof x === "number")) return null;
+  const sum = v.reduce((a,b) => a+b, 0);
+  return isIelts(level) ? Math.round(sum / 4 * 2) / 2 : sum;
+}
+function band(total, ielts = isIelts(state.level)){
   if (total == null) return null;
+  if (ielts) return total >= 7 ? ["Band 7 以上 · 優秀","ok"] : total >= 6 ? ["Band 6 以上 · 達到多數大學門檻","ok"] : total >= 5 ? ["接近 Band 6，仍需加強","warn"] : ["低於 Band 5","bad"];
   if (total >= 17) return ["高於本級水準","ok"];
   if (total >= 12) return ["達到本級水準","ok"];
   if (total >= 8) return ["接近本級，仍需加強","warn"];
@@ -1033,7 +1206,8 @@ const persistSoon = () => { clearTimeout(persistT); persistT = setTimeout(persis
 
 /* ---------- rendering: levels and tasks ---------- */
 function renderLevels(){
-  const groups = [["Young Learners · 兒童", LEVELS.filter(l => l.yle)], ["Main Suite", LEVELS.filter(l => !l.yle)]];
+  const groups = [["Young Learners · 兒童", LEVELS.filter(l => l.yle)], ["Main Suite", LEVELS.filter(l => !l.yle && !l.ielts)]];
+  groups.push(["IELTS · 雅思", LEVELS.filter(l => l.ielts)]);
   $("#levels").innerHTML = groups.map(([g, ls]) => `<div class="lvgroup"><span class="eyebrow">${g}</span><div class="lvrow" style="--n:${ls.length}">${ls.map(l => `<button class="lv" data-lv="${l.k}" aria-pressed="${l.k === state.level}"><b>${l.cefr}</b><span>${l.short}</span></button>`).join("")}</div></div>`).join("");
   $("#lvinfo").textContent = levelOf(state.level).exam + "　" + levelOf(state.level).info;
 }
@@ -1062,7 +1236,7 @@ function renderPaper(){
       </div></div></div>`;
     return;
   }
-  const body = renderPrompt(t.prompt).replace("<p>@pics</p>", renderPics(t.pics));
+  const body = renderPrompt(t.prompt).replace("<p>@pics</p>", renderPics(t.pics)).replace("<p>@chart</p>", renderChart(t.chart));
   $("#paper").innerHTML = head + `<div class="paper-b"><h3>${esc(t.title)}</h3>${t.hint ? `<p class="zh">${esc(t.hint)}</p>` : ""}${body}</div>`;
 }
 function renderGuide(){
@@ -1121,22 +1295,24 @@ function insertAtCursor(text){
 function renderScores(){
   const fb = state.feedback;
   $("#scorePanel").hidden = simple && !fb && !fbRun.running && !fbRun.error && totalScore() == null;
-  $("#crit").innerHTML = CRIT.map(c => {
+  const lvl = currentTask().level, I = isIelts(lvl), max = scoreMax(lvl);
+  $("#crit").innerHTML = critFor(lvl).map(c => {
     const v = state.scores[c.k];
     const cm = fb?.criteria?.[c.k];
     return `<div class="crow"><div class="nm"><b>${c.zh}</b><small>${c.en}</small></div>
-      ${simple ? `<span class="sval">${v ?? "–"}<small> / 5</small></span>` : `<div class="pips" role="group" aria-label="${c.zh} 分數">${[0,1,2,3,4,5].map(n => `<button data-score="${c.k}" data-v="${n}" aria-pressed="${v === n}">${n}</button>`).join("")}</div>`}
+      ${simple ? `<span class="sval">${v ?? "–"}<small> / ${max}</small></span>` : `<div class="pips${I ? " nine" : ""}" role="group" aria-label="${c.zh} 分數">${Array.from({length:max + 1}, (_, n) => n).map(n => `<button data-score="${c.k}" data-v="${n}" aria-pressed="${v === n}">${n}</button>`).join("")}</div>`}
       ${cm ? `<div class="cm">${esc(cm)}</div>` : `<div class="ds">${c.ds}</div>`}</div>`;
   }).join("");
   const tot = totalScore(), b = band(tot);
   const shields = Math.max(1, Math.round((tot ?? 0) / 4));
   const st = tot != null && state.feedback && String(state.scoredBy).startsWith("ai")
-    ? (levelOf(currentTask().level).yle ? [`${shields} SHIELD${shields > 1 ? "S" : ""}`, `練習評分 · ${shields} 個盾牌`] : stampFor(tot)) : null;
+    ? (I ? [`BAND ${tot.toFixed(1)}`, "練習評分 · 雅思"] : levelOf(lvl).yle ? [`${shields} SHIELD${shields > 1 ? "S" : ""}`, `練習評分 · ${shields} 個盾牌`] : stampFor(tot)) : null;
   const fresh = state.justScored; state.justScored = false;
-  $("#total").innerHTML = `<span class="big">${tot ?? "–"}<small> / 20</small></span>${b ? `<span class="pill ${b[1]}">${b[0]}</span>` : `<span class="status">每項 0–5 分。3 分約為該級水準，5 分為該級的優秀表現。</span>`}${st ? `<span class="stamp${tot >= 12 ? " good" : ""}${fresh ? " fresh" : ""}"><b>${st[0]}</b><small>${st[1]}</small></span>` : ""}`;
+  const shown = tot == null ? "–" : I ? tot.toFixed(1) : String(tot);
+  $("#total").innerHTML = `<span class="big">${shown}<small> / ${I ? 9 : 20}</small></span>${b ? `<span class="pill ${b[1]}">${b[0]}</span>` : `<span class="status">${I ? "每項 0–9 分（Band），總分是四項的平均。Band 6–6.5 是多數大學的門檻，7 分以上為優秀。" : "每項 0–5 分。3 分約為該級水準，5 分為該級的優秀表現。"}</span>`}${st ? `<span class="stamp${passed(tot, lvl) ? " good" : ""}${fresh ? " fresh" : ""}"><b>${st[0]}</b><small>${st[1]}</small></span>` : ""}`;
   if (fresh && tot > 0 && !reduced()) {
     const node = $("#total .big").firstChild; let n = 0;
-    const step = () => { node.nodeValue = String(n); if (n++ < tot) setTimeout(step, 700 / tot); };
+    const step = () => { node.nodeValue = n >= tot ? shown : String(n); if (n++ < tot) setTimeout(step, 700 / tot); };
     step();
   }
   $("#scoredBy").innerHTML = state.scoredBy === "ai" ? '<span class="pill neutral">AI 評分</span>' : state.scoredBy === "self" ? '<span class="pill neutral">自評</span>' : state.scoredBy === "ai+self" ? '<span class="pill neutral">AI 評分（已調整）</span>' : "";
@@ -1145,7 +1321,7 @@ function renderScores(){
   else if (fbRun.error) top.innerHTML = `<p class="err-msg">${esc(fbRun.error)}</p>`;
   else if (fb?.summary) top.innerHTML = `<p class="summary" style="margin:0 0 14px">${esc(fb.summary)}</p>`;
   else top.innerHTML = aiState === "off" ? `<p class="status" style="margin:0 0 12px">此檢視無法使用 AI 批改。你可以對照下方標準自我評分。</p>`
-    : STANDALONE && !apiConf().key ? `<p class="status" style="margin:0 0 12px">要使用 AI 批改，請先 <button class="ibtn" data-open-api>設定 API 金鑰</button>。也可以自己點分數自評。</p>` : `<p class="status" style="margin:0 0 12px">寫完後按「AI 批改」，Claude 會依劍橋寫作的四項標準評分並用紅筆標出錯誤。也可以自己點分數自評。</p>`;
+    : STANDALONE && !apiConf().key ? `<p class="status" style="margin:0 0 12px">要使用 AI 批改，請先 <button class="ibtn" data-open-api>設定 API 金鑰</button>。也可以自己點分數自評。</p>` : `<p class="status" style="margin:0 0 12px">寫完後按「AI 批改」，Claude 會依${I ? "雅思寫作的四項標準給 Band 分數" : "劍橋寫作的四項標準評分"}並用紅筆標出錯誤。也可以自己點分數自評。</p>`;
 }
 function findPos(text, frag){
   frag = String(frag || "").trim(); if (frag.length < 2) return null;
@@ -1197,7 +1373,8 @@ function aiOff(){ aiState = "off"; ["#btnFeedback","#btnHint","#btnModel"].forEa
 function taskBrief(t){
   const lv = levelOf(t.level);
   const pics = (t.pics || []).map((id, i) => `Picture ${i+1}: ${SCENES[id].alt}`).join("\n");
-  return `EXAM: Cambridge ${lv.exam} (CEFR ${lv.cefr})${lv.yle ? " (Young Learners, for children)" : ""}, ${t.part}\nTASK TYPE: ${TYPES[t.type].en}${t.type === "essay2" ? " (summary and evaluation of two texts)" : ""}\nWORD RANGE: ${t.open ? t.min + " words or more" : t.about ? "about " + t.about + " words" : t.min + "-" + t.max + " words"}\nTASK:\n${t.prompt.replace(/\*\*/g, "").replace(/^@pics$/m, "[pictures]")}${pics ? `\nPICTURES (the candidate sees these drawings, described here):\n${pics}` : ""}${t.key ? `\nEXPECTED ANSWERS: ${t.key}` : ""}`;
+  const chart = t.chart ? `\nCHART DATA (the candidate sees this drawn as a chart; the data is invented for practice):\n${chartText(t.chart)}` : "";
+  return `EXAM: ${lv.ielts ? lv.exam + " Writing" : `Cambridge ${lv.exam} (CEFR ${lv.cefr})`}${lv.yle ? " (Young Learners, for children)" : ""}, ${t.part}\nTASK TYPE: ${TYPES[t.type].en}${t.type === "essay2" ? " (summary and evaluation of two texts)" : ""}\nWORD RANGE: ${t.open ? t.min + " words or more" : t.about ? "about " + t.about + " words" : t.min + "-" + t.max + " words"}\nTASK:\n${t.prompt.replace(/\*\*/g, "").replace(/^@pics$/m, "[pictures]").replace(/^@chart$/m, "[chart]")}${chart}${pics ? `\nPICTURES (the candidate sees these drawings, described here):\n${pics}` : ""}${t.key ? `\nEXPECTED ANSWERS: ${t.key}` : ""}`;
 }
 async function runFeedback(){
   const text = $ans.value.trim(), t = currentTask();
@@ -1208,8 +1385,12 @@ async function runFeedback(){
   const yle = !!levelOf(t.level).yle, kidish = kid || yle;
   fbRun.running = true; fbRun.error = ""; fbRun.ctl = new AbortController();
   $("#btnFeedback").disabled = true; renderScores();
-  const prompt = `You are an experienced Cambridge English writing examiner. Assess the candidate's answer using the official Cambridge English Writing Assessment Scale for this exam. Mark each of the four subscales from 0 to 5: Content, Communicative Achievement, Organisation, Language. Band 3 means adequate performance at this exam's level; band 5 means strong performance at this level. Be calibrated and honest: do not inflate marks. If the answer is off-task, misses required points, or is far outside the word range, reflect that in Content.
-${yle ? "\nThis is a Cambridge Young Learners task for a child. One- or two-word answers are correct where the task asks for them. Read the four subscales simply: Content = every question answered correctly and the pictures described; Communicative Achievement = a reader understands easily; Organisation = answers or sentences are clear and in order, and a story has a beginning, middle and end; Language = spelling, capital letters, full stops and simple grammar. In corrections, point out wrong answers as well as language errors.\n" : ""}
+  const intro = isIelts(t.level)
+    ? `You are an experienced IELTS Writing examiner. Assess the candidate's answer to this ${t.part} using the public IELTS Writing band descriptors. Give each of the four criteria a whole band from 0 to 9, using these JSON keys: "content" = ${t.part === "Task 1" ? "Task Achievement" : "Task Response"}, "organisation" = Coherence and Cohesion, "communicative" = Lexical Resource, "language" = Grammatical Range and Accuracy. Be calibrated and honest, as a trained examiner would: do not inflate bands. An answer under ${t.min} words is penalised in ${t.part === "Task 1" ? "Task Achievement" : "Task Response"}, as is off-topic or memorised text.${t.type === "chart" ? " For Academic Task 1, check for a clear overview, accurate data taken from the chart, and relevant comparisons; personal opinions are not wanted." : t.type === "gtletter" ? " For General Training Task 1, check that every bullet point is covered and extended, and that the tone suits the reader." : " For Task 2, check that every part of the question is answered and the position is clear and developed throughout."}
+`
+    : `You are an experienced Cambridge English writing examiner. Assess the candidate's answer using the official Cambridge English Writing Assessment Scale for this exam. Mark each of the four subscales from 0 to 5: Content, Communicative Achievement, Organisation, Language. Band 3 means adequate performance at this exam's level; band 5 means strong performance at this level. Be calibrated and honest: do not inflate marks. If the answer is off-task, misses required points, or is far outside the word range, reflect that in Content.
+`;
+  const prompt = `${intro}${yle ? "\nThis is a Cambridge Young Learners task for a child. One- or two-word answers are correct where the task asks for them. Read the four subscales simply: Content = every question answered correctly and the pictures described; Communicative Achievement = a reader understands easily; Organisation = answers or sentences are clear and in order, and a story has a beginning, middle and end; Language = spelling, capital letters, full stops and simple grammar. In corrections, point out wrong answers as well as language errors.\n" : ""}
 The learner is a Traditional Chinese speaker in Taiwan. Write all explanations in Traditional Chinese (繁體中文); keep quoted English exactly as English.${kidish ? " " + KID_NOTE + " Keep the marks honest." : ""}
 
 ${taskBrief(t)}
@@ -1231,7 +1412,7 @@ Include up to ${kidish ? 6 : 12} corrections (real errors only, most important f
   try {
     const r = await ai.json(prompt, { signal: fbRun.ctl.signal, modelTier: "default" });
     if (!r || typeof r !== "object" || !r.scores) throw {code:"invalid_json"};
-    const clamp = v => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : null; };
+    const clamp = v => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(0, Math.min(scoreMax(t.level), n)) : null; };
     const arr = v => Array.isArray(v) ? v : [];
     const str = v => typeof v === "string" ? v : "";
     state.feedback = {
@@ -1247,7 +1428,7 @@ Include up to ${kidish ? 6 : 12} corrections (real errors only, most important f
     fbRun.running = false; persistWork();
     $("#scorePanel").scrollIntoView({behavior: reduced() ? "auto" : "smooth", block:"start"});
     renderScores(); renderFeedback(); renderBonus();
-    if (totalScore() >= 12) setTimeout(() => confetti(), 450);
+    if (passed(totalScore(), t.level)) setTimeout(() => confetti(), 450);
     if (dbState === "ready") saveAttempt(true).then(r => { if (r) toast(`批改完成 · 本篇 +${r.xp} XP`, "gold"); });
   } catch (e) {
     fbRun.running = false;
@@ -1268,21 +1449,21 @@ async function runAssist(kind){
   const ctl = asRun.ctl = new AbortController(); asRun.kind = kind;
   const lv = levelOf(t.level);
   const prompt = kind === "hint"
-    ? `You are a Cambridge English writing tutor helping a Traditional Chinese speaker in Taiwan prepare for ${lv.exam}. Help them plan their answer to the task below WITHOUT writing the answer for them.${kid || lv.yle ? " " + KID_NOTE : ""}
+    ? `You are ${lv.ielts ? "an IELTS" : "a Cambridge English"} writing tutor helping a Traditional Chinese speaker in Taiwan prepare for ${lv.exam}. Help them plan their answer to the task below WITHOUT writing the answer for them.${kid || lv.yle ? " " + KID_NOTE : ""}
 
 ${taskBrief(t)}
 
 Write in Traditional Chinese (繁體中文), with English for example phrases. Use these sections, each starting with a "## " heading:
 ## 審題重點 (what the task requires, every point that must be covered, the target reader and the right register)
 ## 段落規劃 (a paragraph-by-paragraph plan, one bullet per paragraph, saying what to write; include 1-2 idea options where useful)
-## 實用表達 (8 useful phrases or collocations at ${lv.cefr} level that fit this task, each as "- English — 中文意思")
+## 實用表達 (8 useful phrases or collocations ${lv.ielts ? "at IELTS Band 7 level" : `at ${lv.cefr} level`} that fit this task, each as "- English — 中文意思")
 ## 常見錯誤 (3 mistakes candidates often make on this kind of task)
 Keep it concise. Use "- " bullets. No tables.`
-    : `Write a model answer to this Cambridge ${lv.exam} writing task.
+    : `Write a model answer to this ${lv.ielts ? lv.exam : "Cambridge " + lv.exam} writing task.
 
 ${taskBrief(t)}
 
-Requirements: write as a strong ${lv.cefr}${lv.yle ? " child" : ""} candidate would (band 5 at this level, natural and accurate, not beyond the level). Stay within the word range. Use the layout conventions of the task type (a title for an article or review, headings for a report or proposal, the correct greeting and sign-off for an email or letter). Output the answer as plain text paragraphs; do not use Markdown symbols in the answer itself.
+Requirements: ${lv.ielts ? `write as a Band 8 candidate would: natural, precise and accurate${t.type === "chart" ? ", with a clear overview and well-chosen data from the chart" : t.type === "gtletter" ? ", covering every bullet point in a suitable tone" : ", with a clear position developed throughout"}. Write at least ${t.min} words and no more than about ${Math.round(t.min * 1.3)}.` : `write as a strong ${lv.cefr}${lv.yle ? " child" : ""} candidate would (band 5 at this level, natural and accurate, not beyond the level). Stay within the word range.`} Use the layout conventions of the task type (a title for an article or review, headings for a report or proposal, the correct greeting and sign-off for an email or letter). Output the answer as plain text paragraphs; do not use Markdown symbols in the answer itself.
 After the answer, write a line containing only "---", then a heading line "## 範文重點", then 3-4 "- " bullets in Traditional Chinese explaining the techniques used (structure, linking, vocabulary, register) that the learner can copy.`;
   $("#assist").hidden = false;
   $("#assistTitle").textContent = kind === "hint" ? "構思提示" : `AI 範文 · ${lv.exam}`;
@@ -1302,7 +1483,7 @@ After the answer, write a line containing only "---", then a heading line "## �
 
 /* ---------- AI-written practice tasks (kept per level in this browser, newest 10) ---------- */
 let genBusy = false;
-const GEN_TYPES = {PA1:["aboutme"], A1:["aboutme","story"], FLY:["aboutme","story","note"], A2:["note","story"], B1:["email","article","story"], B2:["essay","article","review","email","report"], C1:["essay","proposal","report","review","letter"], C2:["essay2","article","report","review","letter"]};
+const GEN_TYPES = {IA:["chart","ielts2"], IG:["gtletter","ielts2"], PA1:["aboutme"], A1:["aboutme","story"], FLY:["aboutme","story","note"], A2:["note","story"], B1:["email","article","story"], B2:["essay","article","review","email","report"], C1:["essay","proposal","report","review","letter"], C2:["essay2","article","report","review","letter"]};
 const genKey = level => "cw.gen." + level;
 async function genTask(){
   if (genBusy || needKey()) return;
@@ -1312,7 +1493,7 @@ async function genTask(){
   const plain = TASKS.filter(t => !t.pics && !t.gen);
   const ex = plain.find(t => t.level === level && t.type === pref) || plain.find(t => t.type === pref) || plain.find(t => t.level === level);
   const titles = TASKS.filter(t => t.level === level).map(t => t.title);
-  const prompt = `You write practice tasks in the style of the Cambridge English ${lv.exam} writing paper (CEFR ${lv.cefr})${lv.yle ? ", for children" : ""}. Write ONE new, original task of type "${pref}" (${TYPES[pref].en}).
+  const prompt = `You write practice tasks in the style of the ${lv.ielts ? lv.exam + " Writing test" : `Cambridge English ${lv.exam} writing paper (CEFR ${lv.cefr})`}${lv.yle ? ", for children" : ""}. Write ONE new, original task of type "${pref}" (${TYPES[pref].en}).
 Choose a fresh, interesting topic that is clearly different from all of these existing tasks: ${titles.join("; ")}.
 Match the real exam's format, length and difficulty for this level.${lv.yle ? " Use very simple English that a child at this level can read, and a topic children enjoy." : ""}
 Format the "prompt" text with these conventions: a blank line between paragraphs; "- " at the start of a line for bullet points; lines starting with "> " for a boxed text such as an email, an announcement, a first sentence or the essay question (a line with only ">" is a blank line inside the box); **double asterisks** for bold; and for an email the candidate answers using notes, each note in square brackets at the end of the line it refers to, like [Explain].
@@ -1320,15 +1501,19 @@ Format the "prompt" text with these conventions: a blank line between paragraphs
 Here is an existing task in this app, as a format example:
 TITLE: ${ex.title}
 PROMPT:
-${ex.prompt}
-
-Reply with only a JSON object: {"title": "short English title", "part": "the exam part, e.g. Part 2, or Practice", "prompt": "the full task text", "min": number of words, "max": number of words, "hint": "one short sentence in Traditional Chinese (繁體中文) telling the learner what to do"}`;
+${ex.prompt}${ex.chart ? `\nCHART: ${JSON.stringify(ex.chart)}` : ""}
+${pref === "chart" ? `
+This is Academic Task 1, so the task needs a chart. Put a line containing only "@chart" where the chart goes, and add a "chart" field to the JSON with realistic, internally consistent invented data about a single country, city or organisation. Chart format: {"kind": "line" | "bar" | "pie" | "table", "title": "...", "unit": "% or a unit such as millions", "x": [3 to 7 category or year labels], "series": [{"name": "...", "values": [one number per x label]}]} with 1 to 4 series (for "pie", each series is one pie and its values add up to 100); or, for a process diagram, {"kind": "process", "title": "...", "steps": [5 to 8 short steps]}. Vary the chart kind.
+` : ""}
+Reply with only a JSON object: {"title": "short English title", "part": "the exam part, e.g. Part 2, or Practice", "prompt": "the full task text", "min": number of words, "max": number of words, "hint": "one short sentence in Traditional Chinese (繁體中文) telling the learner what to do"${pref === "chart" ? ', "chart": {...}' : ""}}`;
   genBusy = true; renderTaskList();
   try {
     const r = await ai.json(prompt, {modelTier:"default", cache:false, ...(STANDALONE ? {apiEffort:"low"} : {})});
     const str = v => typeof v === "string" ? v.trim() : "";
-    const text = str(r?.prompt);
-    if (!text) throw {code:"invalid_json"};
+    let text = str(r?.prompt);
+    const chart = pref === "chart" ? normChart(r?.chart) : null;
+    if (!text || (pref === "chart" && !chart)) throw {code:"invalid_json"};
+    if (chart) text = /^@chart$/m.test(text) ? text.replace(/\s*^@chart$\s*/m, "\n\n@chart\n\n") : text + "\n\n@chart";
     const d = LEVEL_DEFAULTS[level], base = plain.find(t => t.level === level && t.type === pref) || plain.find(t => t.level === level) || {};
     let min = Math.round(+r.min) || d.min, max = Math.round(+r.max) || d.max;
     if (max <= min) max = min + Math.max(10, Math.round(min * .3));
@@ -1336,6 +1521,8 @@ Reply with only a JSON object: {"title": "short English title", "part": "the exa
       title:str(r.title).slice(0, 60) || "New task", prompt:text, min, max, minutes:base.minutes || d.minutes, hint:str(r.hint).slice(0, 120)};
     if (base.open || lv.yle) task.open = true;
     if (base.about) task.about = base.about;
+    if (lv.ielts) Object.assign(task, {part:base.part, min:base.min, max:base.max, compulsory:true});
+    if (chart) task.chart = chart;
     const list = store.get(genKey(level), []).concat(task);
     while (list.length > 10) {
       const old = list.shift(), i = TASKS.findIndex(t => t.id === old.id);
@@ -1405,25 +1592,28 @@ function renderHistory(){
   }
   if (dbState === "pending") { rows.innerHTML = `<li class="empty" style="display:block">載入紀錄中……</li>`; return; }
   const words = attempts.reduce((s,a) => s + (a.words || 0), 0);
-  const scored = attempts.filter(a => typeof a.total === "number").slice(0, 10);
+  const anyScored = attempts.filter(a => typeof a.total === "number");
+  let fi = isIelts(state.level);
+  if (!anyScored.some(a => isIelts(a.level) === fi)) fi = !fi;
+  const scored = anyScored.filter(a => isIelts(a.level) === fi).slice(0, 10), hc = fi ? IELTS_CRIT : CRIT, hmax = fi ? 9 : 5, hmid = fi ? 6 : 3;
   const avg = scored.length ? (scored.reduce((s,a) => s + a.total, 0) / scored.length) : null;
   const p = playerLevel(totalXP()), sk = streak();
-  $("#stats").innerHTML = `<div class="stat"><b>Lv ${p.lv}</b><span>${title(p.lv)} · 共 ${totalXP()} XP</span></div><div class="stat"><b>${sk.n}<small style="font-size:14px;color:var(--muted)"> 天</small></b><span>連續練習 · 最長 ${sk.best} 天</span></div><div class="stat"><b>${attempts.length}</b><span>篇作品 · 共 ${words.toLocaleString()} 字</span></div><div class="stat"><b>${avg == null ? "–" : avg.toFixed(1)}<small style="font-size:14px;color:var(--muted)"> / 20</small></b><span>最近 10 篇平均分</span></div>`;
+  $("#stats").innerHTML = `<div class="stat"><b>Lv ${p.lv}</b><span>${title(p.lv)} · 共 ${totalXP()} XP</span></div><div class="stat"><b>${sk.n}<small style="font-size:14px;color:var(--muted)"> 天</small></b><span>連續練習 · 最長 ${sk.best} 天</span></div><div class="stat"><b>${attempts.length}</b><span>篇作品 · 共 ${words.toLocaleString()} 字</span></div><div class="stat"><b>${avg == null ? "–" : avg.toFixed(1)}<small style="font-size:14px;color:var(--muted)"> / ${fi ? 9 : 20}</small></b><span>最近 10 篇${fi ? "雅思平均 Band" : "平均分"}</span></div>`;
   renderBadges();
   if (!scored.length) $("#bars").innerHTML = `<p class="status" style="margin:0">還沒有評分過的作品。用「AI 批改」或自評後儲存，這裡會顯示你的強項與弱項。</p>`;
   else {
-    const av = CRIT.map(c => ({c, v: scored.reduce((s,a) => s + (a.scores?.[c.k] || 0), 0) / scored.length}));
+    const av = hc.map(c => ({c, v: scored.reduce((s,a) => s + (a.scores?.[c.k] || 0), 0) / scored.length}));
     const min = Math.min(...av.map(x => x.v));
-    $("#bars").innerHTML = `<div class="bars">${av.map(({c,v}) => `<div class="bar"><span>${c.zh}</span><div class="track"><i class="${v === min && av.some(x => x.v !== min) ? "weak" : ""}" style="width:${v/5*100}%"></i><u title="3 分 = 本級水準"></u></div><span class="v">${v.toFixed(1)}</span></div>`).join("")}
-      <div class="axis"><span></span><div>${[0,1,2,3,4,5].map(n => `<span style="left:${n*20}%">${n}</span>`).join("")}</div><span></span></div></div>
-      ${av.some(x => x.v !== min) ? `<p class="hint">最需要加強：<b style="color:var(--pen)">${av.filter(x => x.v === min).map(x => x.c.zh).join("、")}</b>。直線標示 3 分（本級水準）。</p>` : ""}`;
+    $("#bars").innerHTML = `<div class="bars">${av.map(({c,v}) => `<div class="bar"><span>${c.zh}</span><div class="track"><i class="${v === min && av.some(x => x.v !== min) ? "weak" : ""}" style="width:${v/hmax*100}%"></i><u style="left:${hmid/hmax*100}%" title="${fi ? "Band 6 = 多數大學門檻" : "3 分 = 本級水準"}"></u></div><span class="v">${v.toFixed(1)}</span></div>`).join("")}
+      <div class="axis"><span></span><div>${(fi ? [0,3,6,9] : [0,1,2,3,4,5]).map(n => `<span style="left:${n/hmax*100}%">${n}</span>`).join("")}</div><span></span></div></div>
+      ${av.some(x => x.v !== min) ? `<p class="hint">${fi ? "雅思" : ""}最需要加強：<b style="color:var(--pen)">${av.filter(x => x.v === min).map(x => x.c.zh).join("、")}</b>。直線標示${fi ? " Band 6（多數大學門檻）" : " 3 分（本級水準）"}。</p>` : ""}`;
   }
   $("#histN").textContent = attempts.length ? `${attempts.length} 篇` : "";
   if (!attempts.length) { rows.innerHTML = `<li class="empty" style="display:block">還沒有紀錄。寫完一篇後按「儲存」或「AI 批改」，作品就會出現在這裡。</li>`; return; }
   rows.innerHTML = attempts.map(a => {
-    const b = band(a.total);
-    return `<li><span class="lvtag">${esc(levelOf(a.level)?.short || a.level)}</span><div class="t"><b>${esc(a.taskTitle)}</b><small>${fmtDate(a.updatedAt)} · ${a.skill && a.skill !== "writing" ? esc(TYPES[a.type]?.zh || "") + "練習" : `${esc(a.part)} ${esc(TYPES[a.type]?.zh || "")} · ${a.words || 0} 字${a.spent ? " · " + Math.round(a.spent/60) + " 分鐘" : ""}`}</small></div>
-      <div class="acts">${a.skill && a.skill !== "writing" ? `<span class="pill ${a.score / a.outOf >= .6 ? "ok" : "warn"}">答對 ${a.score}/${a.outOf}</span>` : typeof a.total === "number" ? `<span class="pill ${b[1]}">${a.total}/20</span>` : `<span class="pill neutral">未評分</span>`}<button class="ibtn" data-open="${esc(a.id)}">開啟</button><button class="ibtn" data-del="${esc(a.id)}">刪除</button></div></li>`;
+    const ia = isIelts(a.level), b = band(a.total, ia);
+    return `<li><span class="lvtag">${esc(levelOf(a.level)?.tag || levelOf(a.level)?.short || a.level)}</span><div class="t"><b>${esc(a.taskTitle)}</b><small>${fmtDate(a.updatedAt)} · ${a.skill && a.skill !== "writing" ? esc(TYPES[a.type]?.zh || "") + "練習" : `${esc(a.part)} ${esc(TYPES[a.type]?.zh || "")} · ${a.words || 0} 字${a.spent ? " · " + Math.round(a.spent/60) + " 分鐘" : ""}`}</small></div>
+      <div class="acts">${a.skill && a.skill !== "writing" ? `<span class="pill ${a.score / a.outOf >= .6 ? "ok" : "warn"}">答對 ${a.score}/${a.outOf}</span>` : typeof a.total === "number" ? `<span class="pill ${b[1]}">${ia ? "Band " + a.total.toFixed(1) : a.total + "/20"}</span>` : `<span class="pill neutral">未評分</span>`}<button class="ibtn" data-open="${esc(a.id)}">開啟</button><button class="ibtn" data-del="${esc(a.id)}">刪除</button></div></li>`;
   }).join("");
 }
 
@@ -1447,7 +1637,8 @@ function attemptXP(){
   const t = currentTask(), words = countWords($ans.value), used = bonusUsed().length;
   const onTime = timer.spent > 0 && timer.spent <= t.minutes * 60 && words >= t.min;
   const daily = !t.custom && t.id === dailyTask(t.level).id;
-  return {xp: calcXP({words, max:t.max, total:totalScore(), used, daily, onTime}), used, onTime, daily};
+  const tot = totalScore(undefined, t.level);
+  return {xp: calcXP({words, max:t.max, total:tot != null && isIelts(t.level) ? Math.round(tot / 9 * 20) : tot, used, daily, onTime}), used, onTime, daily};
 }
 const totalXP = () => attempts.reduce((s, a) => s + (a.xp || 0), 0);
 function playerLevel(xp){ let lv = 1, need = 150, acc = 0; while (xp >= acc + need) { acc += need; lv++; need = 150 + 50 * (lv - 1); } return {lv, into: xp - acc, need}; }
@@ -1703,7 +1894,7 @@ function ttsPlay(script){
 function renderPlayerState(){
   const b = $("#lPlay"), s = $("#lCount");
   if (b) b.textContent = ttsOn ? "停止" : ttsPlays ? "再聽一次" : "播放錄音";
-  if (s) s.textContent = !TTS ? "這個瀏覽器不能朗讀，請改用 iPad 的 Safari，或直接看下面的原文。" : ttsPlays ? `已播放 ${ttsPlays} 次` : "考試時每段錄音會播放兩次";
+  if (s) s.textContent = !TTS ? "這個瀏覽器不能朗讀，請改用 iPad 的 Safari，或直接看下面的原文。" : ttsPlays ? `已播放 ${ttsPlays} 次` : isIelts(state.level) ? "雅思考試的錄音只播放一次" : "考試時每段錄音會播放兩次";
 }
 function renderComp(){
   const list = compList(), cur = currentComp(), L = state.skill === "listening";
@@ -1758,10 +1949,10 @@ async function genComp(){
   if (compBusy || needKey()) return;
   if (!ai) { toast(aiState === "off" ? "此檢視無法使用 AI 出題" : "正在連線 Claude，請稍候再按一次"); return; }
   const skill = state.skill, level = state.level, lv = levelOf(level), L = skill === "listening";
-  const nOpt = ["B2","C1","C2"].includes(level) ? 4 : 3;
+  const nOpt = ["B2","C1","C2"].includes(level) || lv.ielts ? 4 : 3;
   const ex = COMP.find(c => c.skill === skill && c.level === level && !c.gen);
   const titles = COMP.filter(c => c.skill === skill && c.level === level).map(c => c.title);
-  const prompt = `You write ${L ? "listening" : "reading"} practice in the style of the Cambridge English ${lv.exam} exam (CEFR ${lv.cefr})${lv.yle ? ", for children" : ""}. Write ONE new, original ${L ? "listening script (a short conversation between two named speakers, or a short talk by one speaker)" : "reading text"} with ${ex.questions.length} multiple-choice questions. Each question has exactly ${nOpt} options and one correct answer.
+  const prompt = `You write ${L ? "listening" : "reading"} practice in the style of the ${lv.ielts ? lv.exam + " test" : `Cambridge English ${lv.exam} exam (CEFR ${lv.cefr})`}${lv.yle ? ", for children" : ""}. Write ONE new, original ${L ? "listening script (a short conversation between two named speakers, or a short talk by one speaker)" : "reading text"} with ${ex.questions.length} multiple-choice questions. Each question has exactly ${nOpt} options and one correct answer.
 Choose a fresh topic that is different from these: ${titles.join("; ")}.
 Match the real exam's length, vocabulary and difficulty for this level.${lv.yle ? " Use very simple English that a child at this level understands, and a topic children enjoy." : ""}
 ${L ? 'Write the script one line per turn, each line starting with the speaker name and a colon, like "Anna: Hi, Tom!". Every answer must be clearly heard in the script, and some wrong options should also be mentioned so the task is not too easy.' : "Separate paragraphs with a blank line. The questions should test understanding, not just matching words."}

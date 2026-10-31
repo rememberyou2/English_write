@@ -565,7 +565,7 @@ body.kid .paper-b{font-size:17px}
           <label for="bRoom">房間代碼（同一家人填一樣的代碼）</label>
           <input id="bRoom" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="例如：wang-family-2026">
           <details id="bDb">
-            <summary>資料庫設定（只有建立排行榜的人需要設定一次）</summary>
+            <summary>資料庫設定（已經設定好，通常不用改）</summary>
             <ol>
               <li>到 <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a> 免費註冊，按「New project」建立一個專案。</li>
               <li>在左側選「SQL Editor」，貼上下面這段，按「Run」。<button class="ibtn" id="bCopySql">複製 SQL</button></li>
@@ -2132,7 +2132,9 @@ alter table scores enable row level security;
 create policy "read scores" on scores for select to anon using (true);
 create policy "add scores" on scores for insert to anon with check (true);`;
 const board = {rows:[], state:"idle", error:"", exam:"cambridge"};
-function boardConf(){ const c = store.get("cw.board", {}) || {}; return {url:c.url || "", key:c.key || "", room:c.room || "", name:c.name || ""}; }
+// this site's own Supabase project; the publishable key is meant to be public, and access is limited by the table's RLS policies
+const BOARD_DEFAULT = {url:"https://fcpcbjhhbdwyxgcrkuvv.supabase.co", key:"sb_publishable_JJVhGX6iCmyaaG7w9yVEOQ_Et9yNGHu"};
+function boardConf(){ const c = store.get("cw.board", {}) || {}; return {url:c.url || BOARD_DEFAULT.url, key:c.key || BOARD_DEFAULT.key, room:c.room || "", name:c.name || ""}; }
 const boardReady = () => { const c = boardConf(); return !!(c.url && c.key && c.room && c.name); };
 function boardReq(c, query, init = {}){
   const h = {apikey:c.key, "Content-Type":"application/json"};
@@ -2337,7 +2339,7 @@ $("#bCopySql").addEventListener("click", () => navigator.clipboard?.writeText(BO
 $("#bSave").addEventListener("click", () => {
   const v = id => $(id).value.trim(), url = v("#bUrl").replace(/\/+$/, ""), name = v("#bName").slice(0, 20), room = v("#bRoom").slice(0, 40);
   if (url && !/^https:\/\/[^\s/]+$/.test(url)) { $("#bState").textContent = "Project URL 應該像 https://xxxx.supabase.co"; return; }
-  store.set("cw.board", {url, key:v("#bKey"), room, name});
+  store.set("cw.board", {url:url === BOARD_DEFAULT.url ? "" : url, key:v("#bKey") === BOARD_DEFAULT.key ? "" : v("#bKey"), room, name});
   const missing = [!name && "暱稱", !room && "房間代碼", (!url || !v("#bKey")) && "資料庫設定"].filter(Boolean);
   $("#bState").textContent = missing.length ? "還缺：" + missing.join("、") : "已儲存";
   if (!missing.length) { $("#boardSetup").hidden = true; toast("排行榜設定完成"); }

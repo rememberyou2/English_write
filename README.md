@@ -11,9 +11,8 @@
 
 在 GitHub Pages 打開網站時，上方會多一個「排行榜」分頁。每篇作品第一次經 AI 批改後，暱稱、級數、題目和分數會送到你們自己的 Supabase 資料庫（不送文章內容），排行榜依平均分數排名，劍橋和雅思分開。
 
-1. 到 [supabase.com](https://supabase.com) 免費註冊並建立專案。
-2. 在網站「排行榜 → 設定 → 資料庫設定」按「複製 SQL」，貼到 Supabase 的 SQL Editor 執行。
-3. 把 Project URL 和 publishable key（或 anon key）填進設定，再填暱稱和房間代碼，按「儲存」。
-4. 按「複製邀請連結」傳給家人，他們打開連結、填上暱稱就能加入。
+網站已經內建這個儲存庫自己的 Supabase 專案，家人只要在「排行榜 → 設定」填上暱稱和同一個房間代碼就能加入，也可以按「複製邀請連結」傳給他們。
+
+如果要改用另一個 Supabase 專案：在 SQL Editor 執行設定頁裡「複製 SQL」的內容，再把 Project URL 和 publishable key 填進「資料庫設定」。
 
 publishable key 本來就是給網頁公開使用的金鑰，不是密碼；但知道連結的人都能讀取和送出分數，請只分享給認識的人。

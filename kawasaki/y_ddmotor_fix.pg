@@ -1,0 +1,39 @@
+.PROGRAM y_ddmotor(.rb,.pos)
+; /********************************************************
+; Function : (duAro) DDMotor Program
+; WorkType : (Common) Taiwan Yih Tah
+; Copyright: (C)2017  by Kawasaki Heavy Industries, Ltd.
+; 2026/10 : DD motor ready wait timeout 5 sec fix (R:TIMER1 L:TIMER2)
+; ********************************************************/
+IF .rb==1 THEN
+TIMER 1 = 0
+WHILE SIG(-1131) DO     ;DD Motor R Ready wait
+IF TIMER(1)>=5 THEN
+SIGNAL 137              ;DD Motor R Timeout Alarm
+HALT
+END
+TWAIT 0.1
+END
+SIGNAL 136
+PLCAOUT 3: 15 = .pos
+BREAK
+TWAIT 0.1
+PULSE 135,1
+END
+IF .rb==2 THEN
+TIMER 2 = 0
+WHILE SIG(-1138) DO     ;DD Motor L Ready wait
+IF TIMER(2)>=5 THEN
+SIGNAL 144              ;DD Motor L Timeout Alarm
+HALT
+END
+TWAIT 0.1
+END
+SIGNAL 143
+PLCAOUT 3: 16 = .pos
+BREAK
+TWAIT 0.1
+PULSE 142,1
+END
+RETURN
+.END

@@ -340,6 +340,23 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .api p{margin:0;font-size:14px}
 .api label{font-size:13px;color:var(--muted);margin-top:4px}
 .api input,.api select{font:inherit;font-size:16px;color:var(--ink);background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:9px 10px;width:100%}
+.board-h{flex-wrap:wrap}
+.board-h .tabs button[aria-pressed="true"]{background:var(--sheet);color:var(--ink);box-shadow:var(--shadow)}
+.lb{list-style:none;margin:0;padding:0}
+.lb li{display:grid;grid-template-columns:2.2em minmax(0,1fr) auto auto;gap:4px 14px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--line)}
+.lb li:last-child{border-bottom:0}
+.lb li.me{background:var(--accent-soft)}
+.lb .rk{font-family:var(--f-mono);font-size:15px;font-weight:500;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--rule)}
+.lb li:nth-child(1) .rk{background:var(--gold);color:var(--gold-ink);border-color:transparent}
+.lb .nm{min-width:0}
+.lb .nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .nm small,.lb .ct{color:var(--muted);font-size:12.5px}
+.lb .av{font-family:var(--f-mono);font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+.lb .av small{font-size:12px;color:var(--muted)}
+.sql{font-family:var(--f-mono);font-size:12px;line-height:1.5;background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:10px 12px;overflow-x:auto;margin:4px 0;white-space:pre}
+.api details summary{cursor:pointer;font-size:14px;font-weight:500;margin-top:6px}
+.api details[open] summary{margin-bottom:6px}
+.api ol{margin:0;padding-left:20px;font-size:14px}
 .api-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
 .hint a{color:var(--accent)}
 .backup{display:flex;gap:6px}
@@ -407,6 +424,7 @@ body.kid .paper-b{font-size:17px}
     <nav class="tabs" role="tablist" aria-label="檢視">
       <button id="tab-practice" role="tab" aria-selected="true">練習</button>
       <button id="tab-history" role="tab" aria-selected="false">我的紀錄<span class="count" id="histCount"></span></button>
+      <button id="tab-board" role="tab" aria-selected="false" hidden>排行榜</button>
     </nav>
   </div>
 </header>
@@ -532,6 +550,45 @@ body.kid .paper-b{font-size:17px}
       <div class="panel">
         <div class="panel-h"><h2>所有作品 <span class="eyebrow" id="histN"></span></h2><span class="backup" id="backupActs" hidden><button class="ibtn" id="btnExport">匯出備份</button><button class="ibtn" id="btnImport">匯入備份</button><input type="file" id="importFile" accept="application/json,.json" hidden></span></div>
         <ul class="rows" id="rows"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-board" hidden>
+    <div class="hist" style="padding-top:20px">
+      <div class="panel" id="boardSetup" hidden>
+        <div class="panel-h"><h2>排行榜設定</h2><button class="ibtn" id="bClose">關閉</button></div>
+        <div class="panel-b api">
+          <p>每篇作品經 AI 批改後，分數會自動送到你們的排行榜：只送暱稱、級數、題目和分數，不會送出文章內容。同一個房間的人會互相看到分數。</p>
+          <label for="bName">我的暱稱（排行榜上顯示的名字）</label>
+          <input id="bName" maxlength="20" autocomplete="nickname" placeholder="例如：小明">
+          <label for="bRoom">房間代碼（同一家人填一樣的代碼）</label>
+          <input id="bRoom" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="例如：wang-family-2026">
+          <details id="bDb">
+            <summary>資料庫設定（只有建立排行榜的人需要設定一次）</summary>
+            <ol>
+              <li>到 <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a> 免費註冊，按「New project」建立一個專案。</li>
+              <li>在左側選「SQL Editor」，貼上下面這段，按「Run」。<button class="ibtn" id="bCopySql">複製 SQL</button></li>
+              <li>到「Project Settings → API Keys」，複製 Project URL 和 publishable key（或 anon public key），貼到下面。</li>
+              <li>儲存後按「複製邀請連結」傳給家人；他們打開連結、填上暱稱就能加入。</li>
+            </ol>
+            <pre class="sql" id="bSql"></pre>
+            <label for="bUrl">Project URL</label>
+            <input id="bUrl" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://xxxx.supabase.co">
+            <label for="bKey">Publishable key（anon key）</label>
+            <input id="bKey" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sb_publishable_… 或 eyJ…">
+          </details>
+          <div class="api-acts"><button class="btn primary" id="bSave">儲存</button><button class="btn" id="bInvite">複製邀請連結</button><span class="status" id="bState"></span></div>
+          <p class="hint">這是給家人朋友用的簡易排行榜：知道房間代碼和連結的人都能看到分數並送出分數，請不要用真實全名。</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h board-h"><h2>排行榜 · 平均分數</h2><span class="tabs" role="group" aria-label="考試"><button data-bexam="cambridge" aria-pressed="true">劍橋 /20</button><button data-bexam="ielts" aria-pressed="false">雅思 Band</button></span><span><button class="ibtn" id="bReload">重新整理</button> <button class="ibtn" id="bOpen">設定</button></span></div>
+        <div id="bBoard"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>分數紀錄 <span class="eyebrow" id="bN"></span></h2></div>
+        <ul class="rows" id="bRows"></ul>
       </div>
     </div>
   </section>
@@ -1478,6 +1535,7 @@ Include up to ${kidish ? 6 : 12} corrections (real errors only, most important f
     renderScores(); renderFeedback(); renderBonus();
     if (passed(totalScore(), t.level)) setTimeout(() => confetti(), 450);
     if (dbState === "ready") saveAttempt(true).then(r => { if (r) toast(`批改完成 · 本篇 +${r.xp} XP`, "gold"); });
+    boardSubmit(t, totalScore());
   } catch (e) {
     fbRun.running = false;
     fbRun.error = e?.code === "cancelled" ? "" : aiMsg(e);
@@ -2058,10 +2116,91 @@ function openComp(a){
   showTab("practice"); renderAll(); scrollTo({top:0});
 }
 
+/* ---------- family leaderboard: AI-marked writing scores shared through a small Supabase table (GitHub Pages only) ---------- */
+const BOARD_SQL = `create table scores (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  room text not null check (char_length(room) between 1 and 40),
+  name text not null check (char_length(name) between 1 and 20),
+  exam text not null check (exam in ('cambridge', 'ielts')),
+  level text not null check (char_length(level) <= 10),
+  task text not null check (char_length(task) <= 80),
+  total numeric not null check (total >= 0 and total <= 20),
+  ref text check (char_length(ref) <= 80)
+);
+alter table scores enable row level security;
+create policy "read scores" on scores for select to anon using (true);
+create policy "add scores" on scores for insert to anon with check (true);`;
+const board = {rows:[], state:"idle", error:"", exam:"cambridge"};
+function boardConf(){ const c = store.get("cw.board", {}) || {}; return {url:c.url || "", key:c.key || "", room:c.room || "", name:c.name || ""}; }
+const boardReady = () => { const c = boardConf(); return !!(c.url && c.key && c.room && c.name); };
+function boardReq(c, query, init = {}){
+  const h = {apikey:c.key, "Content-Type":"application/json"};
+  if (!c.key.startsWith("sb_")) h.Authorization = "Bearer " + c.key;
+  return fetch(c.url.replace(/\/+$/, "") + "/rest/v1/scores" + query, {...init, headers:{...h, ...(init.headers || {})}})
+    .catch(() => { throw new Error("連不上排行榜資料庫，請檢查網路或 Project URL。"); })
+    .then(async r => { if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "排行榜金鑰無效，請檢查 publishable key。" : r.status === 404 ? "找不到 scores 資料表，請先在 Supabase 執行設定用的 SQL。" : `排行榜資料庫回應錯誤（${r.status}）。`); return r; });
+}
+async function boardLoad(){
+  if (!boardReady()) { renderBoard(); return; }
+  const c = boardConf();
+  board.state = "loading"; board.error = ""; renderBoard();
+  try {
+    const r = await boardReq(c, `?room=eq.${encodeURIComponent(c.room)}&select=name,exam,level,task,total,created_at&order=created_at.desc&limit=2000`);
+    board.rows = await r.json(); board.state = "ready";
+  } catch (e) { board.state = "error"; board.error = e.message; }
+  renderBoard();
+}
+const boardSent = () => new Set(store.get("cw.board.sent", []));
+function boardSubmit(t, total){
+  if (!STANDALONE || !boardReady() || total == null) return;
+  const c = boardConf(), ref = String(state.attemptId || `${t.id}-${state.createdAt || ""}`).slice(0, 80), sent = boardSent();
+  if (sent.has(c.room + "|" + ref)) return;
+  const row = {room:c.room, name:c.name, exam:isIelts(t.level) ? "ielts" : "cambridge", level:t.level, task:String(t.title).slice(0, 80), total, ref};
+  boardReq(c, "", {method:"POST", headers:{Prefer:"return=minimal"}, body:JSON.stringify(row)}).then(() => {
+    store.set("cw.board.sent", [...sent, c.room + "|" + ref].slice(-500));
+    board.rows.unshift({...row, created_at:new Date().toISOString()});
+    toast("分數已送到排行榜", "gold"); renderBoard();
+  }).catch(e => toast(e.message));
+}
+function boardFillForm(){ const c = boardConf(); $("#bName").value = c.name; $("#bRoom").value = c.room; $("#bUrl").value = c.url; $("#bKey").value = c.key; $("#bDb").open = !c.url || !c.key; }
+function boardOpenSetup(){ boardFillForm(); $("#boardSetup").hidden = false; $("#bState").textContent = ""; $((boardConf().name ? "#bRoom" : "#bName")).focus(); }
+function renderBoard(){
+  if (!STANDALONE) return;
+  const c = boardConf(), I = board.exam === "ielts";
+  document.querySelectorAll("[data-bexam]").forEach(b => b.setAttribute("aria-pressed", b.dataset.bexam === board.exam));
+  const msg = h => `<p class="status" style="margin:0;padding:14px 16px">${h}</p>`;
+  if (!boardReady()) { $("#bBoard").innerHTML = msg(`還沒設定排行榜。按右上角「設定」${c.url ? "填上暱稱和房間代碼" : "建立排行榜，或打開家人傳給你的邀請連結"}。`); $("#bRows").innerHTML = ""; $("#bN").textContent = ""; return; }
+  if (board.state === "loading" && !board.rows.length) { $("#bBoard").innerHTML = msg("載入中……"); return; }
+  if (board.state === "error") { $("#bBoard").innerHTML = `<p class="err-msg" style="margin:0;padding:14px 16px">${esc(board.error)}</p>`; $("#bRows").innerHTML = ""; return; }
+  const rows = board.rows.filter(r => r.exam === board.exam), who = new Map();
+  rows.forEach(r => { const w = who.get(r.name) || {name:r.name, sum:0, n:0, best:0, levels:new Set()}; w.sum += +r.total; w.n++; w.best = Math.max(w.best, +r.total); w.levels.add(r.level); who.set(r.name, w); });
+  const ranked = [...who.values()].map(w => ({...w, avg:w.sum / w.n})).sort((a, b) => b.avg - a.avg || b.n - a.n);
+  const lvName = k => levelOf(k)?.tag || levelOf(k)?.short || k;
+  $("#bBoard").innerHTML = ranked.length ? `<ol class="lb">${ranked.map((w, i) => `<li class="${w.name === c.name ? "me" : ""}"><span class="rk">${i + 1}</span><div class="nm"><b>${esc(w.name)}${w.name === c.name ? "（我）" : ""}</b><small>${[...w.levels].map(lvName).map(esc).join("、")} · 最高 ${I ? w.best.toFixed(1) : w.best}</small></div><span class="ct">${w.n} 篇</span><span class="av">${w.avg.toFixed(1)}<small> ${I ? "Band" : "/ 20"}</small></span></li>`).join("")}</ol>`
+    : msg(`房間「${esc(c.room)}」還沒有${I ? "雅思" : "劍橋"}的分數。寫一篇按「AI 批改」，分數就會出現在這裡。`);
+  $("#bN").textContent = rows.length ? `${rows.length} 筆` : "";
+  $("#bRows").innerHTML = rows.slice(0, 100).map(r => `<li><span class="lvtag">${esc(lvName(r.level))}</span><div class="t"><b>${esc(r.name)} · ${esc(r.task)}</b><small>${fmtDate(Date.parse(r.created_at))}</small></div><div class="acts"><span class="pill ${band(+r.total, I)?.[1] || "neutral"}">${I ? "Band " + (+r.total).toFixed(1) : r.total + "/20"}</span></div></li>`).join("") || `<li class="empty" style="display:block">還沒有紀錄。</li>`;
+}
+function boardInviteLink(){
+  const c = boardConf(), data = btoa(unescape(encodeURIComponent(JSON.stringify({u:c.url, k:c.key, r:c.room})))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return location.href.split("#")[0] + "#board=" + data;
+}
+function boardJoinFromHash(){
+  const m = location.hash.match(/^#board=([A-Za-z0-9_-]+)$/); if (!m) return false;
+  try {
+    const j = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, "+").replace(/_/g, "/")))));
+    if (!/^https:\/\/[^\s/]+/.test(j.u) || !j.k || !j.r) throw 0;
+    store.set("cw.board", {...boardConf(), url:j.u, key:j.k, room:String(j.r).slice(0, 40)});
+  } catch { toast("邀請連結不完整，請再跟對方要一次"); return false; }
+  history.replaceState(null, "", location.href.split("#")[0]);
+  return true;
+}
+
 /* ---------- tabs and top-level render ---------- */
 function showTab(tab){
-  $("#view-practice").hidden = tab !== "practice"; $("#view-history").hidden = tab !== "history";
-  $("#tab-practice").setAttribute("aria-selected", tab === "practice"); $("#tab-history").setAttribute("aria-selected", tab === "history");
+  ["practice","history","board"].forEach(k => { $("#view-" + k).hidden = tab !== k; $("#tab-" + k).setAttribute("aria-selected", tab === k); });
+  if (tab === "board") boardLoad();
 }
 function renderAll(){ renderSkill(); renderLevels(); renderDaily(); renderPlayer(); renderTaskList(); renderPaper(); renderGuide(); renderMeter(); renderTimer(); renderSaveStatus(); renderScores(); renderFeedback(); }
 function selectTask(id){
@@ -2189,6 +2328,27 @@ $("#fbBody").addEventListener("click", e => {
 });
 $("#tab-practice").addEventListener("click", () => showTab("practice"));
 $("#tab-history").addEventListener("click", () => { persistWork(); showTab("history"); });
+$("#tab-board").addEventListener("click", () => { persistWork(); showTab("board"); });
+$("#bOpen").addEventListener("click", boardOpenSetup);
+$("#bClose").addEventListener("click", () => { $("#boardSetup").hidden = true; });
+$("#bReload").addEventListener("click", boardLoad);
+document.querySelector(".board-h .tabs").addEventListener("click", e => { const b = e.target.closest("[data-bexam]"); if (b) { board.exam = b.dataset.bexam; renderBoard(); } });
+$("#bCopySql").addEventListener("click", () => navigator.clipboard?.writeText(BOARD_SQL).then(() => toast("已複製 SQL"), () => toast("無法複製，請手動選取")));
+$("#bSave").addEventListener("click", () => {
+  const v = id => $(id).value.trim(), url = v("#bUrl").replace(/\/+$/, ""), name = v("#bName").slice(0, 20), room = v("#bRoom").slice(0, 40);
+  if (url && !/^https:\/\/[^\s/]+$/.test(url)) { $("#bState").textContent = "Project URL 應該像 https://xxxx.supabase.co"; return; }
+  store.set("cw.board", {url, key:v("#bKey"), room, name});
+  const missing = [!name && "暱稱", !room && "房間代碼", (!url || !v("#bKey")) && "資料庫設定"].filter(Boolean);
+  $("#bState").textContent = missing.length ? "還缺：" + missing.join("、") : "已儲存";
+  if (!missing.length) { $("#boardSetup").hidden = true; toast("排行榜設定完成"); }
+  board.rows = []; boardLoad();
+});
+$("#bInvite").addEventListener("click", () => {
+  const c = boardConf();
+  if (!c.url || !c.key || !c.room) { $("#bState").textContent = "請先填好房間代碼和資料庫設定並儲存"; return; }
+  const link = boardInviteLink();
+  (navigator.clipboard?.writeText(link) || Promise.reject()).then(() => toast("已複製邀請連結，傳給家人就可以了"), () => { $("#bState").textContent = link; });
+});
 $("#rows").addEventListener("click", e => {
   const o = e.target.closest("[data-open]");
   if (o) { const a = attempts.find(x => x.id === o.dataset.open); if (a) (a.skill && a.skill !== "writing" ? openComp(a) : openAttempt(a)); return; }
@@ -2211,7 +2371,11 @@ renderAll(); renderHistory();
 
 const C = window.claude;
 const use = n => C?.use ? C.use(n).catch(() => null) : Promise.resolve(null);
-if (STANDALONE) { ai = apiSample(); aiState = "ready"; $("#apiBtn").hidden = false; $("#backupActs").hidden = false; renderScores(); }
+if (STANDALONE) {
+  ai = apiSample(); aiState = "ready"; $("#apiBtn").hidden = false; $("#backupActs").hidden = false; renderScores();
+  $("#tab-board").hidden = false; $("#bSql").textContent = BOARD_SQL;
+  if (boardJoinFromHash()) { showTab("board"); boardOpenSetup(); toast(boardConf().name ? "已加入排行榜房間" : "已加入排行榜房間，請填上你的暱稱"); }
+}
 else use("sample").then(s => { ai = s; if (!s) aiOff(); else aiState = "ready"; });
 (async () => {
   if (STANDALONE) col = localDb();

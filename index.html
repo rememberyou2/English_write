@@ -68,8 +68,16 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .lvinfo{font-size:13px;color:var(--muted);padding-bottom:16px}
 @media (max-width:640px){.lvrow{gap:4px}.lv{padding:8px 6px;align-items:center}.lv b{font-size:15px}.lv span{font-size:11px}}
 .paper-b .zh{font-family:var(--f-ui);font-size:14px;color:var(--muted);margin-top:-4px}
-.pics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:4px 0 14px}
-.pics.one{max-width:480px}
+.pics{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:4px 0 6px}
+.pics-hint{font-family:var(--f-ui);font-size:13px;color:var(--muted);margin:0 0 14px}
+.pic{cursor:zoom-in}
+.pic .zbadge{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;background:#ffffff;border:1.5px solid #2a2a33;display:grid;place-items:center}
+.zoom{position:fixed;inset:0;z-index:40;background:rgb(10 14 22 / .82);display:grid;place-items:center;padding:12px}
+.zoom-in{width:min(100%, 1000px, calc((100vh - 140px) * 1.43));display:grid;gap:10px}
+.zoom-h,.zoom-f{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff;font-size:16px}
+.zoom .pic{cursor:default;border-width:2px}
+.zoom .btn{font-size:16px;padding:10px 16px;background:#ffffff;color:#172031;border-color:#ffffff}
+body:has(#zoom:not([hidden])) .mascot{display:none}
 .pic{margin:0;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;position:relative;background:#d8edff}
 .pic svg{display:block;width:100%;height:auto}
 .chart{margin:4px 0 14px;max-width:560px;border:1.5px solid #2a2a33;border-radius:4px;background:#ffffff;color:#2a2a33;overflow:hidden}
@@ -85,7 +93,7 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .chart .proc li span{border:1.5px solid #2a2a33;border-radius:6px;padding:5px 9px;background:#eef1f6}
 .chart .proc li span::before{content:counter(st) ". ";font-family:var(--f-mono);font-size:12px;color:#586379}
 .chart .proc li:not(:last-child)::after{content:"↓";padding:1px 0 1px 14px;line-height:1.3;color:#586379}
-.pic figcaption{position:absolute;top:5px;left:5px;font-family:var(--f-mono);font-size:12px;font-weight:500;line-height:1;background:#ffffff;color:#2a2a33;border:1.5px solid #2a2a33;border-radius:50%;width:20px;height:20px;display:grid;place-items:center}
+.pic figcaption{position:absolute;top:6px;left:6px;font-family:var(--f-mono);font-size:15px;font-weight:600;line-height:1;background:#ffffff;color:#2a2a33;border:1.5px solid #2a2a33;border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
 
 /* practice grid */
 .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;align-items:start;padding-bottom:48px}
@@ -672,6 +680,13 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
       <rect x="44" y="40" width="4" height="16" rx="1" transform="rotate(25 46 48)" fill="#f4c20d"/><path d="M50.6 55.8 l-2.2 3.4 l-1.4-4.2 z" fill="#1d2433"/>
     </svg>
   </button>
+</div>
+<div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="放大圖片" hidden>
+  <div class="zoom-in">
+    <div class="zoom-h"><b id="zoomN"></b><button class="btn" id="zoomClose">關閉 ✕</button></div>
+    <figure class="pic" id="zoomPic"></figure>
+    <div class="zoom-f"><button class="btn" id="zoomPrev">← 上一張</button><button class="btn" id="zoomNext">下一張 →</button></div>
+  </div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -1275,8 +1290,19 @@ const SCENES = {
 };
 function renderPics(ids){
   if (!ids?.length) return "";
-  return `<div class="pics${ids.length === 1 ? " one" : ""}">${ids.map((id, i) => `<figure class="pic">${ids.length > 1 ? `<figcaption>${i+1}</figcaption>` : ""}<svg viewBox="0 0 200 140" role="img" aria-label="${esc(SCENES[id].alt)}">${SCENES[id].draw()}</svg></figure>`).join("")}</div>`;
+  return `<div class="pics">${ids.map((id, i) => `<figure class="pic" data-pi="${i}" tabindex="0" role="button" aria-label="放大第 ${i+1} 張圖">${ids.length > 1 ? `<figcaption>${i+1}</figcaption>` : ""}<span class="zbadge"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="#2a2a33" stroke-width="2.4"/><path d="M14.5 14.5 20 20M10 7v6M7 10h6" stroke="#2a2a33" stroke-width="2.4" stroke-linecap="round"/></svg></span><svg viewBox="0 0 200 140" role="img" aria-label="${esc(SCENES[id].alt)}">${SCENES[id].draw()}</svg></figure>`).join("")}</div><p class="pics-hint">點圖片可以放大，看清楚每個人在做什麼。</p>`;
 }
+/* full-screen picture viewer, so children can see what everyone in a scene is doing */
+const zoom = {i:0, seen:new Set()};
+function openZoom(i){
+  const ids = currentTask().pics || []; if (!ids.length) return;
+  zoom.i = (i + ids.length) % ids.length; zoom.seen.add(currentTask().id);
+  $("#zoomN").textContent = ids.length > 1 ? `第 ${zoom.i + 1} 張，共 ${ids.length} 張` : "看清楚圖片";
+  $("#zoomPic").innerHTML = `${ids.length > 1 ? `<figcaption>${zoom.i + 1}</figcaption>` : ""}<svg viewBox="0 0 200 140" role="img" aria-label="${esc(SCENES[ids[zoom.i]].alt)}">${SCENES[ids[zoom.i]].draw()}</svg>`;
+  $("#zoomPrev").hidden = $("#zoomNext").hidden = ids.length < 2;
+  $("#zoom").hidden = false; $("#zoomClose").focus(); guideSoon();
+}
+function closeZoom(){ $("#zoom").hidden = true; guideSoon(); }
 
 /* ---------- IELTS Academic Task 1: charts drawn from data, so the examiner prompt reads the same numbers the learner sees ---------- */
 const CHART_COLS = ["#2f6fca","#d6453f","#2f8a3e","#b7791f","#7b4fb8","#5f6b7a"];
@@ -2717,6 +2743,7 @@ function guideStep(){
   if (fbRun.running) return {k:"fbrun", t:"老師正在批改，大約 20–60 秒，等我一下……"};
   if (fbRun.error) return {k:"fberr", t:`批改沒有成功：${fbRun.error}`, b:go("再試一次", runFeedback)};
   if (!words && !store.get("cw.guide.hi", false)) return {k:"hi", t:"嗨！我是小幫手歐利。先在上面選級數，再選一道題目，然後在答案卷開始寫。卡住的時候看看我！", b:go("好，開始", () => { store.set("cw.guide.hi", true); nudge("#levels"); guideSoon(); })};
+  if (!words && t.pics?.length && !zoom.seen.has(t.id)) return {k:"pics" + t.id, t:`先看清楚${t.pics.length > 1 ? `這 ${t.pics.length} 張` : ""}圖片：點一下就能放大，看看每個人在做什麼、發生了什麼事。`, b:go("放大圖片", () => openZoom(0))};
   if (!words) return {k:"w0", t:"讀完題目後，在答案卷開始寫。不知道怎麼開頭？可以請我給提示。", b:go("開始寫", () => { nudge("#answer"); $ans.focus(); })};
   if (fb && fb.answered.trim() !== $ans.value.trim()) return {k:"redo", t:"改好了嗎？再批改一次，看看分數有沒有進步。", b:go(fbLabel, runFeedback)};
   if (fb) return (fb.corrections || []).length
@@ -2787,6 +2814,18 @@ $("#paper").addEventListener("input", e => {
   renderMeter(); guideSoon();
 });
 $ans.addEventListener("input", onAnswerInput);
+$("#paper").addEventListener("click", e => { const f = e.target.closest(".pic[data-pi]"); if (f) openZoom(+f.dataset.pi); });
+$("#paper").addEventListener("keydown", e => { const f = e.target.closest(".pic[data-pi]"); if (f && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openZoom(+f.dataset.pi); } });
+$("#zoomClose").addEventListener("click", closeZoom);
+$("#zoomPrev").addEventListener("click", () => openZoom(zoom.i - 1));
+$("#zoomNext").addEventListener("click", () => openZoom(zoom.i + 1));
+$("#zoom").addEventListener("click", e => { if (e.target.id === "zoom") closeZoom(); });
+document.addEventListener("keydown", e => {
+  if ($("#zoom").hidden) return;
+  if (e.key === "Escape") closeZoom(); else if (e.key === "ArrowLeft") openZoom(zoom.i - 1); else if (e.key === "ArrowRight") openZoom(zoom.i + 1);
+});
+{ let x0 = null; $("#zoom").addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive:true});
+  $("#zoom").addEventListener("touchend", e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 50) openZoom(zoom.i + (dx < 0 ? 1 : -1)); }); }
 $("#apiBtn").addEventListener("click", openApiPanel);
 $("#apiClose").addEventListener("click", () => { $("#apiPanel").hidden = true; });
 $("#apiProvider").addEventListener("change", e => renderApiPanel(e.target.value));

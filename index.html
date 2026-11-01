@@ -68,8 +68,16 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .lvinfo{font-size:13px;color:var(--muted);padding-bottom:16px}
 @media (max-width:640px){.lvrow{gap:4px}.lv{padding:8px 6px;align-items:center}.lv b{font-size:15px}.lv span{font-size:11px}}
 .paper-b .zh{font-family:var(--f-ui);font-size:14px;color:var(--muted);margin-top:-4px}
-.pics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:4px 0 14px}
-.pics.one{max-width:480px}
+.pics{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:4px 0 6px}
+.pics-hint{font-family:var(--f-ui);font-size:13px;color:var(--muted);margin:0 0 14px}
+.pic{cursor:zoom-in}
+.pic .zbadge{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;background:#ffffff;border:1.5px solid #2a2a33;display:grid;place-items:center}
+.zoom{position:fixed;inset:0;z-index:40;background:rgb(10 14 22 / .82);display:grid;place-items:center;padding:12px}
+.zoom-in{width:min(100%, 1000px, calc((100vh - 140px) * 1.43));display:grid;gap:10px}
+.zoom-h,.zoom-f{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff;font-size:16px}
+.zoom .pic{cursor:default;border-width:2px}
+.zoom .btn{font-size:16px;padding:10px 16px;background:#ffffff;color:#172031;border-color:#ffffff}
+body:has(#zoom:not([hidden])) .mascot{display:none}
 .pic{margin:0;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;position:relative;background:#d8edff}
 .pic svg{display:block;width:100%;height:auto}
 .chart{margin:4px 0 14px;max-width:560px;border:1.5px solid #2a2a33;border-radius:4px;background:#ffffff;color:#2a2a33;overflow:hidden}
@@ -85,7 +93,7 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .chart .proc li span{border:1.5px solid #2a2a33;border-radius:6px;padding:5px 9px;background:#eef1f6}
 .chart .proc li span::before{content:counter(st) ". ";font-family:var(--f-mono);font-size:12px;color:#586379}
 .chart .proc li:not(:last-child)::after{content:"↓";padding:1px 0 1px 14px;line-height:1.3;color:#586379}
-.pic figcaption{position:absolute;top:5px;left:5px;font-family:var(--f-mono);font-size:12px;font-weight:500;line-height:1;background:#ffffff;color:#2a2a33;border:1.5px solid #2a2a33;border-radius:50%;width:20px;height:20px;display:grid;place-items:center}
+.pic figcaption{position:absolute;top:6px;left:6px;font-family:var(--f-mono);font-size:15px;font-weight:600;line-height:1;background:#ffffff;color:#2a2a33;border:1.5px solid #2a2a33;border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
 
 /* practice grid */
 .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;align-items:start;padding-bottom:48px}
@@ -409,7 +417,25 @@ body.simple #btnFeedback{font-size:16px;padding:12px 22px}
 .kidbtn[aria-pressed="true"]{background:var(--hi);color:var(--hi-ink);border-color:transparent;font-weight:600}
 body.kid .answer{font-size:19.5px;--lh:38px}
 body.kid .paper-b{font-size:17px}
+/* rewards: points, prize wheel, shop and the parents' prize editor */
+.rw-earn{font-size:13.5px;color:var(--muted);margin:0}
+.wheel-wrap{display:grid;justify-items:center;gap:14px}
+.wheel{position:relative;width:min(300px, 78vw);aspect-ratio:1}
+.wheel .disc{width:100%;height:100%;border-radius:50%;overflow:hidden}
+.wheel svg{display:block;width:100%;height:100%;transition:transform 4.2s cubic-bezier(.15,.7,.15,1)}
+.wheel .ptr{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:24px solid var(--pen);filter:drop-shadow(0 2px 2px rgb(0 0 0 / .25));z-index:1}
+.wheel-res{font-size:16px;font-weight:600;min-height:1.5em;text-align:center}
+.rw-odds{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;font-size:12.5px;color:var(--muted)}
+.rw-odds i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.rw-ed{display:grid;gap:10px}
+.rw-row{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1.3fr) repeat(2,minmax(0,1fr)) auto;gap:6px;align-items:end;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.rw-row label{display:grid;gap:3px;font-size:12px;color:var(--muted);margin:0}
+.rw-row input,.rw-row select{font:inherit;font-size:15px;color:var(--ink);background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:7px 8px;width:100%;min-width:0}
+.rw-row .odds{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+@media (max-width:640px){.rw-row{grid-template-columns:repeat(2,minmax(0,1fr))}.rw-row label:first-child{grid-column:1/-1}}
+@media (prefers-reduced-motion: reduce){.wheel svg{transition:none}}
 /* helper owl: a fixed corner guide that suggests the next step */
+body:has(#mbub:not([hidden])) main{padding-bottom:220px}
 .mascot{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:25;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
 .mascot > *{pointer-events:auto}
 .mbub{position:relative;max-width:min(300px, calc(100vw - 32px));background:var(--sheet);color:var(--ink);border:1.5px solid var(--accent);border-radius:14px;padding:12px 14px 12px;box-shadow:var(--shadow);font-size:14.5px;line-height:1.55}
@@ -444,6 +470,7 @@ body.kid .paper-b{font-size:17px}
       <button id="tab-practice" role="tab" aria-selected="true">練習</button>
       <button id="tab-history" role="tab" aria-selected="false">我的紀錄<span class="count" id="histCount"></span></button>
       <button id="tab-board" role="tab" aria-selected="false" hidden>排行榜</button>
+      <button id="tab-rewards" role="tab" aria-selected="false" hidden>獎勵</button>
     </nav>
   </div>
 </header>
@@ -612,6 +639,29 @@ body.kid .paper-b{font-size:17px}
     </div>
   </section>
 
+  <section id="view-rewards" hidden>
+    <div class="hist" style="padding-top:20px">
+      <div class="stats" id="rwStats"></div>
+      <div id="rwMsg"></div>
+      <div class="panel" id="rwSpinP">
+        <div class="panel-h"><h2>轉盤抽獎</h2><span class="eyebrow" id="rwCost"></span></div>
+        <div class="panel-b"><div class="wheel-wrap"><div class="wheel"><span class="ptr"></span><div class="disc"><svg viewBox="-100 -100 200 200" id="rwWheel" role="img" aria-label="抽獎轉盤"></svg></div></div><div class="wheel-res" id="rwRes" aria-live="polite"></div><button class="btn primary" id="rwSpin">轉一次</button><div class="rw-odds" id="rwOdds"></div></div></div>
+      </div>
+      <div class="panel" id="rwShopP">
+        <div class="panel-h"><h2>直接兌換</h2><span class="eyebrow">點數夠就能換，不靠運氣</span></div>
+        <ul class="rows" id="rwShop"></ul>
+      </div>
+      <div class="panel" id="rwMineP">
+        <div class="panel-h"><h2>我的獎品</h2><span class="eyebrow" id="rwMineN"></span></div>
+        <ul class="rows" id="rwMine"></ul>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>家長管理</h2><button class="ibtn" id="rwParentBtn">打開</button></div>
+        <div class="panel-b api" id="rwParent" hidden></div>
+      </div>
+    </div>
+  </section>
+
   <p class="foot">題目為仿照劍橋考試與雅思（IELTS）形式自行編寫的練習題，圖表數據為虛構。官方樣題與評分標準請見 <a href="https://www.cambridgeenglish.org/exams-and-tests/" target="_blank" rel="noopener">cambridgeenglish.org</a> 與 <a href="https://ielts.org" target="_blank" rel="noopener">ielts.org</a>。AI 評分僅供練習參考，不代表正式成績。</p>
 </main>
 <div class="mascot" id="mascot">
@@ -630,6 +680,13 @@ body.kid .paper-b{font-size:17px}
       <rect x="44" y="40" width="4" height="16" rx="1" transform="rotate(25 46 48)" fill="#f4c20d"/><path d="M50.6 55.8 l-2.2 3.4 l-1.4-4.2 z" fill="#1d2433"/>
     </svg>
   </button>
+</div>
+<div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="放大圖片" hidden>
+  <div class="zoom-in">
+    <div class="zoom-h"><b id="zoomN"></b><button class="btn" id="zoomClose">關閉 ✕</button></div>
+    <figure class="pic" id="zoomPic"></figure>
+    <div class="zoom-f"><button class="btn" id="zoomPrev">← 上一張</button><button class="btn" id="zoomNext">下一張 →</button></div>
+  </div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -1233,8 +1290,19 @@ const SCENES = {
 };
 function renderPics(ids){
   if (!ids?.length) return "";
-  return `<div class="pics${ids.length === 1 ? " one" : ""}">${ids.map((id, i) => `<figure class="pic">${ids.length > 1 ? `<figcaption>${i+1}</figcaption>` : ""}<svg viewBox="0 0 200 140" role="img" aria-label="${esc(SCENES[id].alt)}">${SCENES[id].draw()}</svg></figure>`).join("")}</div>`;
+  return `<div class="pics">${ids.map((id, i) => `<figure class="pic" data-pi="${i}" tabindex="0" role="button" aria-label="放大第 ${i+1} 張圖">${ids.length > 1 ? `<figcaption>${i+1}</figcaption>` : ""}<span class="zbadge"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="#2a2a33" stroke-width="2.4"/><path d="M14.5 14.5 20 20M10 7v6M7 10h6" stroke="#2a2a33" stroke-width="2.4" stroke-linecap="round"/></svg></span><svg viewBox="0 0 200 140" role="img" aria-label="${esc(SCENES[id].alt)}">${SCENES[id].draw()}</svg></figure>`).join("")}</div><p class="pics-hint">點圖片可以放大，看清楚每個人在做什麼。</p>`;
 }
+/* full-screen picture viewer, so children can see what everyone in a scene is doing */
+const zoom = {i:0, seen:new Set()};
+function openZoom(i){
+  const ids = currentTask().pics || []; if (!ids.length) return;
+  zoom.i = (i + ids.length) % ids.length; zoom.seen.add(currentTask().id);
+  $("#zoomN").textContent = ids.length > 1 ? `第 ${zoom.i + 1} 張，共 ${ids.length} 張` : "看清楚圖片";
+  $("#zoomPic").innerHTML = `${ids.length > 1 ? `<figcaption>${zoom.i + 1}</figcaption>` : ""}<svg viewBox="0 0 200 140" role="img" aria-label="${esc(SCENES[ids[zoom.i]].alt)}">${SCENES[ids[zoom.i]].draw()}</svg>`;
+  $("#zoomPrev").hidden = $("#zoomNext").hidden = ids.length < 2;
+  $("#zoom").hidden = false; $("#zoomClose").focus(); guideSoon();
+}
+function closeZoom(){ $("#zoom").hidden = true; guideSoon(); }
 
 /* ---------- IELTS Academic Task 1: charts drawn from data, so the examiner prompt reads the same numbers the learner sees ---------- */
 const CHART_COLS = ["#2f6fca","#d6453f","#2f8a3e","#b7791f","#7b4fb8","#5f6b7a"];
@@ -1733,6 +1801,7 @@ Include up to ${kidish ? 6 : 12} corrections (real errors only, most important f
     if (passed(totalScore(), t.level)) setTimeout(() => confetti(), 450);
     if (dbState === "ready") saveAttempt(true).then(r => { if (r) toast(`批改完成 · 本篇 +${r.xp} XP`, "gold"); });
     boardSubmit(t, totalScore());
+    if (countWords(text) >= t.min) rewardEarn(10 + (passed(totalScore(), t.level) ? 5 : 0), "w-" + String(state.attemptId || `${t.id}-${state.createdAt || ""}`).slice(0, 70), `寫作：${t.title}`);
   } catch (e) {
     fbRun.running = false;
     fbRun.error = e?.code === "cancelled" ? "" : aiMsg(e);
@@ -2240,6 +2309,7 @@ function compSubmit(){
   ttsStop();
   comp.done = true; comp.fresh = true;
   const right = cur.questions.filter((q, i) => comp.answers[i] === q.answer).length, xp = compXP(right, n);
+  rewardEarn(5 + (right === n ? 5 : 0), `c-${cur.id}-${dayKey(Date.now())}`.slice(0, 80), `${state.skill === "listening" ? "聽力" : "閱讀"}：${cur.title}`);
   renderComp();
   $("#compMain").scrollIntoView({behavior: reduced() ? "auto" : "smooth", block:"start"});
   if (right / n >= .6) setTimeout(() => confetti(), 400);
@@ -2336,12 +2406,16 @@ const board = {rows:[], state:"idle", error:"", exam:"cambridge"};
 const BOARD_DEFAULT = {url:"https://fcpcbjhhbdwyxgcrkuvv.supabase.co", key:"sb_publishable_JJVhGX6iCmyaaG7w9yVEOQ_Et9yNGHu"};
 function boardConf(){ const c = store.get("cw.board", {}) || {}; return {url:c.url || BOARD_DEFAULT.url, key:c.key || BOARD_DEFAULT.key, room:c.room || "", name:c.name || ""}; }
 const boardReady = () => { const c = boardConf(); return !!(c.url && c.key && c.room && c.name); };
-function boardReq(c, query, init = {}){
+function boardReq(c, query, init = {}, table = "scores"){
   const h = {apikey:c.key, "Content-Type":"application/json"};
   if (!c.key.startsWith("sb_")) h.Authorization = "Bearer " + c.key;
-  return fetch(c.url.replace(/\/+$/, "") + "/rest/v1/scores" + query, {...init, headers:{...h, ...(init.headers || {})}})
+  return fetch(c.url.replace(/\/+$/, "") + "/rest/v1/" + table + query, {...init, headers:{...h, ...(init.headers || {})}})
     .catch(() => { throw new Error("連不上排行榜資料庫，請檢查網路或 Project URL。"); })
-    .then(async r => { if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "排行榜金鑰無效，請檢查 publishable key。" : r.status === 404 ? "找不到 scores 資料表，請先在 Supabase 執行設定用的 SQL。" : `排行榜資料庫回應錯誤（${r.status}）。`); return r; });
+    .then(async r => {
+      if (r.ok) return r;
+      const e = new Error(r.status === 401 || r.status === 403 ? "排行榜金鑰無效，請檢查 publishable key。" : r.status === 404 ? `找不到 ${table} 資料表，請先在 Supabase 執行設定用的 SQL。` : r.status === 409 ? "這筆紀錄已經存在。" : `排行榜資料庫回應錯誤（${r.status}）。`);
+      e.status = r.status; throw e;
+    });
 }
 async function boardLoad(){
   if (!boardReady()) { renderBoard(); return; }
@@ -2400,6 +2474,225 @@ function boardJoinFromHash(){
   return true;
 }
 
+/* ---------- rewards: points for finished practice, spent on a prize wheel or swapped directly for prizes.
+   Parents set the prizes behind a PIN; everything is kept in the same Supabase project as the leaderboard ---------- */
+const REWARD_SQL = `create table reward_ledger (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  room text not null check (char_length(room) between 1 and 40),
+  name text not null check (char_length(name) between 1 and 20),
+  kind text not null check (kind in ('earn', 'spin', 'redeem', 'given')),
+  points integer not null check (points between -100000 and 1000),
+  note text check (char_length(note) <= 80),
+  prize text check (char_length(prize) <= 60),
+  ref text not null check (char_length(ref) <= 80),
+  unique (room, name, ref)
+);
+create table reward_settings (
+  room text primary key check (char_length(room) between 1 and 40),
+  pin_hash text not null,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+alter table reward_ledger enable row level security;
+alter table reward_settings enable row level security;
+create policy "read ledger" on reward_ledger for select to anon using (true);
+create policy "add ledger" on reward_ledger for insert to anon with check (true);
+create policy "read settings" on reward_settings for select to anon using (true);
+create policy "add settings" on reward_settings for insert to anon with check (true);
+create policy "change settings" on reward_settings for update to anon using (true) with check (true);`;
+const REWARD_DEFAULT = {cost:50, prizes:[
+  {name:"7-11 禮券 50 元", kind:"gift", weight:8, price:300, amount:0},
+  {name:"7-11 禮券 100 元", kind:"gift", weight:3, price:600, amount:0},
+  {name:"書店禮券 200 元", kind:"gift", weight:1, price:1200, amount:0},
+  {name:"加 20 點", kind:"points", weight:20, price:0, amount:20},
+  {name:"再接再厲", kind:"none", weight:40, price:0, amount:0},
+]};
+const RW_KINDS = {gift:"禮券或獎品", points:"加點數", none:"再接再厲"};
+const rw = {settings:null, ledger:[], state:"idle", error:"", errStatus:0, unlocked:false, parentOpen:false, edit:null, spinning:false, angle:0, wheelKey:"", result:""};
+function normRewards(d){
+  const int = (v, lo, hi, def) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : def; };
+  const prizes = (Array.isArray(d?.prizes) ? d.prizes : []).slice(0, 12).map(p => ({
+    name:String(p?.name ?? "").trim().slice(0, 30), kind:RW_KINDS[p?.kind] ? p.kind : "gift",
+    weight:int(p?.weight, 0, 1000, 0), price:int(p?.price, 0, 100000, 0), amount:int(p?.amount, 0, 1000, 0),
+  })).filter(p => p.name);
+  return {cost:int(d?.cost, 1, 10000, 50), prizes};
+}
+async function hashPin(room, pin){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`cw-reward|${room}|${pin}`));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+const rid = () => Date.now().toString(36) + "-" + [...crypto.getRandomValues(new Uint8Array(4))].map(b => b.toString(16).padStart(2, "0")).join("");
+const rewardBalance = name => rw.ledger.filter(r => r.name === name).reduce((s, r) => s + (+r.points || 0), 0);
+const rewardGiven = () => new Set(rw.ledger.filter(r => r.kind === "given").map(r => r.ref));
+async function rewardsLoad(){
+  if (!STANDALONE) return;
+  if (!boardReady()) { rw.state = "idle"; renderRewards(); return; }
+  const c = boardConf(), room = encodeURIComponent(c.room);
+  rw.state = rw.state === "ready" ? "ready" : "loading"; renderRewards();
+  try {
+    const [st, led] = await Promise.all([
+      boardReq(c, `?room=eq.${room}&select=data,pin_hash`, {}, "reward_settings").then(r => r.json()),
+      boardReq(c, `?room=eq.${room}&select=id,created_at,name,kind,points,note,prize,ref&order=created_at.desc&limit=5000`, {}, "reward_ledger").then(r => r.json()),
+    ]);
+    rw.settings = st[0] ? {pin:st[0].pin_hash, ...normRewards(st[0].data)} : null;
+    rw.ledger = led; rw.state = "ready"; rw.error = "";
+  } catch (e) { rw.state = "error"; rw.error = e.message; rw.errStatus = e.status || 0; }
+  renderRewards();
+}
+function rewardInsert(rows){
+  return boardReq(boardConf(), "", {method:"POST", headers:{Prefer:"return=representation"}, body:JSON.stringify(rows)}, "reward_ledger")
+    .then(r => r.json()).then(saved => { rw.ledger.unshift(...saved.reverse()); return saved; });
+}
+function rewardEarn(points, ref, note){
+  if (!STANDALONE || !boardReady()) return;
+  const c = boardConf();
+  rewardInsert([{room:c.room, name:c.name, kind:"earn", points, note:note.slice(0, 80), prize:null, ref}])
+    .then(() => { toast(`+${points} 抽獎點數`, "gold"); renderRewards(); })
+    .catch(e => { if (e.status !== 409 && e.status !== 404) toast(e.message); });
+}
+function rewardPick(prizes){
+  const pool = prizes.map((p, i) => ({p, i})).filter(x => x.p.weight > 0), total = pool.reduce((s, x) => s + x.p.weight, 0);
+  let r = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32 * total;
+  for (const x of pool) { if ((r -= x.p.weight) < 0) return x.i; }
+  return pool[pool.length - 1].i;
+}
+function wheelSegments(){
+  const pool = rw.settings.prizes.map((p, i) => ({p, i})).filter(x => x.p.weight > 0), total = pool.reduce((s, x) => s + x.p.weight, 0);
+  let a = 0;
+  return pool.map((x, k) => { const span = x.p.weight / total * 360, seg = {...x, from:a, span, col:CHART_COLS[k % CHART_COLS.length]}; a += span; return seg; });
+}
+function renderWheel(){
+  const segs = wheelSegments(), key = JSON.stringify(segs.map(x => [x.p.name, x.p.weight]));
+  const svg = $("#rwWheel");
+  if (key !== rw.wheelKey) {
+    rw.wheelKey = key;
+    const pt = (deg, r) => { const a = (deg - 90) * Math.PI / 180; return `${(r * Math.cos(a)).toFixed(2)} ${(r * Math.sin(a)).toFixed(2)}`; };
+    svg.innerHTML = segs.map(x => {
+      const mid = x.from + x.span / 2, label = x.p.name.length > 9 ? x.p.name.slice(0, 8) + "…" : x.p.name;
+      const shape = x.span >= 359.9 ? `<circle r="96" fill="${x.col}"/>` : `<path d="M0 0L${pt(x.from, 96)}A96 96 0 ${x.span > 180 ? 1 : 0} 1 ${pt(x.from + x.span, 96)}Z" fill="${x.col}" stroke="#fff" stroke-width="1.5"/>`;
+      const text = x.span >= 14 ? `<text transform="${mid > 180 ? `rotate(${(mid + 90).toFixed(2)}) translate(-58 0)` : `rotate(${(mid - 90).toFixed(2)}) translate(58 0)`}" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="${x.span >= 40 ? 10 : 8}" font-weight="600" font-family="IBM Plex Sans, Noto Sans TC, sans-serif">${esc(label)}</text>` : "";
+      return shape + text;
+    }).join("") + `<circle r="96" fill="none" stroke="#2a2a33" stroke-width="2"/><circle r="13" fill="#fff" stroke="#2a2a33" stroke-width="2"/>`;
+  }
+  if (!rw.spinning) { svg.style.transition = "none"; svg.style.transform = `rotate(${rw.angle % 360}deg)`; rw.angle %= 360; void svg.getBoundingClientRect(); svg.style.transition = ""; }
+  const total = segs.reduce((s, x) => s + x.p.weight, 0);
+  $("#rwOdds").innerHTML = segs.map(x => `<span><i style="background:${x.col}"></i>${esc(x.p.name)} ${(x.p.weight / total * 100).toFixed(x.p.weight / total < .1 ? 1 : 0)}%</span>`).join("");
+}
+async function rewardSpin(){
+  const s = rw.settings, c = boardConf();
+  if (!s || rw.spinning || !wheelSegments().length) return;
+  if (rewardBalance(c.name) < s.cost) { toast(`點數不夠，轉一次要 ${s.cost} 點`); return; }
+  const idx = rewardPick(s.prizes), p = s.prizes[idx], id = rid();
+  const rows = [{room:c.room, name:c.name, kind:"spin", points:-s.cost, note:`轉盤：${p.name}`.slice(0, 80), prize:p.kind === "gift" ? p.name : null, ref:"s-" + id}];
+  if (p.kind === "points" && p.amount) rows.push({room:c.room, name:c.name, kind:"earn", points:p.amount, note:"轉盤加點", prize:null, ref:"s-" + id + "-b"});
+  rw.spinning = true; rw.result = ""; renderRewards();
+  try { await rewardInsert(rows); }
+  catch (e) { rw.spinning = false; toast(e.message); renderRewards(); return; }
+  const seg = wheelSegments().find(x => x.i === idx), land = seg.from + seg.span * (.2 + Math.random() * .6);
+  rw.angle += 360 * 5 + ((360 - land) - (rw.angle % 360) + 720) % 360;
+  $("#rwWheel").style.transform = `rotate(${rw.angle}deg)`;
+  setTimeout(() => {
+    rw.spinning = false;
+    rw.result = p.kind === "gift" ? `🎉 恭喜抽中「${p.name}」！請找家長領取。` : p.kind === "points" ? `🎉 抽中「${p.name}」，點數已經加上了！` : `${p.name}！下次一定會中。`;
+    if (p.kind !== "none") confetti();
+    renderRewards();
+  }, reduced() ? 50 : 4400);
+}
+function rewardRedeem(i){
+  const s = rw.settings, p = s?.prizes[i], c = boardConf();
+  if (!p || !p.price) return;
+  if (rewardBalance(c.name) < p.price) { toast(`點數不夠，還差 ${p.price - rewardBalance(c.name)} 點`); return; }
+  rewardInsert([{room:c.room, name:c.name, kind:"redeem", points:-p.price, note:`兌換：${p.name}`.slice(0, 80), prize:p.kind === "gift" ? p.name : null, ref:"r-" + rid()}])
+    .then(() => { toast(`已兌換「${p.name}」，請找家長領取`, "gold"); confetti(90); renderRewards(); })
+    .catch(e => toast(e.message));
+}
+function rewardGive(row){
+  rewardInsert([{room:boardConf().room, name:row.name, kind:"given", points:0, note:`已發放：${row.prize}`.slice(0, 80), prize:null, ref:"given-" + row.id}])
+    .then(() => { toast("已標記為發放"); renderRewards(); })
+    .catch(e => { if (e.status === 409) rewardsLoad(); else toast(e.message); });
+}
+function renderRewardParent(){
+  const box = $("#rwParent"), c = boardConf();
+  box.hidden = !rw.parentOpen; $("#rwParentBtn").textContent = rw.parentOpen ? "收起" : "打開";
+  if (!rw.parentOpen) return;
+  if (rw.state === "error") {
+    box.innerHTML = rw.errStatus === 404
+      ? `<p>獎勵功能需要在 Supabase 多建兩個資料表（只要做一次）：到 Supabase 左側的「SQL Editor」，貼上下面這段，按「Run」。</p><pre class="sql">${esc(REWARD_SQL)}</pre><div class="api-acts"><button class="btn primary" id="rwCopySql">複製 SQL</button><button class="btn" id="rwRetry">建好了，重新整理</button></div>`
+      : `<p class="err-msg">${esc(rw.error)}</p><div class="api-acts"><button class="btn" id="rwRetry">重新整理</button></div>`;
+    return;
+  }
+  if (rw.state !== "ready") { box.innerHTML = `<p class="status">載入中……</p>`; return; }
+  if (rw.settings && !rw.unlocked) {
+    box.innerHTML = `<p>輸入家長密碼才能修改獎品和發放獎品。</p><label for="rwPin">家長密碼</label><input id="rwPin" type="password" inputmode="numeric" autocomplete="off"><div class="api-acts"><button class="btn primary" id="rwUnlock">確定</button><span class="status" id="rwPinMsg"></span></div>`;
+    return;
+  }
+  const e = rw.edit || (rw.edit = JSON.parse(JSON.stringify(rw.settings ? {cost:rw.settings.cost, prizes:rw.settings.prizes} : REWARD_DEFAULT)));
+  const total = e.prizes.reduce((s, p) => s + (+p.weight || 0), 0) || 1;
+  const given = rewardGiven(), pending = rw.ledger.filter(r => r.prize && !given.has("given-" + r.id));
+  const names = [...new Set(rw.ledger.map(r => r.name))];
+  box.innerHTML = `${rw.settings ? "" : `<p>第一次設定：先設一組家長密碼（至少 4 個字），再調整獎品，按「儲存設定」。</p>`}
+    <h3 style="font-size:14px;margin:4px 0 0">待發放的獎品 · ${pending.length}</h3>
+    ${pending.length ? `<ul class="rows">${pending.map(r => `<li><span class="lvtag">${esc(r.name)}</span><div class="t"><b>${esc(r.prize)}</b><small>${fmtDate(Date.parse(r.created_at))} · ${r.kind === "spin" ? "轉盤抽中" : "直接兌換"}</small></div><div class="acts"><button class="btn" data-give="${r.id}">已發放</button></div></li>`).join("")}</ul>` : `<p class="status" style="margin:0">目前沒有待發放的獎品。</p>`}
+    ${names.length ? `<p class="hint" style="margin:0">目前點數：${names.map(n => `${esc(n)} ${rewardBalance(n)} 點`).join("、")}</p>` : ""}
+    <h3 style="font-size:14px;margin:12px 0 0">獎品設定</h3>
+    <label for="rwCostIn">轉一次轉盤要幾點</label><input id="rwCostIn" type="number" min="1" max="10000" value="${e.cost}">
+    <p class="hint" style="margin:0">「轉盤權重」越大越容易抽中，設 0 就不會出現在轉盤上；「兌換點數」設 0 就不能直接兌換。每次練習大約可以賺 5–15 點。</p>
+    <div class="rw-ed">${e.prizes.map((p, i) => `<div class="rw-row" data-i="${i}">
+      <label>名稱<input data-f="name" maxlength="30" value="${esc(p.name)}"></label>
+      <label>類型<select data-f="kind">${Object.entries(RW_KINDS).map(([k, v]) => `<option value="${k}"${k === p.kind ? " selected" : ""}>${v}</option>`).join("")}</select></label>
+      <label>轉盤權重 <span class="odds">${((+p.weight || 0) / total * 100).toFixed(1)}%</span><input data-f="weight" type="number" min="0" max="1000" value="${p.weight}"></label>
+      <label>${p.kind === "points" ? "加幾點" : "兌換點數"}<input data-f="${p.kind === "points" ? "amount" : "price"}" type="number" min="0" max="${p.kind === "points" ? 1000 : 100000}" value="${p.kind === "points" ? p.amount : p.price}"${p.kind === "none" ? " disabled" : ""}></label>
+      <button class="ibtn" data-del-prize="${i}" aria-label="刪除這個獎品">刪除</button></div>`).join("")}</div>
+    <div class="api-acts"><button class="btn" id="rwAdd"${e.prizes.length >= 12 ? " disabled" : ""}>新增獎品</button></div>
+    <label for="rwNewPin">${rw.settings ? "更改家長密碼（不改就留空）" : "家長密碼（至少 4 個字）"}</label><input id="rwNewPin" type="password" autocomplete="new-password">
+    <div class="api-acts"><button class="btn primary" id="rwSave">儲存設定</button><button class="btn" id="rwLock">鎖上</button><span class="status" id="rwSaveMsg"></span></div>`;
+}
+async function rewardSaveSettings(){
+  const c = boardConf(), e = normRewards(rw.edit), pin = $("#rwNewPin").value.trim(), msg = $("#rwSaveMsg");
+  if (!rw.settings && pin.length < 4) { msg.textContent = "請設定至少 4 個字的家長密碼"; return; }
+  if (pin && pin.length < 4) { msg.textContent = "密碼至少要 4 個字"; return; }
+  if (!e.prizes.some(p => p.weight > 0)) { msg.textContent = "轉盤上至少要有一個權重大於 0 的獎品"; return; }
+  const row = {room:c.room, pin_hash:pin ? await hashPin(c.room, pin) : rw.settings.pin, data:e, updated_at:new Date().toISOString()};
+  try {
+    await boardReq(c, "?on_conflict=room", {method:"POST", headers:{Prefer:"resolution=merge-duplicates,return=minimal"}, body:JSON.stringify(row)}, "reward_settings");
+    rw.settings = {pin:row.pin_hash, ...e}; rw.edit = null; rw.unlocked = true;
+    toast("獎品設定已儲存"); renderRewards();
+  } catch (err) { msg.textContent = err.message; }
+}
+function renderRewards(){
+  if (!STANDALONE) return;
+  const c = boardConf(), ready = rw.state === "ready", s = rw.settings, me = c.name;
+  const bal = ready ? rewardBalance(me) : 0, given = rewardGiven();
+  const mine = rw.ledger.filter(r => r.name === me && r.prize), waiting = mine.filter(r => !given.has("given-" + r.id)).length;
+  const earned = rw.ledger.filter(r => r.name === me && r.points > 0).reduce((t, r) => t + r.points, 0);
+  const stat = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
+  $("#rwStats").innerHTML = boardReady() && ready ? stat(bal, `${esc(me)} 的抽獎點數`) + stat(s ? Math.floor(bal / s.cost) : "–", "可以轉幾次轉盤") + stat(waiting, "待領取的獎品") + stat(earned, "累積賺到的點數") : "";
+  const msg = h => `<div class="panel"><div class="panel-b">${h}</div></div>`;
+  $("#rwMsg").innerHTML = !boardReady() ? msg(`<p style="margin:0">先到「排行榜 → 設定」填上暱稱和房間代碼，才能累積抽獎點數。</p><div class="api-acts"><button class="btn primary" id="rwToBoard">去設定</button></div>`)
+    : rw.state === "loading" ? msg(`<p class="status" style="margin:0">載入中……</p>`)
+    : rw.state === "error" ? msg(`<p class="err-msg" style="margin:0">${esc(rw.error)}</p><p class="hint">如果是第一次使用獎勵功能，請家長打開下方「家長管理」照說明建立資料表。</p>`)
+    : !s ? msg(`<p style="margin:0">家長還沒設定獎品。請家長打開下方「家長管理」設定獎品和密碼。練習賺到的點數會先存起來。</p>`)
+    : msg(`<p class="rw-earn">怎麼賺點數：寫作經 AI 批改 +10（達到本級水準或 Band 6 再 +5，要寫到最低字數）· 閱讀、聽力交卷 +5（全對再 +5，同一份每天一次）</p>`);
+  const on = ready && !!s;
+  ["#rwSpinP", "#rwShopP", "#rwMineP"].forEach(id => { $(id).hidden = !on; });
+  if (on) {
+    $("#rwCost").textContent = `轉一次 ${s.cost} 點`;
+    renderWheel();
+    $("#rwSpin").disabled = rw.spinning || bal < s.cost;
+    $("#rwSpin").textContent = rw.spinning ? "轉動中……" : bal < s.cost ? `還差 ${s.cost - bal} 點` : `轉一次（${s.cost} 點）`;
+    $("#rwRes").textContent = rw.result;
+    const shop = s.prizes.map((p, i) => ({p, i})).filter(x => x.p.price > 0 && x.p.kind !== "none");
+    $("#rwShop").innerHTML = shop.length ? shop.map(({p, i}) => `<li><span class="lvtag">${p.price} 點</span><div class="t"><b>${esc(p.name)}</b><small>${bal >= p.price ? "點數夠了！" : `還差 ${p.price - bal} 點`}</small></div><div class="acts"><button class="btn${bal >= p.price ? " primary" : ""}" data-redeem="${i}"${bal >= p.price ? "" : " disabled"}>兌換</button></div></li>`).join("")
+      : `<li class="empty" style="display:block">家長還沒有設定可以直接兌換的獎品。</li>`;
+    $("#rwMineN").textContent = mine.length ? `${mine.length} 個` : "";
+    $("#rwMine").innerHTML = mine.length ? mine.map(r => `<li><span class="lvtag">${r.kind === "spin" ? "轉盤" : "兌換"}</span><div class="t"><b>${esc(r.prize)}</b><small>${fmtDate(Date.parse(r.created_at))}</small></div><div class="acts"><span class="pill ${given.has("given-" + r.id) ? "ok" : "warn"}">${given.has("given-" + r.id) ? "已領取" : "待領取"}</span></div></li>`).join("")
+      : `<li class="empty" style="display:block">還沒有獎品。轉轉盤或兌換之後，獎品會出現在這裡。</li>`;
+  }
+  renderRewardParent();
+  guideSoon();
+}
+
 /* ---------- helper owl: looks at where the learner is and suggests one next step ---------- */
 const guide = {tab:"practice", key:null, raf:0, off:store.get("cw.guide.off", false)};
 function nudge(sel){
@@ -2424,6 +2717,15 @@ function guideStep(){
   if (guide.tab === "board") return boardReady()
     ? {k:"board", t:"每篇作品第一次經過 AI 批改，分數就會自動出現在這裡。", b:go("去寫一篇", () => showTab("practice"))}
     : {k:"board0", t:"先按「設定」填上暱稱和房間代碼，就能和家人一起比分數。", b:go("打開設定", boardOpenSetup)};
+  if (guide.tab === "rewards") {
+    if (!boardReady()) return {k:"rw0", t:"先填暱稱和房間代碼，才能累積抽獎點數。", b:go("去設定", () => { showTab("board"); boardOpenSetup(); })};
+    if (rw.state === "error") return {k:"rwerr", t:"獎勵功能還沒準備好，請家長先在 Supabase 執行獎勵的 SQL。", b:go("看說明", () => { rw.parentOpen = true; renderRewards(); nudge("#rwParent"); })};
+    if (rw.state !== "ready") return null;
+    if (!rw.settings) return {k:"rwset", t:"家長還沒設定獎品。請家長按「家長管理」設定獎品和密碼。", b:go("家長管理", () => { rw.parentOpen = true; renderRewards(); nudge("#rwParent"); })};
+    const bal = rewardBalance(boardConf().name), cost = rw.settings.cost;
+    return bal >= cost ? {k:"rwspin", t:`你有 ${bal} 點，可以轉一次轉盤！`, b:go("轉轉盤", () => { nudge("#rwSpinP"); rewardSpin(); })}
+      : {k:"rwmore", t:`再賺 ${cost - bal} 點就能轉轉盤。寫一篇作文給 AI 批改可以拿 10 點！`, b:go("去練習", () => showTab("practice"))};
+  }
   if (state.skill !== "writing") {
     const cur = currentComp(); if (!cur) return null;
     const n = cur.questions.length, a = Object.keys(comp.answers).length, L = state.skill === "listening";
@@ -2441,6 +2743,7 @@ function guideStep(){
   if (fbRun.running) return {k:"fbrun", t:"老師正在批改，大約 20–60 秒，等我一下……"};
   if (fbRun.error) return {k:"fberr", t:`批改沒有成功：${fbRun.error}`, b:go("再試一次", runFeedback)};
   if (!words && !store.get("cw.guide.hi", false)) return {k:"hi", t:"嗨！我是小幫手歐利。先在上面選級數，再選一道題目，然後在答案卷開始寫。卡住的時候看看我！", b:go("好，開始", () => { store.set("cw.guide.hi", true); nudge("#levels"); guideSoon(); })};
+  if (!words && t.pics?.length && !zoom.seen.has(t.id)) return {k:"pics" + t.id, t:`先看清楚${t.pics.length > 1 ? `這 ${t.pics.length} 張` : ""}圖片：點一下就能放大，看看每個人在做什麼、發生了什麼事。`, b:go("放大圖片", () => openZoom(0))};
   if (!words) return {k:"w0", t:"讀完題目後，在答案卷開始寫。不知道怎麼開頭？可以請我給提示。", b:go("開始寫", () => { nudge("#answer"); $ans.focus(); })};
   if (fb && fb.answered.trim() !== $ans.value.trim()) return {k:"redo", t:"改好了嗎？再批改一次，看看分數有沒有進步。", b:go(fbLabel, runFeedback)};
   if (fb) return (fb.corrections || []).length
@@ -2464,9 +2767,10 @@ function guideSoon(){ if (!guide.raf) guide.raf = requestAnimationFrame(guideRen
 
 /* ---------- tabs and top-level render ---------- */
 function showTab(tab){
-  ["practice","history","board"].forEach(k => { $("#view-" + k).hidden = tab !== k; $("#tab-" + k).setAttribute("aria-selected", tab === k); });
+  ["practice","history","board","rewards"].forEach(k => { $("#view-" + k).hidden = tab !== k; $("#tab-" + k).setAttribute("aria-selected", tab === k); });
   guide.tab = tab; guideSoon();
   if (tab === "board") boardLoad();
+  if (tab === "rewards") rewardsLoad();
 }
 function renderAll(){ guideSoon(); renderSkill(); renderLevels(); renderDaily(); renderPlayer(); renderTaskList(); renderPaper(); renderGuide(); renderMeter(); renderTimer(); renderSaveStatus(); renderScores(); renderFeedback(); }
 function selectTask(id){
@@ -2510,6 +2814,18 @@ $("#paper").addEventListener("input", e => {
   renderMeter(); guideSoon();
 });
 $ans.addEventListener("input", onAnswerInput);
+$("#paper").addEventListener("click", e => { const f = e.target.closest(".pic[data-pi]"); if (f) openZoom(+f.dataset.pi); });
+$("#paper").addEventListener("keydown", e => { const f = e.target.closest(".pic[data-pi]"); if (f && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openZoom(+f.dataset.pi); } });
+$("#zoomClose").addEventListener("click", closeZoom);
+$("#zoomPrev").addEventListener("click", () => openZoom(zoom.i - 1));
+$("#zoomNext").addEventListener("click", () => openZoom(zoom.i + 1));
+$("#zoom").addEventListener("click", e => { if (e.target.id === "zoom") closeZoom(); });
+document.addEventListener("keydown", e => {
+  if ($("#zoom").hidden) return;
+  if (e.key === "Escape") closeZoom(); else if (e.key === "ArrowLeft") openZoom(zoom.i - 1); else if (e.key === "ArrowRight") openZoom(zoom.i + 1);
+});
+{ let x0 = null; $("#zoom").addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive:true});
+  $("#zoom").addEventListener("touchend", e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 50) openZoom(zoom.i + (dx < 0 ? 1 : -1)); }); }
 $("#apiBtn").addEventListener("click", openApiPanel);
 $("#apiClose").addEventListener("click", () => { $("#apiPanel").hidden = true; });
 $("#apiProvider").addEventListener("change", e => renderApiPanel(e.target.value));
@@ -2595,6 +2911,35 @@ $("#fbBody").addEventListener("click", e => {
 $("#tab-practice").addEventListener("click", () => showTab("practice"));
 $("#tab-history").addEventListener("click", () => { persistWork(); showTab("history"); });
 $("#tab-board").addEventListener("click", () => { persistWork(); showTab("board"); });
+$("#tab-rewards").addEventListener("click", () => { persistWork(); showTab("rewards"); });
+$("#rwSpin").addEventListener("click", rewardSpin);
+$("#rwShop").addEventListener("click", e => { const b = e.target.closest("[data-redeem]"); if (b) armed(b, "確定兌換？", () => rewardRedeem(+b.dataset.redeem)); });
+$("#rwMsg").addEventListener("click", e => { if (e.target.closest("#rwToBoard")) { showTab("board"); boardOpenSetup(); } });
+$("#rwParentBtn").addEventListener("click", () => { rw.parentOpen = !rw.parentOpen; if (!rw.parentOpen) { rw.unlocked = false; rw.edit = null; } renderRewardParent(); });
+$("#rwParent").addEventListener("click", async e => {
+  const t = e.target;
+  if (t.closest("#rwCopySql")) { navigator.clipboard?.writeText(REWARD_SQL).then(() => toast("已複製 SQL"), () => toast("無法複製，請手動選取")); return; }
+  if (t.closest("#rwRetry")) { rw.state = "loading"; rewardsLoad(); return; }
+  if (t.closest("#rwUnlock")) {
+    const ok = await hashPin(boardConf().room, $("#rwPin").value.trim()) === rw.settings.pin;
+    if (ok) { rw.unlocked = true; renderRewardParent(); } else $("#rwPinMsg").textContent = "密碼不對";
+    return;
+  }
+  if (t.closest("#rwLock")) { rw.unlocked = false; rw.edit = null; renderRewardParent(); return; }
+  if (t.closest("#rwAdd")) { rw.edit.prizes.push({name:"新獎品", kind:"gift", weight:5, price:500, amount:0}); renderRewardParent(); return; }
+  const d = t.closest("[data-del-prize]"); if (d) { rw.edit.prizes.splice(+d.dataset.delPrize, 1); renderRewardParent(); return; }
+  const g = t.closest("[data-give]"); if (g) { const row = rw.ledger.find(r => String(r.id) === g.dataset.give); if (row) armed(g, "確定已發放？", () => rewardGive(row)); return; }
+  if (t.closest("#rwSave")) rewardSaveSettings();
+});
+$("#rwParent").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "rwPin") $("#rwUnlock").click(); });
+$("#rwParent").addEventListener("input", e => {
+  const row = e.target.closest("[data-i]");
+  if (e.target.id === "rwCostIn") { rw.edit.cost = e.target.value; return; }
+  if (!row || !e.target.dataset.f) return;
+  const p = rw.edit.prizes[+row.dataset.i], f = e.target.dataset.f;
+  p[f] = f === "name" || f === "kind" ? e.target.value : e.target.value === "" ? "" : +e.target.value;
+  if (f === "kind" || f === "weight") { const pos = e.target.selectionStart; renderRewardParent(); if (f === "weight") { const el = $(`.rw-row[data-i="${row.dataset.i}"] [data-f="weight"]`); el?.focus(); try { el?.setSelectionRange(pos, pos); } catch {} } }
+});
 $("#mbtn").addEventListener("click", () => { guide.off = !guide.off; store.set("cw.guide.off", guide.off); guide.key = null; guideRender(); if (guide.off) toast("小幫手休息了，想看提示再點一下歐利"); });
 $("#mbub").addEventListener("click", e => {
   if (e.target.closest("#mx")) { guide.off = true; store.set("cw.guide.off", true); guideRender(); toast("小幫手休息了，想看提示再點一下歐利"); return; }
@@ -2644,7 +2989,7 @@ const C = window.claude;
 const use = n => C?.use ? C.use(n).catch(() => null) : Promise.resolve(null);
 if (STANDALONE) {
   ai = apiSample(); aiState = "ready"; $("#apiBtn").hidden = false; $("#backupActs").hidden = false; renderScores();
-  $("#tab-board").hidden = false; $("#bSql").textContent = BOARD_SQL;
+  $("#tab-board").hidden = false; $("#tab-rewards").hidden = false; $("#bSql").textContent = BOARD_SQL;
   if (boardJoinFromHash()) { showTab("board"); boardOpenSetup(); toast(boardConf().name ? "已加入排行榜房間" : "已加入排行榜房間，請填上你的暱稱"); }
 }
 else use("sample").then(s => { ai = s; if (!s) aiOff(); else aiState = "ready"; });

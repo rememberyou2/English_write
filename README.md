@@ -26,3 +26,14 @@ publishable key 本來就是給網頁公開使用的金鑰，不是密碼；但�
 - 家長管理：第一次使用時，打開「獎勵 → 家長管理」，照說明在 Supabase 的 SQL Editor 執行一次獎勵的 SQL，再設定家長密碼、獎品、機率和點數。中獎的禮券要由家長準備，發給孩子後按「已發放」。
 
 點數和中獎紀錄只能新增、不能修改或刪除；這是給家人用的簡易機制，懂技術的人仍可能直接呼叫資料庫加點數。
+
+## 家庭 AI 伺服器：孩子的裝置不用輸入金鑰（選用）
+
+`supabase/functions/gemini/index.ts` 是一個 Supabase Edge Function，Gemini 金鑰只存在 Supabase 的 Secrets 裡，網站透過它呼叫 Gemini。只接受 `https://rememberyou2.github.io` 送來、而且房間代碼在允許清單裡的請求。
+
+1. Supabase 左側選 **Edge Functions → Deploy a new function → Via Editor**，函式名稱填 `gemini`，把 `supabase/functions/gemini/index.ts` 的內容整段貼上，按 **Deploy**。
+2. 打開這個函式的設定，把 **Verify JWT**（Enforce JWT verification）關掉。網站用的 publishable key 不是 JWT，開著會被擋下。
+3. 到 **Edge Functions → Secrets**（或 Project Settings → Edge Functions），新增：
+   - `GEMINI_API_KEY`：Google AI Studio 的金鑰
+   - `FAMILY_ROOMS`：排行榜的房間代碼，多個用逗號分開
+4. 孩子的裝置打開排行榜邀請連結、填上暱稱即可。新裝置的「AI 設定」預設就是「家庭 AI 伺服器（免金鑰）」；已經用自己金鑰的裝置可以在「AI 設定」改選它。

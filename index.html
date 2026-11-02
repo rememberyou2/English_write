@@ -77,7 +77,7 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .zoom-h,.zoom-f{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff;font-size:16px}
 .zoom .pic{cursor:default;border-width:2px}
 .zoom .btn{font-size:16px;padding:10px 16px;background:#ffffff;color:#172031;border-color:#ffffff}
-body:has(#zoom:not([hidden])) .mascot{display:none}
+body:has(#zoom:not([hidden])) .mascot,body:has(#login:not([hidden])) .mascot{display:none}
 .pic{margin:0;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;position:relative;background:#d8edff}
 .pic svg{display:block;width:100%;height:auto}
 .chart{margin:4px 0 14px;max-width:560px;border:1.5px solid #2a2a33;border-radius:4px;background:#ffffff;color:#2a2a33;overflow:hidden}
@@ -453,6 +453,19 @@ body.kid .paper-b{font-size:17px}
 .rw-item.locked svg{filter:grayscale(1);opacity:.45}
 .rw-wish{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
 .rw-wish input{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:8px 10px}
+/* sign-in: who is practising, so scores and points are recorded */
+.kidbtn.me{color:var(--ink);font-weight:600}
+.kidbtn.out{background:var(--warn-soft);color:var(--warn);border-color:transparent;font-weight:600}
+.signin-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:10px 14px;margin:0 0 14px;font-size:14.5px}
+.signin-bar span{flex:1;min-width:200px}
+.login{position:fixed;inset:0;z-index:45;background:rgb(10 14 22 / .6);display:grid;place-items:center;padding:16px}
+.login-in{width:min(440px, 100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--sheet);color:var(--ink);border-radius:14px;padding:20px;display:grid;gap:8px;box-shadow:0 10px 40px rgb(0 0 0 / .3)}
+.login-in h2{font-size:19px;margin:0}
+.login-in p{margin:0;font-size:14.5px;color:var(--muted)}
+.login-in label{font-size:13.5px;color:var(--muted);margin-top:6px}
+.login-in input{font:inherit;font-size:16px;color:var(--ink);background:var(--desk);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;width:100%}
+.login-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.login-acts .btn{flex:1}
 /* helper owl: a fixed corner guide that suggests the next step */
 body:has(#mbub:not([hidden])) main{padding-bottom:220px}
 .mascot{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:25;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
@@ -482,6 +495,7 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
       <h1>劍橋寫作練習室</h1>
     </div>
     <div class="player" id="player" hidden></div>
+    <button class="kidbtn" id="meBtn" hidden></button>
     <button class="kidbtn" id="apiBtn" hidden>AI 設定</button>
     <button class="kidbtn" id="modeBtn">顯示更多功能</button>
     <button class="kidbtn" id="kidBtn" aria-pressed="false" title="批改語氣更簡單、更鼓勵，字體放大，不自動計時">孩子模式</button>
@@ -504,6 +518,7 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
     <h2 class="steph only-simple"><i>1</i>選級數</h2>
     <div class="levels" id="levels" role="group" aria-label="選擇級數"></div>
     <div class="lvinfo" id="lvinfo"></div>
+    <div class="signin-bar" id="signinBar" hidden><span>還沒登入：現在練習的分數和抽獎點數<b>不會記錄</b>到排行榜和獎勵。</span><button class="btn primary" data-login>登入</button></div>
     <div class="daily" id="daily"></div>
     <div class="panel" id="apiPanel" hidden>
       <div class="panel-h"><h2>AI 設定</h2><button class="ibtn" id="apiClose">關閉</button></div>
@@ -721,6 +736,20 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
     <div class="zoom-h"><b id="zoomN"></b><button class="btn" id="zoomClose">關閉 ✕</button></div>
     <figure class="pic" id="zoomPic"></figure>
     <div class="zoom-f"><button class="btn" id="zoomPrev">← 上一張</button><button class="btn" id="zoomNext">下一張 →</button></div>
+  </div>
+</div>
+<div class="login" id="login" role="dialog" aria-modal="true" aria-labelledby="loginT" hidden>
+  <div class="login-in">
+    <h2 id="loginT">登入，開始記錄分數</h2>
+    <p>填上你的暱稱和家裡的房間代碼，練習的分數、抽獎點數和排行榜才會記錄下來。打開家長傳的邀請連結，房間代碼和通行碼會自動填好。</p>
+    <label for="lgName">我的暱稱</label>
+    <input id="lgName" maxlength="20" autocomplete="nickname" placeholder="例如：小明">
+    <label for="lgRoom">房間代碼（問家長）</label>
+    <input id="lgRoom" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label for="lgCode">家庭通行碼（問家長，用家庭 AI 伺服器才需要）</label>
+    <input id="lgCode" type="password" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="login-acts"><button class="btn primary" id="lgGo">登入</button><button class="btn" id="lgLater">先不要，直接練習</button></div>
+    <p class="status" id="lgMsg"></p>
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -2856,6 +2885,29 @@ function rewardWish(){
     .catch(e => toast(e.message));
 }
 
+/* ---------- sign-in: a nickname and room code, asked for up front so practice is recorded from the first try ---------- */
+function renderSignin(){
+  if (!STANDALONE) return;
+  const c = boardConf(), ok = boardReady(), b = $("#meBtn");
+  b.hidden = false; b.className = "kidbtn " + (ok ? "me" : "out");
+  b.textContent = ok ? `👤 ${c.name}` : "登入"; b.title = ok ? `房間「${c.room}」，點一下可以更改` : "登入後才會記錄分數和點數";
+  $("#signinBar").hidden = ok;
+}
+function openLogin(){
+  const c = boardConf();
+  $("#lgName").value = c.name; $("#lgRoom").value = c.room; $("#lgCode").value = c.code; $("#lgMsg").textContent = "";
+  $("#login").hidden = false;
+  $(c.name ? (c.room ? "#lgGo" : "#lgRoom") : "#lgName").focus();
+}
+function closeLogin(){ $("#login").hidden = true; guideSoon(); }
+function saveLogin(){
+  const v = id => $(id).value.trim(), name = v("#lgName").slice(0, 20), room = v("#lgRoom").slice(0, 40);
+  if (!name || !room) { $("#lgMsg").textContent = !name ? "請填上暱稱" : "請填上房間代碼（問家長）"; $(!name ? "#lgName" : "#lgRoom").focus(); return; }
+  store.set("cw.board", {...(store.get("cw.board", {}) || {}), name, room, code:v("#lgCode").slice(0, 64)});
+  closeLogin(); renderSignin(); toast(`歡迎，${name}！之後的分數和點數都會記錄下來`, "gold");
+  board.rows = []; rw.state = "idle"; if (guide.tab === "board") boardLoad(); if (guide.tab === "rewards") rewardsLoad();
+}
+
 /* ---------- helper owl: looks at where the learner is and suggests one next step ---------- */
 const guide = {tab:"practice", key:null, raf:0, off:store.get("cw.guide.off", false)};
 function nudge(sel){
@@ -2905,6 +2957,7 @@ function guideStep(){
   if (t.custom && !custom.prompt.trim()) return {k:"custom", t:"先把題目貼進「題目內容」，再開始寫。", b:go("貼上題目", () => { nudge("#cPrompt"); $("#cPrompt")?.focus(); })};
   if (fbRun.running) return {k:"fbrun", t:"老師正在批改，大約 20–60 秒，等我一下……"};
   if (fbRun.error) return {k:"fberr", t:`批改沒有成功：${fbRun.error}`, b:go("再試一次", runFeedback)};
+  if (STANDALONE && !boardReady() && $("#login").hidden) return {k:"login", t:"先登入！填上暱稱和房間代碼，練習的分數和抽獎點數才會記錄下來。", b:go("登入", openLogin)};
   if (!words && !store.get("cw.guide.hi", false)) return {k:"hi", t:"嗨！我是小幫手歐利。先在上面選級數，再選一道題目，然後在答案卷開始寫。卡住的時候看看我！", b:go("好，開始", () => { store.set("cw.guide.hi", true); nudge("#levels"); guideSoon(); })};
   if (!words && t.pics?.length && !zoom.seen.has(t.id)) return {k:"pics" + t.id, t:`先看清楚${t.pics.length > 1 ? `這 ${t.pics.length} 張` : ""}圖片：點一下就能放大，看看每個人在做什麼、發生了什麼事。`, b:go("放大圖片", () => openZoom(0))};
   if (!words) return {k:"w0", t:"讀完題目後，在答案卷開始寫。不知道怎麼開頭？可以請我給提示。", b:go("開始寫", () => { nudge("#answer"); $ans.focus(); })};
@@ -3074,6 +3127,11 @@ $("#fbBody").addEventListener("click", e => {
 $("#tab-practice").addEventListener("click", () => showTab("practice"));
 $("#tab-history").addEventListener("click", () => { persistWork(); showTab("history"); });
 $("#tab-board").addEventListener("click", () => { persistWork(); showTab("board"); });
+$("#meBtn").addEventListener("click", openLogin);
+document.addEventListener("click", e => { if (e.target.closest("[data-login]")) openLogin(); });
+$("#lgGo").addEventListener("click", saveLogin);
+$("#lgLater").addEventListener("click", () => { try { sessionStorage.setItem("cw.loginLater", "1"); } catch {} closeLogin(); });
+$("#login").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") saveLogin(); if (e.key === "Escape") closeLogin(); });
 $("#tab-rewards").addEventListener("click", () => { persistWork(); showTab("rewards"); });
 $("#rwSpin").addEventListener("click", rewardSpin);
 $("#rwWishGo").addEventListener("click", rewardWish);
@@ -3140,6 +3198,7 @@ $("#bSave").addEventListener("click", () => {
   const missing = [!name && "暱稱", !room && "房間代碼", (!url || !v("#bKey")) && "資料庫設定"].filter(Boolean);
   $("#bState").textContent = missing.length ? "還缺：" + missing.join("、") : "已儲存";
   if (!missing.length) { $("#boardSetup").hidden = true; toast("排行榜設定完成"); }
+  renderSignin();
   board.rows = []; boardLoad();
 });
 $("#bInvite").addEventListener("click", () => {
@@ -3174,7 +3233,9 @@ if (STANDALONE) {
   ai = apiSample(); aiState = "ready"; $("#apiBtn").hidden = false; $("#backupActs").hidden = false; renderScores();
   renderOwlAcc();
   $("#tab-board").hidden = false; $("#tab-rewards").hidden = false; $("#bSql").textContent = BOARD_SQL;
-  if (boardJoinFromHash()) { showTab("board"); boardOpenSetup(); toast(boardConf().name ? "已加入排行榜房間" : "已加入排行榜房間，請填上你的暱稱"); }
+  renderSignin();
+  if (boardJoinFromHash()) { renderSignin(); openLogin(); toast(boardConf().name ? "已加入家裡的房間" : "已加入家裡的房間，請填上你的暱稱"); }
+  else if (!boardReady() && !(() => { try { return sessionStorage.getItem("cw.loginLater"); } catch { return null; } })()) openLogin();
 }
 else use("sample").then(s => { ai = s; if (!s) aiOff(); else aiState = "ready"; });
 (async () => {

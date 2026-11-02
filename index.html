@@ -629,6 +629,8 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
           <input id="bName" maxlength="20" autocomplete="nickname" placeholder="例如：小明">
           <label for="bRoom">房間代碼（同一家人填一樣的代碼）</label>
           <input id="bRoom" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="例如：wang-family-2026">
+          <label for="bCode">家庭通行碼（使用家庭 AI 伺服器才需要，和 Supabase 的 FAMILY_CODE 一樣；打開邀請連結會自動填好）</label>
+          <input id="bCode" type="password" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false">
           <details id="bDb">
             <summary>資料庫設定（已經設定好，通常不用改）</summary>
             <ol>
@@ -644,7 +646,7 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
             <input id="bKey" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sb_publishable_… 或 eyJ…">
           </details>
           <div class="api-acts"><button class="btn primary" id="bSave">儲存</button><button class="btn" id="bInvite">複製邀請連結</button><span class="status" id="bState"></span></div>
-          <p class="hint">這是給家人朋友用的簡易排行榜：知道房間代碼和連結的人都能看到分數並送出分數，請不要用真實全名。</p>
+          <p class="hint">這是給家人朋友用的簡易排行榜：知道房間代碼和連結的人都能看到分數並送出分數，請不要用真實全名。設定了家庭通行碼時，邀請連結裡也會包含它，只傳給家人。</p>
         </div>
       </div>
       <div class="panel">
@@ -1768,6 +1770,9 @@ const AI_ERR = {
   no_key:"請先在「AI 設定」輸入 API 金鑰。", bad_key:"API 金鑰無效或已停用，請到「AI 設定」檢查。",
   no_credit:"API 帳戶的額度不足，請到 console.anthropic.com 儲值後再試。", network:"連不上 AI 服務，請檢查網路後再試一次。",
   no_room:"要使用家庭 AI 伺服器，請先打開家長傳的排行榜邀請連結，或到「排行榜 → 設定」填上房間代碼。",
+  no_code:"要使用家庭 AI 伺服器，需要家庭通行碼。請打開家長傳的最新邀請連結，或到「排行榜 → 設定」填上家庭通行碼。",
+  family_code:"家庭通行碼不對。請打開家長傳的最新邀請連結，或到「排行榜 → 設定」重新填寫。",
+  family_no_code:"家庭 AI 伺服器還沒設定通行碼。請家長在 Supabase 的 Secrets 加上 FAMILY_CODE，並重新部署最新的 gemini 函式。",
   family_room:"家庭 AI 伺服器不認得這個房間代碼。請家長在 Supabase 的 FAMILY_ROOMS 加上這個房間代碼。",
   family_missing:"找不到家庭 AI 伺服器。請家長在 Supabase 建立名為 gemini 的 Edge Function。",
   family_jwt:"家庭 AI 伺服器拒絕連線。請家長在 Supabase 把 gemini 函式的「Verify JWT」關掉。",
@@ -2158,8 +2163,9 @@ async function callGemini(prompt, opts, {provider, key, model}){
   // the family relay (a Supabase Edge Function) keeps the key server-side and streams Gemini's reply back unchanged
   const fam = provider === "family", bc = boardConf();
   if (fam && !bc.room) throw {code:"no_room", message:"no room"};
+  if (fam && !bc.code) throw {code:"no_code", message:"no family code"};
   const req = fam
-    ? [bc.url.replace(/\/+$/, "") + "/functions/v1/gemini", {"content-type":"application/json", apikey:bc.key, "x-family-room":bc.room}, {prompt, model}]
+    ? [bc.url.replace(/\/+$/, "") + "/functions/v1/gemini", {"content-type":"application/json", apikey:bc.key, "x-family-room":bc.room, "x-family-code":bc.code}, {prompt, model}]
     : [`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`, {"content-type":"application/json", "x-goog-api-key":key}, {contents:[{role:"user", parts:[{text:prompt}]}]}];
   let res;
   try { res = await fetch(req[0], {method:"POST", headers:req[1], body:JSON.stringify(req[2]), signal:opts.signal}); }
@@ -2168,7 +2174,7 @@ async function callGemini(prompt, opts, {provider, key, model}){
     let err = {}; try { err = (await res.json())?.error || {}; } catch {}
     const s = res.status, m = err.message || "";
     if (fam && (s === 404 && !err.status || s === 401)) throw {code: s === 401 ? "family_jwt" : "family_missing", message:m};
-    if (fam && /^FAMILY_/.test(err.status || "")) throw {code: err.status === "FAMILY_ROOM" ? "family_room" : err.status === "FAMILY_NO_KEY" ? "family_no_key" : "family_denied", message:m};
+    if (fam && /^FAMILY_/.test(err.status || "")) throw {code: {FAMILY_ROOM:"family_room", FAMILY_NO_KEY:"family_no_key", FAMILY_CODE:"family_code", FAMILY_NO_CODE:"family_no_code"}[err.status] || "family_denied", message:m};
     throw {code: /api key/i.test(m) || s === 401 || s === 403 ? (fam ? "family_bad_key" : "bad_key") : s === 429 ? "free_quota" : s === 404 ? "bad_model" : s === 400 ? "invalid_request" : "upstream_error", message:m};
   }
   const reader = res.body.getReader(), dec = new TextDecoder();
@@ -2261,7 +2267,7 @@ function renderApiPanel(provider){
   const fam = p === "family"; $("#apiKey").hidden = $('label[for="apiKey"]').hidden = $("#apiClear").hidden = fam;
   $("#apiKey").placeholder = def.placeholder;
   $("#apiHelp").innerHTML = def.help + (p === "family" ? "" : " 不要在別人的裝置上輸入你的金鑰。");
-  $("#apiState").textContent = fam ? (boardConf().room ? (p === s.provider ? `使用中：房間「${boardConf().room}」。` : "按「儲存」改用家庭 AI 伺服器。") : "還沒加入房間：請先打開家長傳的排行榜邀請連結。") : key ? (p === s.provider ? "已設定金鑰，AI 功能可以使用。" : "已有金鑰，按「儲存」改用這個服務。") : "還沒有設定金鑰。";
+  $("#apiState").textContent = fam ? (!boardConf().room ? "還沒加入房間：請先打開家長傳的排行榜邀請連結。" : !boardConf().code ? "還沒有家庭通行碼：請打開家長傳的最新邀請連結。" : p === s.provider ? `使用中：房間「${boardConf().room}」，已設定通行碼。` : "按「儲存」改用家庭 AI 伺服器。") : key ? (p === s.provider ? "已設定金鑰，AI 功能可以使用。" : "已有金鑰，按「儲存」改用這個服務。") : "還沒有設定金鑰。";
 }
 function openApiPanel(){ renderApiPanel(); $("#apiPanel").hidden = false; showTab("practice"); $("#apiPanel").scrollIntoView({block:"start"}); $("#apiKey").focus(); }
 function needKey(){ if (STANDALONE && !apiConf().key) { openApiPanel(); toast("請先在「AI 設定」選擇 AI 服務並輸入金鑰"); return true; } return false; }
@@ -2454,7 +2460,7 @@ create policy "add scores" on scores for insert to anon with check (true);`;
 const board = {rows:[], state:"idle", error:"", exam:"cambridge", mode:"avg"};
 // this site's own Supabase project; the publishable key is meant to be public, and access is limited by the table's RLS policies
 const BOARD_DEFAULT = {url:"https://fcpcbjhhbdwyxgcrkuvv.supabase.co", key:"sb_publishable_JJVhGX6iCmyaaG7w9yVEOQ_Et9yNGHu"};
-function boardConf(){ const c = store.get("cw.board", {}) || {}; return {url:c.url || BOARD_DEFAULT.url, key:c.key || BOARD_DEFAULT.key, room:c.room || "", name:c.name || ""}; }
+function boardConf(){ const c = store.get("cw.board", {}) || {}; return {url:c.url || BOARD_DEFAULT.url, key:c.key || BOARD_DEFAULT.key, room:c.room || "", name:c.name || "", code:c.code || ""}; }
 const boardReady = () => { const c = boardConf(); return !!(c.url && c.key && c.room && c.name); };
 function boardReq(c, query, init = {}, table = "scores"){
   const h = {apikey:c.key, "Content-Type":"application/json"};
@@ -2489,7 +2495,7 @@ function boardSubmit(t, total){
     toast("分數已送到排行榜", "gold"); renderBoard();
   }).catch(e => toast(e.message));
 }
-function boardFillForm(){ const c = boardConf(); $("#bName").value = c.name; $("#bRoom").value = c.room; $("#bUrl").value = c.url; $("#bKey").value = c.key; $("#bDb").open = !c.url || !c.key; }
+function boardFillForm(){ const c = boardConf(); $("#bName").value = c.name; $("#bRoom").value = c.room; $("#bCode").value = c.code; $("#bUrl").value = c.url; $("#bKey").value = c.key; $("#bDb").open = !c.url || !c.key; }
 function boardOpenSetup(){ boardFillForm(); $("#boardSetup").hidden = false; $("#bState").textContent = ""; $((boardConf().name ? "#bRoom" : "#bName")).focus(); }
 function renderBoard(){
   if (!STANDALONE) return;
@@ -2521,7 +2527,7 @@ function boardGainHtml(rows, c, I){
   return `<ol class="lb">${ranked.map((w, i) => `<li class="${w.name === c.name ? "me" : ""}"><span class="rk">${i + 1}</span><div class="nm"><b>${esc(w.name)}${w.name === c.name ? "（我）" : ""}</b><small>最近 ${w.n} 篇平均 ${w.now.toFixed(1)}，之前 ${w.n} 篇平均 ${w.before.toFixed(1)}</small></div><span class="ct">${I ? "Band" : "/ 20"}</span><span class="av" style="color:${w.gain > 0 ? "var(--ok)" : w.gain < 0 ? "var(--pen)" : "inherit"}">${w.gain > 0 ? "+" : ""}${w.gain.toFixed(1)}</span></li>`).join("")}</ol><p class="hint" style="margin:0;padding:0 16px 14px">比的是自己和自己：最近幾篇的平均分數，比之前幾篇進步了多少。</p>`;
 }
 function boardInviteLink(){
-  const c = boardConf(), data = btoa(unescape(encodeURIComponent(JSON.stringify({u:c.url, k:c.key, r:c.room})))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const c = boardConf(), data = btoa(unescape(encodeURIComponent(JSON.stringify({u:c.url, k:c.key, r:c.room, ...(c.code ? {c:c.code} : {})})))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   return location.href.split("#")[0] + "#board=" + data;
 }
 function boardJoinFromHash(){
@@ -2529,7 +2535,7 @@ function boardJoinFromHash(){
   try {
     const j = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, "+").replace(/_/g, "/")))));
     if (!/^https:\/\/[^\s/]+/.test(j.u) || !j.k || !j.r) throw 0;
-    store.set("cw.board", {...boardConf(), url:j.u, key:j.k, room:String(j.r).slice(0, 40)});
+    store.set("cw.board", {...boardConf(), url:j.u, key:j.k, room:String(j.r).slice(0, 40), ...(j.c ? {code:String(j.c).slice(0, 64)} : {})});
   } catch { toast("邀請連結不完整，請再跟對方要一次"); return false; }
   history.replaceState(null, "", location.href.split("#")[0]);
   return true;
@@ -3130,7 +3136,7 @@ $("#bCopySql").addEventListener("click", () => navigator.clipboard?.writeText(BO
 $("#bSave").addEventListener("click", () => {
   const v = id => $(id).value.trim(), url = v("#bUrl").replace(/\/+$/, ""), name = v("#bName").slice(0, 20), room = v("#bRoom").slice(0, 40);
   if (url && !/^https:\/\/[^\s/]+$/.test(url)) { $("#bState").textContent = "Project URL 應該像 https://xxxx.supabase.co"; return; }
-  store.set("cw.board", {url:url === BOARD_DEFAULT.url ? "" : url, key:v("#bKey") === BOARD_DEFAULT.key ? "" : v("#bKey"), room, name});
+  store.set("cw.board", {url:url === BOARD_DEFAULT.url ? "" : url, key:v("#bKey") === BOARD_DEFAULT.key ? "" : v("#bKey"), room, name, code:v("#bCode").slice(0, 64)});
   const missing = [!name && "暱稱", !room && "房間代碼", (!url || !v("#bKey")) && "資料庫設定"].filter(Boolean);
   $("#bState").textContent = missing.length ? "還缺：" + missing.join("、") : "已儲存";
   if (!missing.length) { $("#boardSetup").hidden = true; toast("排行榜設定完成"); }

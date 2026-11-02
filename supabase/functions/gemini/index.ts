@@ -4,8 +4,10 @@
 // Secrets (Project Settings → Edge Functions → Secrets):
 //   GEMINI_API_KEY  the Google AI Studio key
 //   FAMILY_ROOMS    the leaderboard room codes allowed to use it, comma-separated
+//   FAMILY_CODE     a family passcode; it is never stored in the database, so knowing
+//                   a room code (which the public scores table reveals) is not enough
 //
-// Requests are accepted only from the site below and only with an allowed room code,
+// Requests are accepted only from the site below, with an allowed room code and the passcode,
 // and are passed straight through to Gemini so the site reads the same streamed reply.
 
 const ORIGINS = ["https://rememberyou2.github.io"];
@@ -19,11 +21,19 @@ function fail(status: number, code: string, message: string, cors: Record<string
   });
 }
 
+// compares without stopping at the first difference, so response timing does not reveal the passcode
+function same(a: string, b: string) {
+  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
+  let diff = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) diff |= (x[i] ?? 0) ^ (y[i] ?? 0);
+  return diff === 0;
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get("origin") ?? "";
   const cors = {
     "Access-Control-Allow-Origin": ORIGINS.includes(origin) ? origin : ORIGINS[0],
-    "Access-Control-Allow-Headers": "content-type, apikey, authorization, x-family-room",
+    "Access-Control-Allow-Headers": "content-type, apikey, authorization, x-family-room, x-family-code",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
   };
@@ -32,6 +42,10 @@ Deno.serve(async (req) => {
 
   const rooms = (Deno.env.get("FAMILY_ROOMS") ?? "").split(",").map((r) => r.trim()).filter(Boolean);
   if (!rooms.includes(req.headers.get("x-family-room") ?? "")) return fail(403, "FAMILY_ROOM", "This room code is not allowed.", cors);
+
+  const code = Deno.env.get("FAMILY_CODE") ?? "";
+  if (!code) return fail(500, "FAMILY_NO_CODE", "FAMILY_CODE is not set.", cors);
+  if (!same(req.headers.get("x-family-code") ?? "", code)) return fail(403, "FAMILY_CODE", "Wrong family passcode.", cors);
 
   const key = Deno.env.get("GEMINI_API_KEY");
   if (!key) return fail(500, "FAMILY_NO_KEY", "GEMINI_API_KEY is not set.", cors);

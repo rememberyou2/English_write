@@ -434,6 +434,25 @@ body.kid .paper-b{font-size:17px}
 .rw-row .odds{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 @media (max-width:640px){.rw-row{grid-template-columns:repeat(2,minmax(0,1fr))}.rw-row label:first-child{grid-column:1/-1}}
 @media (prefers-reduced-motion: reduce){.wheel svg{transition:none}}
+.rw-streak{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-bottom:10px;color:var(--gold)}
+.rw-streak b{color:var(--ink);font-size:16px}
+.rw-streak span{color:var(--muted);font-size:13.5px}
+.rw-q{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:10px}
+.rw-q li{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,30%) 3em;gap:10px;align-items:center}
+.rw-q li b{display:block;font-weight:500;font-size:14.5px}
+.rw-q li small{color:var(--muted);font-size:12.5px}
+.rw-q li > span{font-family:var(--f-mono);font-size:13px;text-align:right}
+.qbar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.qbar i{display:block;height:100%;background:var(--accent);border-radius:5px}
+.rw-q li.ok .qbar i{background:var(--ok)}
+.rw-ward{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.rw-item{border:1px solid var(--rule);border-radius:8px;padding:10px;display:grid;justify-items:center;gap:4px;text-align:center}
+.rw-item svg{width:64px;height:64px}
+.rw-item b{font-size:14px;font-weight:600}
+.rw-item small{font-size:12px;color:var(--muted)}
+.rw-item.locked svg{filter:grayscale(1);opacity:.45}
+.rw-wish{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.rw-wish input{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:8px 10px}
 /* helper owl: a fixed corner guide that suggests the next step */
 body:has(#mbub:not([hidden])) main{padding-bottom:220px}
 .mascot{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:25;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
@@ -629,7 +648,7 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
         </div>
       </div>
       <div class="panel">
-        <div class="panel-h board-h"><h2>排行榜 · 平均分數</h2><span class="tabs" role="group" aria-label="考試"><button data-bexam="cambridge" aria-pressed="true">劍橋 /20</button><button data-bexam="ielts" aria-pressed="false">雅思 Band</button></span><span><button class="ibtn" id="bReload">重新整理</button> <button class="ibtn" id="bOpen">設定</button></span></div>
+        <div class="panel-h board-h"><h2>排行榜</h2><span class="tabs" role="group" aria-label="排名方式"><button data-bmode="avg" aria-pressed="true">平均分數</button><button data-bmode="gain" aria-pressed="false">進步最多</button></span><span class="tabs" role="group" aria-label="考試"><button data-bexam="cambridge" aria-pressed="true">劍橋 /20</button><button data-bexam="ielts" aria-pressed="false">雅思 Band</button></span><span><button class="ibtn" id="bReload">重新整理</button> <button class="ibtn" id="bOpen">設定</button></span></div>
         <div id="bBoard"></div>
       </div>
       <div class="panel">
@@ -643,6 +662,10 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
     <div class="hist" style="padding-top:20px">
       <div class="stats" id="rwStats"></div>
       <div id="rwMsg"></div>
+      <div class="panel" id="rwQuestP">
+        <div class="panel-h"><h2>本週任務</h2><span class="eyebrow">每週一重新開始</span></div>
+        <div class="panel-b" id="rwQuest"></div>
+      </div>
       <div class="panel" id="rwSpinP">
         <div class="panel-h"><h2>轉盤抽獎</h2><span class="eyebrow" id="rwCost"></span></div>
         <div class="panel-b"><div class="wheel-wrap"><div class="wheel"><span class="ptr"></span><div class="disc"><svg viewBox="-100 -100 200 200" id="rwWheel" role="img" aria-label="抽獎轉盤"></svg></div></div><div class="wheel-res" id="rwRes" aria-live="polite"></div><button class="btn primary" id="rwSpin">轉一次</button><div class="rw-odds" id="rwOdds"></div></div></div>
@@ -654,6 +677,15 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
       <div class="panel" id="rwMineP">
         <div class="panel-h"><h2>我的獎品</h2><span class="eyebrow" id="rwMineN"></span></div>
         <ul class="rows" id="rwMine"></ul>
+      </div>
+      <div class="panel" id="rwWishP">
+        <div class="panel-h"><h2>許願池</h2><span class="eyebrow">告訴家長你想要的獎品</span></div>
+        <div class="rw-wish"><input id="rwWishIn" maxlength="40" placeholder="例如：週末去看電影"><button class="btn primary" id="rwWishGo">許願</button></div>
+        <ul class="rows" id="rwWishList"></ul>
+      </div>
+      <div class="panel" id="rwOwlP">
+        <div class="panel-h"><h2>歐利的衣櫃</h2></div>
+        <div class="panel-b" id="rwOwl"></div>
       </div>
       <div class="panel">
         <div class="panel-h"><h2>家長管理</h2><button class="ibtn" id="rwParentBtn">打開</button></div>
@@ -678,6 +710,7 @@ body:has(#mbub:not([hidden])) main{padding-bottom:220px}
       <path d="M29 38 L35 38 L32 43 Z" fill="#f2a33a"/>
       <path d="M18 57 q3 -4 6 0 M40 57 q3 -4 6 0" stroke="#f2a33a" stroke-width="3" fill="none" stroke-linecap="round"/>
       <rect x="44" y="40" width="4" height="16" rx="1" transform="rotate(25 46 48)" fill="#f4c20d"/><path d="M50.6 55.8 l-2.2 3.4 l-1.4-4.2 z" fill="#1d2433"/>
+      <g id="owlAcc"></g>
     </svg>
   </button>
 </div>
@@ -1801,7 +1834,7 @@ Include up to ${kidish ? 6 : 12} corrections (real errors only, most important f
     if (passed(totalScore(), t.level)) setTimeout(() => confetti(), 450);
     if (dbState === "ready") saveAttempt(true).then(r => { if (r) toast(`批改完成 · 本篇 +${r.xp} XP`, "gold"); });
     boardSubmit(t, totalScore());
-    if (countWords(text) >= t.min) rewardEarn(10 + (passed(totalScore(), t.level) ? 5 : 0), "w-" + String(state.attemptId || `${t.id}-${state.createdAt || ""}`).slice(0, 70), `寫作：${t.title}`);
+    if (countWords(text) >= t.min) rewardEarn(10 + (passed(totalScore(), t.level) ? 5 : 0), "w-" + String(state.attemptId || `${t.id}-${state.createdAt || ""}`).slice(0, 70), `寫作：${t.title}`, t.level);
   } catch (e) {
     fbRun.running = false;
     fbRun.error = e?.code === "cancelled" ? "" : aiMsg(e);
@@ -2309,7 +2342,7 @@ function compSubmit(){
   ttsStop();
   comp.done = true; comp.fresh = true;
   const right = cur.questions.filter((q, i) => comp.answers[i] === q.answer).length, xp = compXP(right, n);
-  rewardEarn(5 + (right === n ? 5 : 0), `c-${cur.id}-${dayKey(Date.now())}`.slice(0, 80), `${state.skill === "listening" ? "聽力" : "閱讀"}：${cur.title}`);
+  rewardEarn(5 + (right === n ? 5 : 0), `c-${cur.id}-${dayKey(Date.now())}`.slice(0, 80), `${state.skill === "listening" ? "聽力" : "閱讀"}：${cur.title}`, cur.level);
   renderComp();
   $("#compMain").scrollIntoView({behavior: reduced() ? "auto" : "smooth", block:"start"});
   if (right / n >= .6) setTimeout(() => confetti(), 400);
@@ -2401,7 +2434,7 @@ const BOARD_SQL = `create table scores (
 alter table scores enable row level security;
 create policy "read scores" on scores for select to anon using (true);
 create policy "add scores" on scores for insert to anon with check (true);`;
-const board = {rows:[], state:"idle", error:"", exam:"cambridge"};
+const board = {rows:[], state:"idle", error:"", exam:"cambridge", mode:"avg"};
 // this site's own Supabase project; the publishable key is meant to be public, and access is limited by the table's RLS policies
 const BOARD_DEFAULT = {url:"https://fcpcbjhhbdwyxgcrkuvv.supabase.co", key:"sb_publishable_JJVhGX6iCmyaaG7w9yVEOQ_Et9yNGHu"};
 function boardConf(){ const c = store.get("cw.board", {}) || {}; return {url:c.url || BOARD_DEFAULT.url, key:c.key || BOARD_DEFAULT.key, room:c.room || "", name:c.name || ""}; }
@@ -2445,6 +2478,7 @@ function renderBoard(){
   if (!STANDALONE) return;
   const c = boardConf(), I = board.exam === "ielts";
   document.querySelectorAll("[data-bexam]").forEach(b => b.setAttribute("aria-pressed", b.dataset.bexam === board.exam));
+  document.querySelectorAll("[data-bmode]").forEach(b => b.setAttribute("aria-pressed", b.dataset.bmode === board.mode));
   const msg = h => `<p class="status" style="margin:0;padding:14px 16px">${h}</p>`;
   if (!boardReady()) { $("#bBoard").innerHTML = msg(`還沒設定排行榜。按右上角「設定」${c.url ? "填上暱稱和房間代碼" : "建立排行榜，或打開家人傳給你的邀請連結"}。`); $("#bRows").innerHTML = ""; $("#bN").textContent = ""; return; }
   if (board.state === "loading" && !board.rows.length) { $("#bBoard").innerHTML = msg("載入中……"); return; }
@@ -2453,11 +2487,21 @@ function renderBoard(){
   rows.forEach(r => { const w = who.get(r.name) || {name:r.name, sum:0, n:0, best:0, levels:new Set()}; w.sum += +r.total; w.n++; w.best = Math.max(w.best, +r.total); w.levels.add(r.level); who.set(r.name, w); });
   const ranked = [...who.values()].map(w => ({...w, avg:w.sum / w.n})).sort((a, b) => b.avg - a.avg || b.n - a.n);
   const lvName = k => levelOf(k)?.tag || levelOf(k)?.short || k;
-  $("#bBoard").innerHTML = ranked.length ? `<ol class="lb">${ranked.map((w, i) => `<li class="${w.name === c.name ? "me" : ""}"><span class="rk">${i + 1}</span><div class="nm"><b>${esc(w.name)}${w.name === c.name ? "（我）" : ""}</b><small>${[...w.levels].map(lvName).map(esc).join("、")} · 最高 ${I ? w.best.toFixed(1) : w.best}</small></div><span class="ct">${w.n} 篇</span><span class="av">${w.avg.toFixed(1)}<small> ${I ? "Band" : "/ 20"}</small></span></li>`).join("")}</ol>`
+  if (board.mode === "gain") $("#bBoard").innerHTML = boardGainHtml(rows, c, I);
+  else $("#bBoard").innerHTML = ranked.length ? `<ol class="lb">${ranked.map((w, i) => `<li class="${w.name === c.name ? "me" : ""}"><span class="rk">${i + 1}</span><div class="nm"><b>${esc(w.name)}${w.name === c.name ? "（我）" : ""}</b><small>${[...w.levels].map(lvName).map(esc).join("、")} · 最高 ${I ? w.best.toFixed(1) : w.best}</small></div><span class="ct">${w.n} 篇</span><span class="av">${w.avg.toFixed(1)}<small> ${I ? "Band" : "/ 20"}</small></span></li>`).join("")}</ol>`
     : msg(`房間「${esc(c.room)}」還沒有${I ? "雅思" : "劍橋"}的分數。寫一篇按「AI 批改」，分數就會出現在這裡。`);
   $("#bN").textContent = rows.length ? `${rows.length} 筆` : "";
   $("#bRows").innerHTML = rows.slice(0, 100).map(r => `<li><span class="lvtag">${esc(lvName(r.level))}</span><div class="t"><b>${esc(r.name)} · ${esc(r.task)}</b><small>${fmtDate(Date.parse(r.created_at))}</small></div><div class="acts"><span class="pill ${band(+r.total, I)?.[1] || "neutral"}">${I ? "Band " + (+r.total).toFixed(1) : r.total + "/20"}</span></div></li>`).join("") || `<li class="empty" style="display:block">還沒有紀錄。</li>`;
   guideSoon();
+}
+// "most improved": each person's latest scores against their scores just before, so younger and older players compete fairly
+function boardGainHtml(rows, c, I){
+  const who = new Map(); rows.forEach(r => { if (!who.has(r.name)) who.set(r.name, []); who.get(r.name).push(+r.total); });
+  const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const ranked = [...who].map(([name, t]) => { const n = Math.min(3, Math.floor(t.length / 2)); return n ? {name, n, now:avg(t.slice(0, n)), before:avg(t.slice(n, 2 * n))} : null; })
+    .filter(Boolean).map(w => ({...w, gain:w.now - w.before})).sort((a, b) => b.gain - a.gain);
+  if (!ranked.length) return `<p class="status" style="margin:0;padding:14px 16px">每個人至少要有 2 篇${I ? "雅思" : "劍橋"}分數，才能比較進步。</p>`;
+  return `<ol class="lb">${ranked.map((w, i) => `<li class="${w.name === c.name ? "me" : ""}"><span class="rk">${i + 1}</span><div class="nm"><b>${esc(w.name)}${w.name === c.name ? "（我）" : ""}</b><small>最近 ${w.n} 篇平均 ${w.now.toFixed(1)}，之前 ${w.n} 篇平均 ${w.before.toFixed(1)}</small></div><span class="ct">${I ? "Band" : "/ 20"}</span><span class="av" style="color:${w.gain > 0 ? "var(--ok)" : w.gain < 0 ? "var(--pen)" : "inherit"}">${w.gain > 0 ? "+" : ""}${w.gain.toFixed(1)}</span></li>`).join("")}</ol><p class="hint" style="margin:0;padding:0 16px 14px">比的是自己和自己：最近幾篇的平均分數，比之前幾篇進步了多少。</p>`;
 }
 function boardInviteLink(){
   const c = boardConf(), data = btoa(unescape(encodeURIComponent(JSON.stringify({u:c.url, k:c.key, r:c.room})))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -2507,7 +2551,7 @@ const REWARD_DEFAULT = {cost:50, prizes:[
   {name:"書店禮券 200 元", kind:"gift", weight:1, price:1200, amount:0},
   {name:"加 20 點", kind:"points", weight:20, price:0, amount:20},
   {name:"再接再厲", kind:"none", weight:40, price:0, amount:0},
-]};
+], levels:{}};
 const RW_KINDS = {gift:"禮券或獎品", points:"加點數", none:"再接再厲"};
 const rw = {settings:null, ledger:[], state:"idle", error:"", errStatus:0, unlocked:false, parentOpen:false, edit:null, spinning:false, angle:0, wheelKey:"", result:""};
 function normRewards(d){
@@ -2516,7 +2560,8 @@ function normRewards(d){
     name:String(p?.name ?? "").trim().slice(0, 30), kind:RW_KINDS[p?.kind] ? p.kind : "gift",
     weight:int(p?.weight, 0, 1000, 0), price:int(p?.price, 0, 100000, 0), amount:int(p?.amount, 0, 1000, 0),
   })).filter(p => p.name);
-  return {cost:int(d?.cost, 1, 10000, 50), prizes};
+  const levels = Object.fromEntries(Object.entries(d?.levels && typeof d.levels === "object" ? d.levels : {}).filter(([n, k]) => n && LV_ORDER.includes(k)).slice(0, 20));
+  return {cost:int(d?.cost, 1, 10000, 50), prizes, levels};
 }
 async function hashPin(room, pin){
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`cw-reward|${room}|${pin}`));
@@ -2544,12 +2589,16 @@ function rewardInsert(rows){
   return boardReq(boardConf(), "", {method:"POST", headers:{Prefer:"return=representation"}, body:JSON.stringify(rows)}, "reward_ledger")
     .then(r => r.json()).then(saved => { rw.ledger.unshift(...saved.reverse()); return saved; });
 }
-function rewardEarn(points, ref, note){
+async function rewardEarn(points, ref, note, level){
   if (!STANDALONE || !boardReady()) return;
-  const c = boardConf();
-  rewardInsert([{room:c.room, name:c.name, kind:"earn", points, note:note.slice(0, 80), prize:null, ref}])
-    .then(() => { toast(`+${points} 抽獎點數`, "gold"); renderRewards(); })
-    .catch(e => { if (e.status !== 409 && e.status !== 404) toast(e.message); });
+  if (rw.state !== "ready") await rewardsLoad();
+  if (rw.state !== "ready") return;
+  const c = boardConf(), mult = rewardMult(level, c.name), pts = Math.min(1000, points * mult);
+  try {
+    await rewardInsert([{room:c.room, name:c.name, kind:"earn", points:pts, note:note.slice(0, 80), prize:null, ref}]);
+    toast(`+${pts} 抽獎點數${mult > 1 ? "（挑戰高一級 ×2）" : ""}`, "gold");
+    await rewardBonuses(); renderRewards();
+  } catch (e) { if (e.status !== 409 && e.status !== 404) toast(e.message); }
 }
 function rewardPick(prizes){
   const pool = prizes.map((p, i) => ({p, i})).filter(x => x.p.weight > 0), total = pool.reduce((s, x) => s + x.p.weight, 0);
@@ -2607,9 +2656,9 @@ function rewardRedeem(i){
     .then(() => { toast(`已兌換「${p.name}」，請找家長領取`, "gold"); confetti(90); renderRewards(); })
     .catch(e => toast(e.message));
 }
-function rewardGive(row){
-  rewardInsert([{room:boardConf().room, name:row.name, kind:"given", points:0, note:`已發放：${row.prize}`.slice(0, 80), prize:null, ref:"given-" + row.id}])
-    .then(() => { toast("已標記為發放"); renderRewards(); })
+function rewardGive(row, note = `已發放：${row.prize}`, done = "已標記為發放"){
+  rewardInsert([{room:boardConf().room, name:row.name, kind:"given", points:0, note:note.slice(0, 80), prize:null, ref:"given-" + row.id}])
+    .then(() => { toast(done); renderRewards(); })
     .catch(e => { if (e.status === 409) rewardsLoad(); else toast(e.message); });
 }
 function renderRewardParent(){
@@ -2627,7 +2676,9 @@ function renderRewardParent(){
     box.innerHTML = `<p>輸入家長密碼才能修改獎品和發放獎品。</p><label for="rwPin">家長密碼</label><input id="rwPin" type="password" inputmode="numeric" autocomplete="off"><div class="api-acts"><button class="btn primary" id="rwUnlock">確定</button><span class="status" id="rwPinMsg"></span></div>`;
     return;
   }
-  const e = rw.edit || (rw.edit = JSON.parse(JSON.stringify(rw.settings ? {cost:rw.settings.cost, prizes:rw.settings.prizes} : REWARD_DEFAULT)));
+  const e = rw.edit || (rw.edit = JSON.parse(JSON.stringify(rw.settings ? {cost:rw.settings.cost, prizes:rw.settings.prizes, levels:rw.settings.levels || {}} : REWARD_DEFAULT)));
+  e.levels ||= {};
+  const doneRefs = rewardGiven(), wishes = rw.ledger.filter(r => r.ref.startsWith("wish-") && !doneRefs.has("given-" + r.id));
   const total = e.prizes.reduce((s, p) => s + (+p.weight || 0), 0) || 1;
   const given = rewardGiven(), pending = rw.ledger.filter(r => r.prize && !given.has("given-" + r.id));
   const names = [...new Set(rw.ledger.map(r => r.name))];
@@ -2635,6 +2686,11 @@ function renderRewardParent(){
     <h3 style="font-size:14px;margin:4px 0 0">待發放的獎品 · ${pending.length}</h3>
     ${pending.length ? `<ul class="rows">${pending.map(r => `<li><span class="lvtag">${esc(r.name)}</span><div class="t"><b>${esc(r.prize)}</b><small>${fmtDate(Date.parse(r.created_at))} · ${r.kind === "spin" ? "轉盤抽中" : "直接兌換"}</small></div><div class="acts"><button class="btn" data-give="${r.id}">已發放</button></div></li>`).join("")}</ul>` : `<p class="status" style="margin:0">目前沒有待發放的獎品。</p>`}
     ${names.length ? `<p class="hint" style="margin:0">目前點數：${names.map(n => `${esc(n)} ${rewardBalance(n)} 點`).join("、")}</p>` : ""}
+    <h3 style="font-size:14px;margin:12px 0 0">孩子的願望 · ${wishes.length}</h3>
+    ${wishes.length ? `<ul class="rows">${wishes.map(r => `<li><span class="lvtag">${esc(r.name)}</span><div class="t"><b>${esc(r.note.replace(/^許願：/, ""))}</b><small>${fmtDate(Date.parse(r.created_at))}</small></div><div class="acts"><button class="btn" data-wish-ok="${r.id}">加入獎品</button><button class="ibtn" data-wish-no="${r.id}">不採用</button></div></li>`).join("")}</ul>` : `<p class="status" style="margin:0">目前沒有新的願望。</p>`}
+    <h3 style="font-size:14px;margin:12px 0 0">每個孩子的程度</h3>
+    <p class="hint" style="margin:0">設定每個孩子平常練習的級數；做比這個更高級的題目，抽獎點數 ×2。孩子第一次賺到點數後才會出現在這裡。</p>
+    ${names.length ? names.map(n => `<label>${esc(n)}<select data-lvname="${esc(n)}"><option value="">不設定</option>${LV_ORDER.map(k => `<option value="${k}"${e.levels[n] === k ? " selected" : ""}>${esc(levelOf(k).cefr)} ${esc(levelOf(k).short)}</option>`).join("")}</select></label>`).join("") : ""}
     <h3 style="font-size:14px;margin:12px 0 0">獎品設定</h3>
     <label for="rwCostIn">轉一次轉盤要幾點</label><input id="rwCostIn" type="number" min="1" max="10000" value="${e.cost}">
     <p class="hint" style="margin:0">「轉盤權重」越大越容易抽中，設 0 就不會出現在轉盤上；「兌換點數」設 0 就不能直接兌換。每次練習大約可以賺 5–15 點。</p>
@@ -2676,6 +2732,8 @@ function renderRewards(){
     : msg(`<p class="rw-earn">怎麼賺點數：寫作經 AI 批改 +10（達到本級水準或 Band 6 再 +5，要寫到最低字數）· 閱讀、聽力交卷 +5（全對再 +5，同一份每天一次）</p>`);
   const on = ready && !!s;
   ["#rwSpinP", "#rwShopP", "#rwMineP"].forEach(id => { $(id).hidden = !on; });
+  ["#rwQuestP", "#rwWishP", "#rwOwlP"].forEach(id => { $(id).hidden = !(ready && boardReady()); });
+  if (ready && boardReady()) renderMotivation();
   if (on) {
     $("#rwCost").textContent = `轉一次 ${s.cost} 點`;
     renderWheel();
@@ -2691,6 +2749,88 @@ function renderRewards(){
   }
   renderRewardParent();
   guideSoon();
+}
+
+/* motivation: level-up bonus, streak milestones, weekly quests, Ollie's wardrobe and the wish box (all kept in reward_ledger) */
+const LV_ORDER = ["PA1","A1","FLY","A2","B1","B2","C1","C2"];
+const lvRank = k => k === "IA" || k === "IG" ? 6 : LV_ORDER.indexOf(k);
+function rewardMult(level, name){
+  const own = rw.settings?.levels?.[name];
+  return own && level && lvRank(level) > lvRank(own) ? 2 : 1;
+}
+const isPractice = r => r.kind === "earn" && r.points > 0 && /^[wc]-/.test(r.ref);
+function weekKey(ms){ const d = new Date(ms); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return dayKey(d.getTime()); }
+function rewardStreak(name){
+  const days = new Set(rw.ledger.filter(r => r.name === name && isPractice(r)).map(r => dayKey(Date.parse(r.created_at))));
+  const d = new Date(); if (!days.has(dayKey(d.getTime()))) d.setDate(d.getDate() - 1);
+  let n = 0, start = null;
+  while (days.has(dayKey(d.getTime()))) { n++; start = dayKey(d.getTime()); d.setDate(d.getDate() - 1); }
+  return {n, start, today:days.has(dayKey(Date.now()))};
+}
+const STREAK_BONUS = [[3, 10], [7, 30], [14, 50], [30, 100]];
+const QUESTS = [
+  {id:"w", name:"寫 2 篇作文並請 AI 批改", prefix:"寫作：", need:2, pts:30},
+  {id:"r", name:"完成 3 份閱讀", prefix:"閱讀：", need:3, pts:20},
+  {id:"l", name:"完成 3 份聽力", prefix:"聽力：", need:3, pts:20},
+];
+const QUEST_ALL = 30;
+function rewardQuests(name){
+  const wk = weekKey(Date.now()), mine = rw.ledger.filter(r => r.name === name);
+  const rows = mine.filter(r => isPractice(r) && weekKey(Date.parse(r.created_at)) === wk);
+  const has = ref => mine.some(r => r.ref === ref);
+  const list = QUESTS.map(q => ({...q, done:Math.min(q.need, rows.filter(r => r.note?.startsWith(q.prefix)).length), ref:`q-${wk}-${q.id}`}));
+  list.forEach(q => { q.claimed = has(q.ref); });
+  return {wk, list, allRef:`q-${wk}-all`, allClaimed:has(`q-${wk}-all`)};
+}
+async function rewardBonuses(){
+  const c = boardConf(), mine = rw.ledger.filter(r => r.name === c.name), has = ref => mine.some(r => r.ref === ref), due = [];
+  const st = rewardStreak(c.name);
+  STREAK_BONUS.forEach(([n, pts]) => { const ref = `st${n}-${st.start}`; if (st.n >= n && !has(ref)) due.push([pts, ref, `連續練習 ${n} 天`]); });
+  const q = rewardQuests(c.name);
+  q.list.forEach(x => { if (x.done >= x.need && !x.claimed) due.push([x.pts, x.ref, `每週任務：${x.name}`]); });
+  if (q.list.every(x => x.done >= x.need) && !q.allClaimed) due.push([QUEST_ALL, q.allRef, "每週任務全部完成"]);
+  for (const [pts, ref, note] of due) {
+    try { await rewardInsert([{room:c.room, name:c.name, kind:"earn", points:pts, note, prize:null, ref}]); toast(`🎯 ${note}！+${pts} 點`, "gold"); confetti(70); }
+    catch (e) { if (e.status !== 409) break; }
+  }
+  if (due.length) renderRewards();
+}
+const OUTFITS = [
+  {id:"cap", name:"學士帽", need:50, slot:"head", svg:'<path d="M12 15 L32 6 L52 15 L32 24 Z" fill="#1d2433"/><path d="M22 19 v6 q10 5 20 0 v-6" fill="#1d2433"/><path d="M52 15 v9" stroke="#f4c20d" stroke-width="2"/><circle cx="52" cy="25" r="2" fill="#f4c20d"/>'},
+  {id:"glasses", name:"圓框眼鏡", need:150, slot:"face", svg:'<circle cx="23" cy="31" r="10.5" fill="none" stroke="#1d2433" stroke-width="2.2"/><circle cx="41" cy="31" r="10.5" fill="none" stroke="#1d2433" stroke-width="2.2"/><path d="M30.5 30 h3" stroke="#1d2433" stroke-width="2.2"/>'},
+  {id:"scarf", name:"綠色圍巾", need:300, slot:"neck", svg:'<path d="M13 46 q19 8 38 0 l0 5 q-19 8 -38 0 Z" fill="#3d9e57"/><path d="M40 51 l3 9 l5 -2 l-3 -9 Z" fill="#2f7d44"/>'},
+  {id:"bow", name:"紅色領結", need:500, slot:"neck", svg:'<path d="M32 51 L23 46 L23 56 Z M32 51 L41 46 L41 56 Z" fill="#e2504a"/><circle cx="32" cy="51" r="2.6" fill="#b8322c"/>'},
+  {id:"phones", name:"音樂耳機", need:800, slot:"head", svg:'<path d="M12 32 q0 -25 20 -25 q20 0 20 25" fill="none" stroke="#1d2433" stroke-width="3"/><rect x="7" y="27" width="8" height="13" rx="3" fill="#e2504a"/><rect x="49" y="27" width="8" height="13" rx="3" fill="#e2504a"/>'},
+  {id:"crown", name:"金色皇冠", need:1500, slot:"head", svg:'<path d="M18 19 L17 6 L25 12 L32 3 L39 12 L47 6 L46 19 Z" fill="#f4c20d" stroke="#b8860b" stroke-width="1.5"/><circle cx="32" cy="12" r="2.2" fill="#e2504a"/>'},
+];
+const owlWear = () => store.get("cw.owl.wear", {}) || {};
+function renderOwlAcc(){ const w = owlWear(); $("#owlAcc").innerHTML = OUTFITS.filter(o => w[o.slot] === o.id).map(o => o.svg).join(""); }
+function rewardEarnedTotal(name){ return rw.ledger.filter(r => r.name === name && r.points > 0).reduce((t, r) => t + r.points, 0); }
+function renderMotivation(){
+  const c = boardConf(), me = c.name, st = rewardStreak(me), q = rewardQuests(me), earned = rewardEarnedTotal(me);
+  const next = STREAK_BONUS.find(([n]) => st.n < n);
+  $("#rwQuest").innerHTML = `<div class="rw-streak">${FLAME}<b>連續練習 ${st.n} 天</b><span>${st.today ? "今天已練習 ✓" : "今天還沒練習"}${next ? ` · 再 ${next[0] - st.n} 天 +${next[1]} 點` : " · 太厲害了！"}</span></div>
+    <ul class="rw-q">${q.list.map(x => `<li class="${x.done >= x.need ? "ok" : ""}"><div><b>${esc(x.name)}</b><small>${x.claimed ? "已領 " : ""}+${x.pts} 點</small></div><div class="qbar"><i style="width:${x.done / x.need * 100}%"></i></div><span>${x.done}/${x.need}</span></li>`).join("")}</ul>
+    <p class="hint" style="margin:0">三個任務都完成再 +${QUEST_ALL} 點${q.allClaimed ? "（已領）" : ""}。每週一重新開始。${rw.settings?.levels?.[me] ? ` 你的級數是 ${esc(levelOf(rw.settings.levels[me])?.cefr || "")}，做更高級的題目點數 ×2！` : ""}</p>`;
+  const w = owlWear(), seenRaw = store.get("cw.owl.seen", null), seen = new Set(seenRaw || []), got = OUTFITS.filter(o => earned >= o.need);
+  const fresh = got.filter(o => !seen.has(o.id));
+  if (fresh.length || !seenRaw) { store.set("cw.owl.seen", got.map(o => o.id)); if (seenRaw) fresh.forEach(o => toast(`歐利得到新裝扮：${o.name}！到「歐利的衣櫃」幫他穿上吧`, "gold")); }
+  $("#rwOwl").innerHTML = `<p class="hint" style="margin:0 0 10px">累積賺到 ${earned} 點。點數越多，歐利的衣櫃就越豐富；按「穿上」幫右下角的歐利換裝。</p><div class="rw-ward">${OUTFITS.map(o => {
+    const on = w[o.slot] === o.id, ok = earned >= o.need;
+    return `<div class="rw-item${ok ? "" : " locked"}"><svg viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="38" rx="22" ry="21" fill="var(--accent)"/><circle cx="23" cy="31" r="9" fill="#fff"/><circle cx="41" cy="31" r="9" fill="#fff"/><circle cx="24" cy="32" r="4" fill="#1d2433"/><circle cx="40" cy="32" r="4" fill="#1d2433"/>${o.svg}</svg><b>${esc(o.name)}</b><small>${ok ? (on ? "穿著中" : "已解鎖") : `${o.need} 點解鎖`}</small>${ok ? `<button class="ibtn" data-wear="${o.id}">${on ? "脫下" : "穿上"}</button>` : ""}</div>`;
+  }).join("")}</div>`;
+  const wishes = rw.ledger.filter(r => r.name === me && r.ref.startsWith("wish-")), done = new Map(rw.ledger.filter(r => r.kind === "given").map(r => [r.ref, r.note || ""]));
+  $("#rwWishList").innerHTML = wishes.length ? wishes.map(r => { const n = done.get("given-" + r.id); return `<li><span class="lvtag">願望</span><div class="t"><b>${esc(r.note.replace(/^許願：/, ""))}</b><small>${fmtDate(Date.parse(r.created_at))}</small></div><div class="acts"><span class="pill ${n ? (n.startsWith("採納") ? "ok" : "neutral") : "warn"}">${n ? (n.startsWith("採納") ? "已加入獎品" : "這次不採用") : "等家長回覆"}</span></div></li>`; }).join("")
+    : `<li class="empty" style="display:block">還沒有願望。想要什麼獎品？寫下來告訴家長！</li>`;
+}
+function rewardWish(){
+  const c = boardConf(), text = $("#rwWishIn").value.trim().slice(0, 40);
+  if (!text) { toast("先寫下你想要的獎品"); return; }
+  const done = new Set(rw.ledger.filter(r => r.kind === "given").map(r => r.ref));
+  if (rw.ledger.filter(r => r.name === c.name && r.ref.startsWith("wish-") && !done.has("given-" + r.id)).length >= 3) { toast("最多同時許 3 個願望，等家長回覆再許新的"); return; }
+  rewardInsert([{room:c.room, name:c.name, kind:"earn", points:0, note:`許願：${text}`, prize:null, ref:"wish-" + rid()}])
+    .then(() => { $("#rwWishIn").value = ""; toast("願望送出了，等家長回覆！", "gold"); renderRewards(); })
+    .catch(e => toast(e.message));
 }
 
 /* ---------- helper owl: looks at where the learner is and suggests one next step ---------- */
@@ -2913,6 +3053,14 @@ $("#tab-history").addEventListener("click", () => { persistWork(); showTab("hist
 $("#tab-board").addEventListener("click", () => { persistWork(); showTab("board"); });
 $("#tab-rewards").addEventListener("click", () => { persistWork(); showTab("rewards"); });
 $("#rwSpin").addEventListener("click", rewardSpin);
+$("#rwWishGo").addEventListener("click", rewardWish);
+$("#rwWishIn").addEventListener("keydown", e => { if (e.key === "Enter") rewardWish(); });
+$("#rwOwl").addEventListener("click", e => {
+  const b = e.target.closest("[data-wear]"); if (!b) return;
+  const o = OUTFITS.find(x => x.id === b.dataset.wear), w = owlWear();
+  if (w[o.slot] === o.id) delete w[o.slot]; else w[o.slot] = o.id;
+  store.set("cw.owl.wear", w); renderOwlAcc(); renderMotivation();
+});
 $("#rwShop").addEventListener("click", e => { const b = e.target.closest("[data-redeem]"); if (b) armed(b, "確定兌換？", () => rewardRedeem(+b.dataset.redeem)); });
 $("#rwMsg").addEventListener("click", e => { if (e.target.closest("#rwToBoard")) { showTab("board"); boardOpenSetup(); } });
 $("#rwParentBtn").addEventListener("click", () => { rw.parentOpen = !rw.parentOpen; if (!rw.parentOpen) { rw.unlocked = false; rw.edit = null; } renderRewardParent(); });
@@ -2928,11 +3076,20 @@ $("#rwParent").addEventListener("click", async e => {
   if (t.closest("#rwLock")) { rw.unlocked = false; rw.edit = null; renderRewardParent(); return; }
   if (t.closest("#rwAdd")) { rw.edit.prizes.push({name:"新獎品", kind:"gift", weight:5, price:500, amount:0}); renderRewardParent(); return; }
   const d = t.closest("[data-del-prize]"); if (d) { rw.edit.prizes.splice(+d.dataset.delPrize, 1); renderRewardParent(); return; }
+  const wo = t.closest("[data-wish-ok]"), wn = t.closest("[data-wish-no]");
+  if (wo || wn) {
+    const row = rw.ledger.find(r => String(r.id) === (wo || wn).dataset[wo ? "wishOk" : "wishNo"]); if (!row) return;
+    const text = row.note.replace(/^許願：/, "");
+    if (wo) { rw.edit.prizes.push({name:text.slice(0, 30), kind:"gift", weight:2, price:500, amount:0}); rewardGive(row, `採納：${text}`, "已加入獎品清單，調整機率和點數後按「儲存設定」"); }
+    else rewardGive(row, `婉拒：${text}`, "已回覆這個願望");
+    return;
+  }
   const g = t.closest("[data-give]"); if (g) { const row = rw.ledger.find(r => String(r.id) === g.dataset.give); if (row) armed(g, "確定已發放？", () => rewardGive(row)); return; }
   if (t.closest("#rwSave")) rewardSaveSettings();
 });
 $("#rwParent").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "rwPin") $("#rwUnlock").click(); });
 $("#rwParent").addEventListener("input", e => {
+  if (e.target.dataset.lvname) { if (e.target.value) rw.edit.levels[e.target.dataset.lvname] = e.target.value; else delete rw.edit.levels[e.target.dataset.lvname]; return; }
   const row = e.target.closest("[data-i]");
   if (e.target.id === "rwCostIn") { rw.edit.cost = e.target.value; return; }
   if (!row || !e.target.dataset.f) return;
@@ -2948,7 +3105,10 @@ $("#mbub").addEventListener("click", e => {
 $("#bOpen").addEventListener("click", boardOpenSetup);
 $("#bClose").addEventListener("click", () => { $("#boardSetup").hidden = true; });
 $("#bReload").addEventListener("click", boardLoad);
-document.querySelector(".board-h .tabs").addEventListener("click", e => { const b = e.target.closest("[data-bexam]"); if (b) { board.exam = b.dataset.bexam; renderBoard(); } });
+document.querySelector(".board-h").addEventListener("click", e => {
+  const b = e.target.closest("[data-bexam]"); if (b) { board.exam = b.dataset.bexam; renderBoard(); }
+  const m = e.target.closest("[data-bmode]"); if (m) { board.mode = m.dataset.bmode; renderBoard(); }
+});
 $("#bCopySql").addEventListener("click", () => navigator.clipboard?.writeText(BOARD_SQL).then(() => toast("已複製 SQL"), () => toast("無法複製，請手動選取")));
 $("#bSave").addEventListener("click", () => {
   const v = id => $(id).value.trim(), url = v("#bUrl").replace(/\/+$/, ""), name = v("#bName").slice(0, 20), room = v("#bRoom").slice(0, 40);
@@ -2989,6 +3149,7 @@ const C = window.claude;
 const use = n => C?.use ? C.use(n).catch(() => null) : Promise.resolve(null);
 if (STANDALONE) {
   ai = apiSample(); aiState = "ready"; $("#apiBtn").hidden = false; $("#backupActs").hidden = false; renderScores();
+  renderOwlAcc();
   $("#tab-board").hidden = false; $("#tab-rewards").hidden = false; $("#bSql").textContent = BOARD_SQL;
   if (boardJoinFromHash()) { showTab("board"); boardOpenSetup(); toast(boardConf().name ? "已加入排行榜房間" : "已加入排行榜房間，請填上你的暱稱"); }
 }

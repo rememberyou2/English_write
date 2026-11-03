@@ -1,4 +1,6 @@
-# 劍橋寫作練習室
+# 英文練習室
+
+非官方的英文練習網站，與 Cambridge English、IELTS 主辦單位沒有任何關係。
 
 仿照 Cambridge English 寫作考試的練習網站，從兒童的 Starters、Movers、Flyers 到 C2 Proficiency，也有雅思（IELTS）Academic 與 General Training 的 Task 1、Task 2 題目，依雅思四項標準給 0–9 Band 分數。
 

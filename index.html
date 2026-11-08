@@ -195,6 +195,14 @@ body:has(#zoom:not([hidden])) .mascot,body:has(#login:not([hidden])) .mascot{dis
 .out ul,.out ol{margin:0 0 8px;padding-left:22px}
 .out hr{border:0;border-top:1px dashed var(--rule);margin:14px 0}
 .thinking{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.fbwait{background:var(--accent-soft);border-radius:10px;padding:14px 16px;margin:0 0 14px;display:grid;gap:10px}
+.fbwait-top{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;color:var(--ink)}
+#fbProg{flex:1}
+.fbwait-bar{height:12px;background:var(--sheet);border-radius:6px;overflow:hidden}
+.fbwait-bar i{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .8s ease}
+.fbwait-steps{display:flex;justify-content:space-between;gap:6px;font-size:13px;color:var(--muted)}
+.fbwait-steps b{color:var(--accent);font-weight:600}
+@media (prefers-reduced-motion: reduce){.fbwait-bar i{transition:none}}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.25}}
 @media (prefers-reduced-motion: reduce){.dot{animation:none}.meter i{transition:none}}
@@ -1755,7 +1763,7 @@ function renderScores(){
   }
   $("#scoredBy").innerHTML = state.scoredBy === "ai" ? '<span class="pill neutral">AI 評分</span>' : state.scoredBy === "self" ? '<span class="pill neutral">自評</span>' : state.scoredBy === "ai+self" ? '<span class="pill neutral">AI 評分（已調整）</span>' : "";
   const top = $("#fbTop");
-  if (fbRun.running) top.innerHTML = `<div class="thinking"><span class="dot"></span><span id="fbProg">${fbProgText()}</span><button class="ibtn" id="fbStop">停止</button></div><div style="height:12px"></div>`;
+  if (fbRun.running) top.innerHTML = `<div class="fbwait" role="status" aria-live="polite"><div class="fbwait-top"><span class="dot"></span><span id="fbProg">${fbProgText()}</span><button class="ibtn" id="fbStop">停止</button></div><div class="fbwait-bar"><i id="fbBar" style="width:${fbPct()}%"></i></div><div class="fbwait-steps" id="fbSteps">${fbStepsHtml()}</div></div>`;
   else if (fbRun.error) top.innerHTML = `<p class="err-msg">${esc(fbRun.error)}</p>`;
   else if (fb?.summary) top.innerHTML = `<p class="summary" style="margin:0 0 14px">${esc(fb.summary)}</p>`;
   else top.innerHTML = aiState === "off" ? `<p class="status" style="margin:0 0 12px">此檢視無法使用 AI 批改。你可以對照下方標準自我評分。</p>`
@@ -1794,8 +1802,18 @@ function renderFeedback(){
 
 /* ---------- Claude: feedback, hints, model answer ---------- */
 const fbRun = { running:false, ctl:null, error:"", t0:0, chars:0, tick:0 };
-const fbProgText = () => { const sec = Math.round((Date.now() - fbRun.t0) / 1000); return fbRun.chars ? `老師正在寫評語……（${sec} 秒，已寫 ${fbRun.chars} 字）` : `老師正在看你的文章……（${sec} 秒）`; };
-function fbProgress(){ if (!fbRun.running) { clearInterval(fbRun.tick); return; } const el = $("#fbProg"); if (el) el.textContent = fbProgText(); }
+// progress while marking: reading and scoring fill the bar slowly over time, writing the feedback fills the rest as text arrives
+const fbSec = () => Math.round((Date.now() - fbRun.t0) / 1000);
+const fbStage = () => fbRun.chars ? 3 : fbSec() < 6 ? 1 : 2;
+const fbPct = () => fbRun.chars ? Math.min(97, 45 + fbRun.chars / 1400 * 52) : 45 * (1 - Math.exp(-fbSec() / 12));
+const fbProgText = () => fbRun.chars ? `老師正在寫評語……${fbSec()} 秒（已寫 ${fbRun.chars} 字）` : `老師正在${fbStage() === 1 ? "讀你的文章" : "打分數"}……${fbSec()} 秒`;
+const fbStepsHtml = () => ["① 讀文章", "② 打分數", "③ 寫評語"].map((t, i) => i + 1 <= fbStage() ? `<b>${t}${i + 1 < fbStage() ? " ✓" : ""}</b>` : `<span>${t}</span>`).join("");
+function fbProgress(){
+  if (!fbRun.running) { clearInterval(fbRun.tick); return; }
+  const p = $("#fbProg"), bar = $("#fbBar"), st = $("#fbSteps");
+  if (p) p.textContent = fbProgText(); if (bar) bar.style.width = fbPct() + "%"; if (st) st.innerHTML = fbStepsHtml();
+  $("#btnFeedback").textContent = `批改中…${fbSec()} 秒`;
+}
 const asRun = { kind:null, ctl:null };
 const AI_ERR = {
   not_granted:"你沒有允許此頁面使用 Claude，AI 功能已停用。", sampling_disabled:"此帳號無法使用 Claude。", not_declared:"此頁面無法使用 Claude。",
@@ -1891,6 +1909,7 @@ Include up to ${kidish ? 5 : 8} corrections (real errors only, most important fi
     renderScores();
   } finally {
     if (aiState !== "off") $("#btnFeedback").disabled = false;
+    clearInterval(fbRun.tick); $("#btnFeedback").textContent = simple ? "交給老師批改" : "AI 批改";
     renderSaveStatus();
   }
 }

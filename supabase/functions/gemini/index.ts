@@ -50,21 +50,30 @@ Deno.serve(async (req) => {
   const key = Deno.env.get("GEMINI_API_KEY");
   if (!key) return fail(500, "FAMILY_NO_KEY", "GEMINI_API_KEY is not set.", cors);
 
-  let body: { prompt?: unknown; model?: unknown };
+  let body: { prompt?: unknown; model?: unknown; thinking?: unknown };
   try { body = await req.json(); } catch { return fail(400, "FAMILY_BAD_REQUEST", "Invalid JSON.", cors); }
   const prompt = typeof body.prompt === "string" ? body.prompt : "";
   if (!prompt || prompt.length > MAX_PROMPT) return fail(400, "FAMILY_BAD_REQUEST", "Invalid prompt.", cors);
   const model = MODELS.includes(body.model as string) ? (body.model as string) : MODELS[0];
 
-  const upstream = await fetch(
+  // "low" thinking answers much faster; if a model does not accept the setting, ask again without it
+  const ask = (thinking: boolean) => fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`,
     {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": key },
-      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] }),
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        ...(thinking ? { generationConfig: { thinkingConfig: { thinkingLevel: "low" } } } : {}),
+      }),
       signal: req.signal,
     },
   );
+  let upstream = await ask(body.thinking === "low");
+  if (body.thinking === "low" && upstream.status === 400) {
+    const msg = await upstream.clone().text();
+    if (/thinking/i.test(msg)) upstream = await ask(false);
+  }
   return new Response(upstream.body, {
     status: upstream.status,
     headers: { ...cors, "content-type": upstream.headers.get("content-type") ?? "text/event-stream" },

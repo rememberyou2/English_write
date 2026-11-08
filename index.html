@@ -1763,7 +1763,7 @@ function renderScores(){
   }
   $("#scoredBy").innerHTML = state.scoredBy === "ai" ? '<span class="pill neutral">AI 評分</span>' : state.scoredBy === "self" ? '<span class="pill neutral">自評</span>' : state.scoredBy === "ai+self" ? '<span class="pill neutral">AI 評分（已調整）</span>' : "";
   const top = $("#fbTop");
-  if (fbRun.running) top.innerHTML = `<div class="fbwait" role="status" aria-live="polite"><div class="fbwait-top"><span class="dot"></span><span id="fbProg">${fbProgText()}</span><button class="ibtn" id="fbStop">停止</button></div><div class="fbwait-bar"><i id="fbBar" style="width:${fbPct()}%"></i></div><div class="fbwait-steps" id="fbSteps">${fbStepsHtml()}</div></div>`;
+  if (fbRun.running) top.innerHTML = `<div class="fbwait" role="status" aria-live="polite"><div class="fbwait-top"><span class="dot"></span><span id="fbProg">${fbProgText()}</span><button class="ibtn" id="fbStop">停止</button></div><div class="fbwait-bar"><i id="fbBar" style="width:${fbPct()}%"></i></div><div class="fbwait-steps" id="fbSteps">${fbStepsHtml()}</div><small style="color:var(--muted)">批改完成前請留在這個畫面，不要切換 App 或關掉螢幕。</small></div>`;
   else if (fbRun.error) top.innerHTML = `<p class="err-msg">${esc(fbRun.error)}</p>`;
   else if (fb?.summary) top.innerHTML = `<p class="summary" style="margin:0 0 14px">${esc(fb.summary)}</p>`;
   else top.innerHTML = aiState === "off" ? `<p class="status" style="margin:0 0 12px">此檢視無法使用 AI 批改。你可以對照下方標準自我評分。</p>`
@@ -1806,7 +1806,7 @@ const fbRun = { running:false, ctl:null, error:"", t0:0, chars:0, tick:0 };
 const fbSec = () => Math.round((Date.now() - fbRun.t0) / 1000);
 const fbStage = () => fbRun.chars ? 3 : fbSec() < 6 ? 1 : 2;
 const fbPct = () => fbRun.chars ? Math.min(97, 45 + fbRun.chars / 1400 * 52) : 45 * (1 - Math.exp(-fbSec() / 12));
-const fbProgText = () => fbRun.chars ? `老師正在寫評語……${fbSec()} 秒（已寫 ${fbRun.chars} 字）` : `老師正在${fbStage() === 1 ? "讀你的文章" : "打分數"}……${fbSec()} 秒`;
+const fbProgText = () => (fbRun.retry ? `連線不穩，自動重試第 ${fbRun.retry} 次……` : "") + (fbRun.chars ? `老師正在寫評語……${fbSec()} 秒（已寫 ${fbRun.chars} 字）` : `老師正在${fbStage() === 1 ? "讀你的文章" : "打分數"}……${fbSec()} 秒`);
 const fbStepsHtml = () => ["① 讀文章", "② 打分數", "③ 寫評語"].map((t, i) => i + 1 <= fbStage() ? `<b>${t}${i + 1 < fbStage() ? " ✓" : ""}</b>` : `<span>${t}</span>`).join("");
 function fbProgress(){
   if (!fbRun.running) { clearInterval(fbRun.tick); return; }
@@ -1823,6 +1823,8 @@ const AI_ERR = {
   empty_completion:"沒有收到回覆，請再試一次。", prompt_too_large:"文章太長，請縮短後再試。",
   no_key:"請先在「AI 設定」輸入 API 金鑰。", bad_key:"API 金鑰無效或已停用，請到「AI 設定」檢查。",
   no_credit:"API 帳戶的額度不足，請到 console.anthropic.com 儲值後再試。", network:"連不上 AI 服務，請檢查網路後再試一次。",
+  busy:"AI 老師現在太忙（Google 的伺服器忙線中），已經自動重試過了。請過一分鐘再試一次。",
+  backgrounded:"批改時離開了這個畫面（切到別的 App 或螢幕關閉），連線被中斷了。請再按一次，並留在這個畫面等批改完成。",
   no_room:"要使用家庭 AI 伺服器，請先打開家長傳的排行榜邀請連結，或到「排行榜 → 設定」填上房間代碼。",
   no_code:"要使用家庭 AI 伺服器，需要家庭通行碼。請打開家長傳的最新邀請連結，或到「排行榜 → 設定」填上家庭通行碼。",
   family_code:"家庭通行碼不對。請打開家長傳的最新邀請連結，或到「排行榜 → 設定」重新填寫。",
@@ -1835,7 +1837,7 @@ const AI_ERR = {
   family_denied:"家庭 AI 伺服器拒絕了這個請求，請家長檢查設定。",
   free_quota:"Gemini 免費額度的次數暫時用完了。請等一分鐘再試；如果是今天的額度用完，要等到明天。", bad_model:"這個模型目前無法使用，請到「AI 設定」換一個模型。",
 };
-const aiMsg = e => AI_ERR[e?.code] || "連線中斷，請再試一次。";
+const aiMsg = e => AI_ERR[e?.code] || "連線中斷了，可能是網路不穩。請確認 Wi-Fi 後再試一次。";
 const isFatal = e => ["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e?.code);
 function aiOff(){ aiState = "off"; ["#btnFeedback","#btnHint","#btnModel"].forEach(s => { $(s).disabled = true; $(s).title = "此檢視無法使用 Claude"; }); renderScores(); }
 
@@ -1852,7 +1854,7 @@ async function runFeedback(){
   if (needKey()) return;
   if (!ai) { if (aiState === "off") return; toast("正在連線 Claude，請稍候再按一次"); return; }
   const yle = !!levelOf(t.level).yle, kidish = kid || yle;
-  fbRun.running = true; fbRun.error = ""; fbRun.ctl = new AbortController(); fbRun.t0 = Date.now(); fbRun.chars = 0;
+  fbRun.running = true; fbRun.error = ""; fbRun.ctl = new AbortController(); fbRun.t0 = Date.now(); fbRun.chars = 0; fbRun.retry = 0;
   clearInterval(fbRun.tick); fbRun.tick = setInterval(fbProgress, 1000);
   $("#btnFeedback").disabled = true; renderScores();
   const intro = isIelts(t.level)
@@ -1880,7 +1882,7 @@ Reply with ONLY one JSON object of this exact shape:
 "next_steps":["3 short, concrete things to practise next"]}
 Include up to ${kidish ? 5 : 8} corrections (real errors only, most important first) and up to ${kidish ? 2 : 3} upgrades. Keep every comment brief.`;
   try {
-    const r = await ai.json(prompt, { signal: fbRun.ctl.signal, modelTier: "default", ...(STANDALONE ? {onText: ({text}) => { fbRun.chars = text.length; }} : {}) });
+    const r = await ai.json(prompt, { signal: fbRun.ctl.signal, modelTier: "default", ...(STANDALONE ? {onText: ({text}) => { fbRun.chars = text.length; }, onRetry: n => { fbRun.retry = n; fbRun.chars = 0; fbProgress(); }} : {}) });
     if (!r || typeof r !== "object" || !r.scores) throw {code:"invalid_json"};
     const clamp = v => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(0, Math.min(scoreMax(t.level), n)) : null; };
     const arr = v => Array.isArray(v) ? v : [];
@@ -2215,6 +2217,24 @@ function localDb(){
   };
   return c;
 }
+// a dropped connection or a busy Google server is retried twice before any reply has arrived;
+// if the page was hidden meanwhile (another app, screen off), say so instead, since iPad Safari cuts the connection then
+let hiddenAt = 0;
+document.addEventListener("visibilitychange", () => { if (document.hidden) hiddenAt = Date.now(); });
+async function geminiWithRetry(prompt, opts, conf){
+  const t0 = Date.now();
+  for (let attempt = 0; ; attempt++) {
+    try { return await callGemini(prompt, opts, conf); }
+    catch (e) {
+      if (e?.code === "cancelled") throw e;
+      const dropped = ["network", "upstream_error", "busy"].includes(e?.code) && !e.text;
+      if (dropped && hiddenAt > t0) throw {...e, code:"backgrounded"};
+      if (!dropped || attempt >= 2 || opts.signal?.aborted) throw e;
+      opts.onRetry?.(attempt + 1);
+      await new Promise(r => setTimeout(r, attempt ? 5000 : 2000));
+    }
+  }
+}
 async function callGemini(prompt, opts, {provider, key, model}){
   // the family relay (a Supabase Edge Function) keeps the key server-side and streams Gemini's reply back unchanged
   const fam = provider === "family", bc = boardConf();
@@ -2236,7 +2256,7 @@ async function callGemini(prompt, opts, {provider, key, model}){
     const s = res.status, m = err.message || "";
     if (fam && (s === 404 && !err.status || s === 401)) throw {code: s === 401 ? "family_jwt" : "family_missing", message:m};
     if (fam && /^FAMILY_/.test(err.status || "")) throw {code: {FAMILY_ROOM:"family_room", FAMILY_NO_KEY:"family_no_key", FAMILY_CODE:"family_code", FAMILY_NO_CODE:"family_no_code"}[err.status] || "family_denied", message:m};
-    throw {code: /api key/i.test(m) || s === 401 || s === 403 ? (fam ? "family_bad_key" : "bad_key") : s === 429 ? "free_quota" : s === 404 ? "bad_model" : s === 400 ? "invalid_request" : "upstream_error", message:m};
+    throw {code: /api key/i.test(m) || s === 401 || s === 403 ? (fam ? "family_bad_key" : "bad_key") : s === 429 ? "free_quota" : s === 404 ? "bad_model" : s === 400 ? "invalid_request" : s >= 500 ? "busy" : "upstream_error", message:m};
   }
   const reader = res.body.getReader(), dec = new TextDecoder();
   let buf = "", text = "", stop = null;
@@ -2251,7 +2271,7 @@ async function callGemini(prompt, opts, {provider, key, model}){
         buf = buf.slice(i + 2);
         if (!data) continue;
         let ev; try { ev = JSON.parse(data); } catch { continue; }
-        if (ev.error) throw {code:"upstream_error", message:ev.error.message || "", text};
+        if (ev.error) throw {code: ev.error.code >= 500 || /overload|unavailable/i.test(ev.error.message || "") ? "busy" : "upstream_error", message:ev.error.message || "", text};
         if (ev.promptFeedback?.blockReason) throw {code:"refused", message:ev.promptFeedback.blockReason};
         const c = ev.candidates?.[0];
         if (!c) continue;
@@ -2271,7 +2291,7 @@ function apiSample(){
   const call = async (prompt, opts = {}) => {
     const conf = apiConf(), {key, model} = conf;
     if (!key) throw {code:"no_key", message:"no API key"};
-    if (conf.provider === "gemini" || conf.provider === "family") return callGemini(prompt, opts, conf);
+    if (conf.provider === "gemini" || conf.provider === "family") return geminiWithRetry(prompt, opts, conf);
     const body = {model, max_tokens:64000, stream:true, output_config:{effort: opts.apiEffort || "medium"}, messages:[{role:"user", content:prompt}]};
     const headers = {"content-type":"application/json", "x-api-key":key, "anthropic-version":"2026-10-21", "anthropic-dangerous-direct-browser-access":"true"};
     if (!model.startsWith("claude-haiku")) { body.fallbacks = "default"; headers["anthropic-beta"] = "server-side-fallback-2026-07-01"; }

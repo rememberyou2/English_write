@@ -1,0 +1,385 @@
+
+==== 非常停止
+    LDI    X6                     
+    LD     M4000                  ; 非常停止
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    AND    M999                   ; 修正必要回路
+    OUT    M4000                  ; 非常停止
+    LD     X506                   ; OX87　　 R 非常停止中
+    LD     M4001                  ; R 非常停止
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4001                  ; R 非常停止
+    LD     X516                   ; OX103 　L 非常停止中
+    LD     M4002                  ; L 非常停止
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4002                  ; L 非常停止
+
+==== 即停止
+    LD     T0                     ; PLC RUN_D
+    AND    M1                     ; 常時OFF
+    LD     M4020                  ; ｴｱｰ圧異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4020                  ; ｴｱｰ圧異常
+    LD     SM1                    ; 自己診断ｴﾗｰ
+    OR     SM51                   ; ﾊﾞｯﾃﾘ低下ﾗｯﾁ
+    OR     SM53                   ; AC/DC DOWN検出
+    OR     SM56                   ; 演算ｴﾗｰ
+    OR     SM60                   ; ﾋｭｰｽﾞ断検出
+    OR     SM61                   ; 入出力ﾕﾆｯﾄ照合ｴﾗｰ
+    LD     M4050                  ; PLC異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4050                  ; PLC異常
+
+==== CC-LINK異常
+    LD     T0                     ; PLC RUN_D
+    AND    X10                    ; CC-LINK異常
+    LD     M4060                  ; CC-LINK ﾏｽﾀｰ異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4060                  ; CC-LINK ﾏｽﾀｰ異常
+    LDI    SW80.0                 
+    ANI    SW80.1                 
+    ANI    SW80.2                 
+    ANI    SW80.3                 
+    INV                           
+    AND    T0                     ; PLC RUN_D
+    LD     M4061                  ; CC-LINK RB異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4061                  ; CC-LINK RB異常
+
+==== 操作異常
+    LD     T1100                  ; 自動運転開始TO
+    LD     M4100                  ; 自動運転異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4100                  ; 自動運転異常
+    LD     T1110                  ; ｻｲｸﾙ停止TO
+    AND    M1                     ; 常時OFF
+    LD     M4101                  ; ｻｲｸﾙ停止異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4101                  ; ｻｲｸﾙ停止異常
+    LD     T1200                  ; 原点復帰TO
+    LD     M4102                  ; 原点復帰異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4102                  ; 原点復帰異常
+    LD     T0                     ; PLC RUN_D
+    AND    M1                     ; 常時OFF
+    LD     M4114                  ; R 吸着異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4114                  ; R 吸着異常
+    LD     T0                     ; PLC RUN_D
+    AND    M1                     ; 常時OFF
+    LD     M4115                  ; L 吸着異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4115                  ; L 吸着異常
+    LD     T0                     ; PLC RUN_D
+    AND    X538                   ; OX137
+    LD     M4116                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)起動異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4116                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)起動異常
+    LD     T0                     ; PLC RUN_D
+    AND    X53F                   ; OX144
+    LD     M4117                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)起動異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4117                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)起動異常
+
+==== ハンド異常（from Robot)
+    LD     T0                     ; PLC RUN_D
+    AND    X540                   ; OX145 Hook R OPEN Error
+    LD     M4120                  ; OX145 Hook R OPEN Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4120                  ; OX145 Hook R OPEN Error
+    LD     T0                     ; PLC RUN_D
+    AND    X541                   ; OX146 Hook R CLOSE Error
+    LD     M4121                  ; OX146 Hook R CLOSE Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4121                  ; OX146 Hook R CLOSE Error
+    LD     T0                     ; PLC RUN_D
+    AND    X542                   ; OX147 Hook R OPEN Error
+    LD     M4122                  ; OX147 Hook R OPEN Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4122                  ; OX147 Hook R OPEN Error
+    LD     T0                     ; PLC RUN_D
+    AND    X543                   ; OX148 Hook R CLOSE Error
+    LD     M4123                  ; OX148 Hook R CLOSE Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4123                  ; OX148 Hook R CLOSE Error
+    LD     T0                     ; PLC RUN_D
+    AND    X544                   ; OX149 Paper Hook OPEN Error
+    LD     M4124                  ; OX149 Paper Hook OPEN Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4124                  ; OX149 Paper Hook OPEN Error
+    LD     T0                     ; PLC RUN_D
+    AND    X545                   ; OX150 Paper Hook CLOSE Error
+    LD     M4125                  ; OX150 Paper Hook CLOSE Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4125                  ; OX150 Paper Hook CLOSE Error
+    LD     T0                     ; PLC RUN_D
+    AND    X546                   ; OX151 Paper Vacuum 1 Error
+    LD     M4126                  ; OX151 Paper Vacuum 1 Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4126                  ; OX151 Paper Vacuum 1 Error
+    LD     T0                     ; PLC RUN_D
+    AND    X547                   ; OX152 Paper Vacuum 2 Error
+    LD     M4127                  ; OX152 Paper Vacuum 2 Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4127                  ; OX152 Paper Vacuum 2 Error
+    LD     T0                     ; PLC RUN_D
+    AND    X548                   ; OX153 Paper Vacuum 3 Error
+    LD     M4128                  ; OX153 Paper Vacuum 3 Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4128                  ; OX153 Paper Vacuum 3 Error
+    LD     T0                     ; PLC RUN_D
+    AND    X549                   ; OX154 Paper Vacuum 4 Error
+    LD     M4129                  ; OX154 Paper Vacuum 4 Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4129                  ; OX154 Paper Vacuum 4 Error
+    LD     T0                     ; PLC RUN_D
+    AND    X54A                   ; OX155 Paper Vacuum 5 Error
+    LD     M4130                  ; OX155 Paper Vacuum 5 Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4130                  ; OX155 Paper Vacuum 5 Error
+    LD     T0                     ; PLC RUN_D
+    AND    X54B                   ; OX156 Paper Vacuum 6 Error
+    LD     M4131                  ; OX156 Paper Vacuum 6 Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4131                  ; OX156 Paper Vacuum 6 Error
+    LD     T0                     ; PLC RUN_D
+    AND    X54C                   ; OX157
+    LD     M4132                  ; OX157
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4132                  ; OX157
+    LD     T0                     ; PLC RUN_D
+    AND    X54D                   ; OX158
+    LD     M4133                  ; OX158
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4133                  ; OX158
+    LD     T0                     ; PLC RUN_D
+    AND    X54E                   ; OX159
+    LD     M4134                  ; OX159
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4134                  ; OX159
+    LD     T0                     ; PLC RUN_D
+    AND    X54F                   ; OX160
+    LD     M4135                  ; OX160
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4135                  ; OX160
+    LD     T0                     ; PLC RUN_D
+    AND    X550                   ; OX161 Laser Stage Ready Error
+    LD     M4136                  ; OX161 Laser Stage Ready Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4136                  ; OX161 Laser Stage Ready Error
+    LD     T0                     ; PLC RUN_D
+    AND    X551                   ; OX162 Pick Stage Ready Error
+    LD     M4137                  ; OX162 Pick Stage Ready Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4137                  ; OX162 Pick Stage Ready Error
+    LD     T0                     ; PLC RUN_D
+    AND    X552                   ; OX163 Put Stage Ready Error
+    LD     M4138                  ; OX163 Put Stage Ready Error
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4138                  ; OX163 Put Stage Ready Error
+    LD     T0                     ; PLC RUN_D
+    AND    X553                   ; OX164 Paper Stage Jig Ready Erro
+    LD     M4139                  ; OX164 Paper Stage Jig Ready Erro
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4139                  ; OX164 Paper Stage Jig Ready Erro
+    LD     T0                     ; PLC RUN_D
+    AND    X554                   ; OX165
+    LD     M4140                  ; OX165
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4140                  ; OX165
+    LD     T0                     ; PLC RUN_D
+    AND    X555                   ; OX166
+    LD     M4141                  ; OX166
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4141                  ; OX166
+    LD     T0                     ; PLC RUN_D
+    AND    X556                   ; OX167
+    LD     M4142                  ; OX167
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4142                  ; OX167
+    LD     T0                     ; PLC RUN_D
+    AND    X557                   ; OX168
+    LD     M4143                  ; OX168
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4143                  ; OX168
+    LD     T0                     ; PLC RUN_D
+    AND    X558                   ; OX169
+    LD     M4144                  ; OX169
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4144                  ; OX169
+    LD     T0                     ; PLC RUN_D
+    AND    X559                   ; OX170
+    LD     M4145                  ; OX170
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4145                  ; OX170
+    LD     T0                     ; PLC RUN_D
+    AND    X55A                   ; OX171
+    LD     M4146                  ; OX171
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4146                  ; OX171
+    LD     T0                     ; PLC RUN_D
+    AND    X55B                   ; OX172
+    LD     M4147                  ; OX172
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4147                  ; OX172
+    LD     T0                     ; PLC RUN_D
+    AND    X55C                   ; OX173
+    LD     M4148                  ; OX173
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4148                  ; OX173
+    LD     T0                     ; PLC RUN_D
+    AND    X55D                   ; OX174
+    LD     M4149                  ; OX174
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4149                  ; OX174
+    LD     T0                     ; PLC RUN_D
+    AND    X55E                   ; OX175
+    LD     M4150                  ; OX175
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4150                  ; OX175
+    LD     T0                     ; PLC RUN_D
+    AND    X55F                   ; OX176
+    LD     M4151                  ; OX176
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4151                  ; OX176
+
+==== 他設備異常(from PLC)
+    LD     T0                     ; PLC RUN_D
+    AND    X32                    ; X32 Laser Stage Alarm
+    LD     M4160                  ; X32 Laser Stage Alarm
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4160                  ; X32 Laser Stage Alarm
+    LD     T0                     ; PLC RUN_D
+    AND    X33                    ; X33 Laser Stage EMG
+    LD     M4161                  ; X33 Laser Stage EMG
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4161                  ; X33 Laser Stage EMG
+    LD     T0                     ; PLC RUN_D
+    AND    X35                    ; X35 Pick Stage Alarm
+    LD     M4162                  ; X35 Pick Stage Alarm
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4162                  ; X35 Pick Stage Alarm
+    LD     T0                     ; PLC RUN_D
+    AND    X36                    ; X36 Pick Stage EMG
+    LD     M4163                  ; X36 Pick Stage EMG
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4163                  ; X36 Pick Stage EMG
+    LD     T0                     ; PLC RUN_D
+    AND    X38                    ; X38 Put Stage Alarm
+    LD     M4164                  ; X38 Put Stage Alarm
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4164                  ; X38 Put Stage Alarm
+    LD     T0                     ; PLC RUN_D
+    AND    X39                    ; X39 Put Stage EMG
+    LD     M4165                  ; X39 Put Stage EMG
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4165                  ; X39 Put Stage EMG
+
+==== Ｒロボット異常
+    LD     T0                     ; PLC RUN_D
+    AND    X501                   ; OX82　　 R ｴﾗｰ発生中
+    LD     M4200                  ; R 本体異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4200                  ; R 本体異常
+    LD     T0                     ; PLC RUN_D
+    ANI    X509                   ; OX90 　　R PCPG実行中
+    LD     M4201                  ; R PCﾌﾟﾛｸﾞﾗﾑ異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    AND    M1                     ; 常時OFF
+    OUT    M4201                  ; R PCﾌﾟﾛｸﾞﾗﾑ異常
+
+==== Ｌロボット異常
+    LD     T0                     ; PLC RUN_D
+    AND    X511                   ; OX98 　　L ｴﾗｰ発生中
+    LD     M4300                  ; L 本体異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4300                  ; L 本体異常
+    LD     T0                     ; PLC RUN_D
+    ANI    X519                   ; OX106 　L PCPG実行中
+    LD     M4301                  ; L PCﾌﾟﾛｸﾞﾗﾑ異常
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    AND    M1                     ; 常時OFF
+    OUT    M4301                  ; L PCﾌﾟﾛｸﾞﾗﾑ異常
+
+==== ロータリー型ハンド異常(from DD)
+    LD     T0                     ; PLC RUN_D
+    ANI    X43                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　ｱﾗｰﾑ1
+    LD     M4400                  ; ﾛｰﾀﾘ型(L)回転　ｱﾗｰﾑ1
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4400                  ; ﾛｰﾀﾘ型(L)回転　ｱﾗｰﾑ1
+    LD     T0                     ; PLC RUN_D
+    ANI    M0                     ; 常時ON
+    LD     M4401                  ; ﾛｰﾀﾘ型(L)回転　ｱﾗｰﾑ2
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4401                  ; ﾛｰﾀﾘ型(L)回転　ｱﾗｰﾑ2
+    LD     T0                     ; PLC RUN_D
+    ANI    X4A                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　ｱﾗｰﾑ1
+    LD     M4410                  ; ﾛｰﾀﾘ型(R)回転　ｱﾗｰﾑ1
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4410                  ; ﾛｰﾀﾘ型(R)回転　ｱﾗｰﾑ1
+    LD     T0                     ; PLC RUN_D
+    ANI    M0                     ; 常時ON
+    LD     M4411                  ; ﾛｰﾀﾘ型(R)回転　ｱﾗｰﾑ2
+    ANI    M1990                  ; 異常ﾘｾｯﾄ
+    ORB                           
+    OUT    M4411                  ; ﾛｰﾀﾘ型(R)回転　ｱﾗｰﾑ2
+    END                           

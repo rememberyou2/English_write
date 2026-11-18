@@ -1,0 +1,532 @@
+
+==== 運転準備
+    LD     B100                   ; TP 運転準備
+    OR     M1000                  ; 運転準備
+    AND    T0                     ; PLC RUN_D
+    ANI    M1901                  ; 即停止まとめ
+    OUT    M1000                  ; 運転準備
+    MPS                           
+    OP15   B100                   ; TP 運転準備
+    OUT    T1000 K10              ; 運転準備_D
+    MPP                           
+    ANI    T1000                  ; 運転準備_D
+    OUT    M1001                  ; ﾓｰﾀ電源ON
+
+==== 自動運転条件
+    LD     M2015                  ; R 自動運転可
+    AND    M3015                  ; L 自動運転可
+    ANI    L20                    ; R 再起動不可
+    ANI    L21                    ; L 再起動不可
+    AND    M1700                  ; 周辺設備Ready
+    OUT    M1050                  ; 自動運転条件
+
+==== 原点復帰条件
+    LD     M2016                  ; R 原点復帰可
+    AND    M3016                  ; L 原点復帰可
+    OUT    M1080                  ; 原点復帰条件
+
+==== 自動開始／一斉起動
+    LDP    B102                   ; TP 自動運転
+    AND    M1050                  ; 自動運転条件
+    ANI    M1900                  ; 異常まとめ
+    OR     M1100                  ; 自動運転開始
+    ANI    M1901                  ; 即停止まとめ
+    ANI    M1102                  ; ｻｲｸﾙ停止完了
+    ANI    M1200                  ; 原点復帰開始
+    ANI    M1105                  ; 自動運転中
+    OUT    M1100                  ; 自動運転開始
+    LDP    M1100                  ; 自動運転開始
+    OR     M1101                  ; 自動運転確認
+    AND    M1100                  ; 自動運転開始
+    LDI    X503                   ; OX84 　　R 自動運転中
+    ORI    X513                   ; OX100 　L 自動運転中
+    ANB                           
+    OUT    M1101                  ; 自動運転確認
+    OUT    T1100 K600             ; 自動運転開始TO
+    LD     X503                   ; OX84 　　R 自動運転中
+    OR     X513                   ; OX100 　L 自動運転中
+    OUT    M1105                  ; 自動運転中
+    LDP    B103                   ; TP ｻｲｸﾙ停止
+    ORP    M1902                  ; ｻｲｸﾙ停止異常まとめ
+    OR     M1110                  ; ｻｲｸﾙ停止指令
+    AND    M1105                  ; 自動運転中
+    OUT    M1110                  ; ｻｲｸﾙ停止指令
+    OUT    T1110 K1800            ; ｻｲｸﾙ停止TO
+    LDI    M1105                  ; 自動運転中
+    AND    M1110                  ; ｻｲｸﾙ停止指令
+    OUT    M1102                  ; ｻｲｸﾙ停止完了
+
+==== 原点復帰
+    LDP    B101                   ; TP 原点復帰
+    AND    M1080                  ; 原点復帰条件
+    ANI    M1105                  ; 自動運転中
+    OR     M1200                  ; 原点復帰開始
+    ANI    M1900                  ; 異常まとめ
+    ANI    M1201                  ; 原点復帰完了
+    ANI    M1100                  ; 自動運転開始
+    OUT    M1200                  ; 原点復帰開始
+    OUT    T1200 K1800            ; 原点復帰TO
+    LD     M1200                  ; 原点復帰開始
+    AND    X505                   ; OX86　　 R 第1原点
+    AND    X515                   ; OX102 　L 第1原点
+    OUT    M1201                  ; 原点復帰完了
+
+==== 再起動不可
+    LDI    X505                   ; OX86　　 R 第1原点
+    AND    X50A                   ; OX91 　　R RGSO
+    AND    X504                   ; OX85 　　R ﾃｨｰﾁﾓｰﾄﾞ
+    SET    L20                    ; R 再起動不可
+    LD     L20                    ; R 再起動不可
+    AND    X505                   ; OX86　　 R 第1原点
+    RST    L20                    ; R 再起動不可
+    LDI    X525                   ; OX118 Pick Stage Safty Pos OK
+    AND    X51A                   ; OX107 　L RGSO
+    AND    X514                   ; OX101 　L ﾃｨｰﾁﾓｰﾄﾞ
+    SET    L21                    ; L 再起動不可
+    LD     L21                    ; L 再起動不可
+    AND    X515                   ; OX102 　L 第1原点
+    RST    L21                    ; L 再起動不可
+
+==== デモ回数
+    LDP    X30                    ; Laser Stage Finish
+    FN(4a020002) D100                   ; ﾃﾞﾓ回数
+    LD     B105                   ; TP ﾃﾞﾓ回数ﾘｾｯﾄ
+    LD     M0                     ; 常時ON
+    FN(40030011) D100 K30000            ; ﾃﾞﾓ回数
+    ORB                           
+    FN(4c020002) K0 D100                ; ﾃﾞﾓ回数
+
+==== ロータリーハンド
+    LD     L1                     ; TP 各個画面
+    ANDP   B28D                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)ｻｰﾎﾞON
+    LDI    L1                     ; TP 各個画面
+    LDP    X537                   ; OX136 ﾛｰﾀﾘｰ(R)回転　ｻｰﾎﾞON/PG停
+    LD     X500                   ; OX81 　　R ﾓｰﾀ電源ON中
+    ANI    M1600                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)回転　ｻｰﾎﾞON
+    ORB                           
+    ANB                           
+    ORB                           
+    OP27   M1600                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)回転　ｻｰﾎﾞON
+    LD     L1                     ; TP 各個画面
+    ANDP   B2AD                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)ｻｰﾎﾞON
+    LDI    L1                     ; TP 各個画面
+    LDP    X53E                   ; OX143 ﾛｰﾀﾘｰ(L)回転　ｻｰﾎﾞON/PG停
+    LD     X510                   ; OX97 　　L ﾓｰﾀ電源ON中
+    ANI    M1610                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)回転　ｻｰﾎﾞON
+    ORB                           
+    ANB                           
+    ORB                           
+    OP27   M1610                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)回転　ｻｰﾎﾞON
+    LD     M1901                  ; 即停止まとめ
+    RST    M1600                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)回転　ｻｰﾎﾞON
+    RST    M1610                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)回転　ｻｰﾎﾞON
+    LD     X31                    ; Laser Stage Ready
+    AND    X34                    ; Pick Stage Ready
+    AND    X37                    ; Put Stage Ready
+    OUT    M1700                  ; 周辺設備Ready
+
+==== 異常分類
+    LD     M1901                  ; 即停止まとめ
+    OR     M1902                  ; ｻｲｸﾙ停止異常まとめ
+    OUT    M1900                  ; 異常まとめ
+    LDI    M1910                  ; 非常停止まとめ
+    ANI    M1911                  ; 即停止まとめ
+    ANI    M1912                  ; PLC異常まとめ
+    ANI    M1913                  ; CC-LINK異常まとめ
+    ANI    M1915                  ; 操作異常
+    INV                           
+    OUT    M1901                  ; 即停止まとめ
+    OUT    T80 K10                ; 非常停止１秒ﾊﾟﾙｽ
+    ANI    T80                    ; 非常停止１秒ﾊﾟﾙｽ
+    OUT    M1980                  ; 非常停止
+    LDI    M1920                  ; R ﾛﾎﾞｯﾄ異常まとめ
+    ANI    M1921                  ; L ﾛﾎﾞｯﾄ異常まとめ
+    ANI    M1930                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)異常
+    ANI    M1931                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)異常
+    ANI    M1941                  ; 周辺異常まとめ
+    INV                           
+    OUT    M1902                  ; ｻｲｸﾙ停止異常まとめ
+    LDI    M4000                  ; 非常停止
+    ANI    M4001                  ; R 非常停止
+    ANI    M4002                  ; L 非常停止
+    INV                           
+    OUT    M1910                  ; 非常停止まとめ
+    LDI    M4020                  ; ｴｱｰ圧異常
+    INV                           
+    OUT    M1911                  ; 即停止まとめ
+    LDI    M4050                  ; PLC異常
+    ANI    M4060                  ; CC-LINK ﾏｽﾀｰ異常
+    INV                           
+    OUT    M1912                  ; PLC異常まとめ
+    LDI    M4061                  ; CC-LINK RB異常
+    INV                           
+    OUT    M1913                  ; CC-LINK異常まとめ
+    LDI    M4100                  ; 自動運転異常
+    ANI    M4101                  ; ｻｲｸﾙ停止異常
+    ANI    M4102                  ; 原点復帰異常
+    INV                           
+    OUT    M1915                  ; 操作異常
+    LDI    M4200                  ; R 本体異常
+    ANI    M4201                  ; R PCﾌﾟﾛｸﾞﾗﾑ異常
+    INV                           
+    OUT    M1920                  ; R ﾛﾎﾞｯﾄ異常まとめ
+    LDI    M4300                  ; L 本体異常
+    ANI    M4301                  ; L PCﾌﾟﾛｸﾞﾗﾑ異常
+    INV                           
+    OUT    M1921                  ; L ﾛﾎﾞｯﾄ異常まとめ
+    LDI    M4400                  ; ﾛｰﾀﾘ型(L)回転　ｱﾗｰﾑ1
+    ANI    M4401                  ; ﾛｰﾀﾘ型(L)回転　ｱﾗｰﾑ2
+    INV                           
+    OUT    M1930                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)異常
+    LDI    M4410                  ; ﾛｰﾀﾘ型(R)回転　ｱﾗｰﾑ1
+    ANI    M4411                  ; ﾛｰﾀﾘ型(R)回転　ｱﾗｰﾑ2
+    INV                           
+    OUT    M1931                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)異常
+    LDI    M4114                  ; R 吸着異常
+    ANI    M4115                  ; L 吸着異常
+    ANI    M4116                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)起動異常
+    ANI    M4117                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)起動異常
+    INV                           
+    OUT    M1941                  ; 周辺異常まとめ
+    LDI    M4120                  ; OX145 Hook R OPEN Error
+    ANI    M4121                  ; OX146 Hook R CLOSE Error
+    ANI    M4122                  ; OX147 Hook R OPEN Error
+    ANI    M4123                  ; OX148 Hook R CLOSE Error
+    ANI    M4124                  ; OX149 Paper Hook OPEN Error
+    ANI    M4125                  ; OX150 Paper Hook CLOSE Error
+    ANI    M4126                  ; OX151 Paper Vacuum 1 Error
+    ANI    M4127                  ; OX152 Paper Vacuum 2 Error
+    ANI    M4128                  ; OX153 Paper Vacuum 3 Error
+    ANI    M4129                  ; OX154 Paper Vacuum 4 Error
+    ANI    M4130                  ; OX155 Paper Vacuum 5 Error
+    ANI    M4131                  ; OX156 Paper Vacuum 6 Error
+    ANI    M4132                  ; OX157
+    ANI    M4133                  ; OX158
+    ANI    M4134                  ; OX159
+    ANI    M4135                  ; OX160
+    INV                           
+    OUT    M1951                  ; ハンド異常まとめ
+    LDI    M4136                  ; OX161 Laser Stage Ready Error
+    ANI    M4137                  ; OX162 Pick Stage Ready Error
+    ANI    M4138                  ; OX163 Put Stage Ready Error
+    ANI    M4139                  ; OX164 Paper Stage Jig Ready Erro
+    ANI    M4140                  ; OX165
+    ANI    M4141                  ; OX166
+    ANI    M4142                  ; OX167
+    ANI    M4143                  ; OX168
+    ANI    M4144                  ; OX169
+    ANI    M4145                  ; OX170
+    ANI    M4146                  ; OX171
+    ANI    M4147                  ; OX172
+    ANI    M4148                  ; OX173
+    ANI    M4149                  ; OX174
+    ANI    M4150                  ; OX175
+    ANI    M4151                  ; OX176
+    INV                           
+    OUT    M1952                  ; 他設備準備異常まとめ
+    LDI    M4160                  ; X32 Laser Stage Alarm
+    ANI    M4162                  ; X35 Pick Stage Alarm
+    ANI    M4164                  ; X38 Put Stage Alarm
+    INV                           
+    OUT    M1953                  ; 他設備アラームまとめ
+    LDI    M4161                  ; X33 Laser Stage EMG
+    ANI    M4163                  ; X36 Pick Stage EMG
+    ANI    M4165                  ; X39 Put Stage EMG
+    INV                           
+    OUT    M1954                  ; 他設備非常停止まとめ
+    LD     B104                   ; TP 異常リセット
+    ANI    M1105                  ; 自動運転中
+    OUT    M1990                  ; 異常ﾘｾｯﾄ
+
+==== 出力
+    LD     X520                   ; OX113 Laser Stage Action
+    OUT    Y30                    ; OX113 Laser Stage Action
+    LD     X521                   ; OX114 (to PLC)
+    OUT    Y31                    ; OX114 (to PLC)
+    LD     X522                   ; OX115 (to PLC)
+    OUT    Y32                    ; OX115 (to PLC)
+    LD     X523                   ; OX116 (to PLC)
+    OUT    Y33                    ; OX116 (to PLC)
+    LD     X524                   ; OX117 Pick Stage Change over
+    OUT    Y34                    ; OX117 Pick Stage Change over
+    LD     X525                   ; OX118 Pick Stage Safty Pos OK
+    OUT    Y35                    ; OX118 Pick Stage Safty Pos OK
+    LD     X526                   ; OX119 (to PLC)
+    OUT    Y36                    ; OX119 (to PLC)
+    LD     X527                   ; OX120 Put Stage Change over
+    OUT    Y37                    ; OX120 Put Stage Change over
+    LD     X528                   ; OX121 (to PLC)
+    OUT    Y38                    ; OX121 (to PLC)
+    LD     X529                   ; OX122 (to PLC)
+    OUT    Y39                    ; OX122 (to PLC)
+    LD     B2C1                   
+    RST    M130                   
+    LD     B2C0                   
+    SET    M130                   
+    LD     X52A                   ; OX123 Paper Vacuum
+    OR     M130                   
+    OUT    Y3A                    ; OX123 Paper Vacuum
+    LD     X52B                   ; OX124 (to PLC)
+    OUT    Y3B                    ; OX124 (to PLC)
+    LD     M1910                  ; 非常停止まとめ
+    OR     M1954                  ; 他設備非常停止まとめ
+    OUT    Y3C                    ; パトライト（赤）
+    LD     M1915                  ; 操作異常
+    OR     M1920                  ; R ﾛﾎﾞｯﾄ異常まとめ
+    OR     M1921                  ; L ﾛﾎﾞｯﾄ異常まとめ
+    OR     M1930                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)異常
+    OR     M1931                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)異常
+    OR     M1941                  ; 周辺異常まとめ
+    OR     M1951                  ; ハンド異常まとめ
+    OR     M1952                  ; 他設備準備異常まとめ
+    OR     M1953                  ; 他設備アラームまとめ
+    OUT    Y3D                    ; パトライト（黄）
+    LD     M1105                  ; 自動運転中
+    LD     X31                    ; Laser Stage Ready
+    AND    SM412                  ; 1秒ｸﾛｯｸ
+    ORB                           
+    OUT    Y3E                    ; パトライト（緑）
+    LD     M1                     ; 常時OFF
+    OUT    Y3F                    ; ブザー
+    LD     M1                     ; 常時OFF
+    OUT    Y40                    ; EMG to duAro
+    LD     M1                     ; 常時OFF
+    OUT    Y41                    
+
+==== DD R Motor Control
+    LD     M0                     ; 常時ON
+    MPS                           
+    AND    M1990                  ; 異常ﾘｾｯﾄ
+    ANI    X43                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　ｱﾗｰﾑ1
+    OUT    Y44                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　ﾘｾｯﾄ
+    MRD                           
+    AND    L1                     ; TP 各個画面
+    AND    B28F                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)原点
+    OUT    Y45                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　原点復帰
+    MRD                           
+    LD     L1                     ; TP 各個画面
+    AND    B28E                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)起動
+    AND    X42                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　起動入力待ち
+    LDI    L1                     ; TP 各個画面
+    AND    X536                   ; OX135 ﾛｰﾀﾘｰ(R)回転　起動
+    ANI    T200                   ; ﾛｰﾀﾘ型(R)回転　起動1秒ﾊﾟﾙｽ
+    ANI    M200                   
+    ANI    M201                   
+    ORB                           
+    ANB                           
+    OUT    Y46                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　起動
+    MRD                           
+    ANI    L1                     ; TP 各個画面
+    AND    X536                   ; OX135 ﾛｰﾀﾘｰ(R)回転　起動
+    ANI    M200                   
+    ANI    M201                   
+    OUT    T200 K1                ; ﾛｰﾀﾘ型(R)回転　起動1秒ﾊﾟﾙｽ
+    MPP                           
+    AND    M1600                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)回転　ｻｰﾎﾞON
+    OUT    Y47                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　ｻｰﾎﾞON/PG停
+    LD     M1                     ; 常時OFF
+    OUT    Y48                    
+
+==== DD L Motor Control
+    LD     M0                     ; 常時ON
+    MPS                           
+    AND    M1990                  ; 異常ﾘｾｯﾄ
+    ANI    X4A                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　ｱﾗｰﾑ1
+    OUT    Y4B                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　ﾘｾｯﾄ
+    MRD                           
+    AND    L1                     ; TP 各個画面
+    AND    B2AF                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)原点
+    OUT    Y4C                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　原点復帰
+    MRD                           
+    LD     L1                     ; TP 各個画面
+    AND    B2AE                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)起動
+    AND    X49                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　起動入力待ち
+    LDI    L1                     ; TP 各個画面
+    AND    X53D                   ; OX142 ﾛｰﾀﾘｰ(L)回転　起動
+    ANI    T210                   ; ﾛｰﾀﾘ型(L)回転　起動1秒ﾊﾟﾙｽ
+    ANI    M210                   
+    ANI    M211                   
+    ORB                           
+    ANB                           
+    OUT    Y4D                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　起動
+    MRD                           
+    ANI    L1                     ; TP 各個画面
+    AND    X53D                   ; OX142 ﾛｰﾀﾘｰ(L)回転　起動
+    ANI    M210                   
+    ANI    M211                   
+    OUT    T210 K1                ; ﾛｰﾀﾘ型(L)回転　起動1秒ﾊﾟﾙｽ
+    MPP                           
+    AND    M1610                  ; ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)回転　ｻｰﾎﾞON
+    OUT    Y4E                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　ｻｰﾎﾞON/PG停
+    LD     M1                     ; 常時OFF
+    OUT    Y4F                    
+
+==== DD R Motor Positon No Setting
+    LD     M0                     ; 常時ON
+    MPS                           
+    ANI    M1105                  ; 自動運転中
+    AND    L1                     ; TP 各個画面
+    MPS                           
+    ANDP   B286                   ; TP ﾛｰﾀﾘPos1
+    FN(40030111) W200 K90 <4c0200> K90 W200 
+    MRD                           
+    FN(40030111) W200 D200              ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    SET    M200                   
+    MPP                           
+    ANDP   M200 <4c0200> W200 D200 ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    MRD                           
+    AND    M1105                  ; 自動運転中
+    MPS                           
+    FN(40030111) D514 D200              ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    SET    M200                   
+    MPP                           
+    ANDP   M200 <4c0200> D514 D200 <4c0200> D200 W200 ; TP ﾛｰﾀﾘ型(R)回転PG番号 / TP ﾛｰﾀﾘ型(R)回転PG番号
+    MPP    <4b0200> D200 D201     ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    LD     M0                     ; 常時ON
+    MPS                           
+    AND    M200                   
+    OUT    T201 K2                
+    AND    T201                   
+    OUT    T202 K2                
+    AND    T202                   
+    OUT    T203 K1                
+    AND    T203                   
+    SET    M201                   
+    RST    M200                   
+    MPP                           
+    AND    M201                   
+    OUT    T204 K2                
+    AND    T204                   
+    OUT    T205 K2                
+    AND    T205                   
+    OUT    T206 K1                
+    RST    M201                   
+    LD     M0                     ; 常時ON
+    MPS                           
+    LD     M200                   
+    AND    D201.4                 
+    LD     M201                   
+    AND    D201.0                 
+    ORB                           
+    ANB                           
+    OUT    Y50                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　PG番号(ﾋﾞｯﾄ0
+    MRD                           
+    LD     M200                   
+    AND    D201.5                 
+    LD     M201                   
+    AND    D201.1                 
+    ORB                           
+    ANB                           
+    OUT    Y51                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　PG番号(ﾋﾞｯﾄ1
+    MRD                           
+    LD     M200                   
+    AND    D201.6                 
+    LD     M201                   
+    AND    D201.2                 
+    ORB                           
+    ANB                           
+    OUT    Y52                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　PG番号(ﾋﾞｯﾄ2
+    MPP                           
+    LD     M200                   
+    AND    D201.7                 
+    LD     M201                   
+    AND    D201.3                 
+    ORB                           
+    ANB                           
+    OUT    Y53                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　PG番号(ﾋﾞｯﾄ3
+    LD     M0                     ; 常時ON
+    MPS                           
+    AND    T201                   
+    ANI    T202                   
+    OUT    Y54                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　PG番号(ﾋﾞｯﾄ4
+    MPP                           
+    AND    T204                   
+    ANI    T205                   
+    OUT    Y55                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　PG番号(ﾋﾞｯﾄ5
+
+==== DD L Motor Positon No Setting
+    LD     M0                     ; 常時ON
+    MPS                           
+    ANI    M1105                  ; 自動運転中
+    AND    L1                     ; TP 各個画面
+    MPS                           
+    ANDP   B2A6                   ; TP ﾛｰﾀﾘPos1
+    FN(40030111) W210 K90 <4c0200> K90 W210 
+    MRD                           
+    ANDP   B2A7                   ; TP ﾛｰﾀﾘPos2
+    FN(40030111) W210 K91 <4c0200> K91 W210 
+    MRD                           
+    FN(40030111) W210 D210              ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    SET    M210                   
+    MPP                           
+    ANDP   M210 <4c0200> W210 D210 ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    MRD                           
+    AND    M1105                  ; 自動運転中
+    MPS                           
+    FN(40030111) D515 D210              ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    SET    M210                   
+    MPP                           
+    ANDP   M210 <4c0200> D515 D210 <4c0200> D210 W210 ; TP ﾛｰﾀﾘ型(L)回転PG番号 / TP ﾛｰﾀﾘ型(L)回転PG番号
+    MPP    <4b0200> D210 D211     ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    LD     M0                     ; 常時ON
+    MPS                           
+    AND    M210                   
+    OUT    T211 K2                
+    AND    T211                   
+    OUT    T212 K2                
+    AND    T212                   
+    OUT    T213 K1                
+    AND    T213                   
+    SET    M211                   
+    RST    M210                   
+    MPP                           
+    AND    M211                   
+    OUT    T214 K2                
+    AND    T214                   
+    OUT    T215 K2                
+    AND    T215                   
+    OUT    T216 K1                
+    RST    M211                   
+    LD     M0                     ; 常時ON
+    MPS                           
+    LD     M210                   
+    AND    D211.4                 
+    LD     M211                   
+    AND    D211.0                 
+    ORB                           
+    ANB                           
+    OUT    Y58                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　PG番号(ﾋﾞｯﾄ0
+    MRD                           
+    LD     M210                   
+    AND    D211.5                 
+    LD     M211                   
+    AND    D211.1                 
+    ORB                           
+    ANB                           
+    OUT    Y59                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　PG番号(ﾋﾞｯﾄ1
+    MRD                           
+    LD     M210                   
+    AND    D211.6                 
+    LD     M211                   
+    AND    D211.2                 
+    ORB                           
+    ANB                           
+    OUT    Y5A                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　PG番号(ﾋﾞｯﾄ2
+    MPP                           
+    LD     M210                   
+    AND    D211.7                 
+    LD     M211                   
+    AND    D211.3                 
+    ORB                           
+    ANB                           
+    OUT    Y5B                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　PG番号(ﾋﾞｯﾄ3
+    LD     M0                     ; 常時ON
+    MPS                           
+    AND    T211                   
+    ANI    T212                   
+    OUT    Y5C                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　PG番号(ﾋﾞｯﾄ4
+    MPP                           
+    AND    T214                   
+    ANI    T215                   
+    OUT    Y5D                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　PG番号(ﾋﾞｯﾄ5
+    END                           

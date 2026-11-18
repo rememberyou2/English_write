@@ -1,0 +1,199 @@
+
+==== FHA R (ｶb1) ｵ{ｦ｡ｸｹｽX D200 ｡� ｩwｦ�ｸ�ｮﾆNo./MｽX
+    LD     SM400 <4c0200> K0 D7300 <4c0200> K0 D7301 ; 常時ON
+    FN(40030010) D200 K90 <4c0200> K1 D7300 <4c0200> K1 D7301 ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    FN(40030010) D200 K91 <4c0200> K2 D7300 <4c0200> K2 D7301 ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    FN(40030310) D200 K1                ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    FN(40030511) D200 K80 <4c0200> K3 D7300 <4c0200> K3 D7301 ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    FN(40030010) D200 K0 <4c0200> K4 D7300 <4c0200> K0 D7301 ; TP ﾛｰﾀﾘ型(R)回転PG番号
+
+==== FHA R ｦAON｡]ｪu･ﾎｬJｦｳｱ隗ﾎｹﾏｪｺｦAONｫ�･O｡^
+    LD     M7205                  
+    OUT    Y42                    
+    LD     Y42                    
+    AND    X8                     
+    OUT    M7106                  
+
+==== FHA R ﾄｵｳ�1 ALM1｡]ｻP ABSODEX ｦPｷ･ｩﾊ｡GON=･ｿｱ`｡^
+    LD     X42                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　起動入力待ち
+    ANI    SM1845                 
+    ANI    M7300                  
+    OUT    M7101                  
+
+==== FHA R ｰ_ｰﾊｿ鬢Jｵ･ｫﾝ=ｦAON｡B､wｭ�ﾂIｴ_ﾂk｡B･ｼｰﾊｧ@｡BｵLｲｧｱ`
+    LD     M7106                  
+    ANI    SM1842                 
+    ANI    SM1840                 
+    AND    M7101                  
+    OUT    M7100                  
+
+==== FHA R ｭ�ﾂIｴ_ﾂk｡GGOTｫs｡AｩﾎｦAON 1ｬ戓皋ﾛｰﾊｰ�
+    LD     SM400 <4c0200> K1 D7304 ; 常時ON
+    LD     M7106                  
+    OUT    T1300 K10              
+    LDP    M7203                  
+    LD     T1300                  
+    AND    SM1842                 
+    AND    X42                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　起動入力待ち
+    ORB                           
+    ANI    SM1840                 
+    FN(65024002) D7304                  
+
+==== FHA R ｰ_ｰﾊ｡GｸｹｽXｵLｮﾄｮﾉｳｵ｡Aｧ_ｫhｨﾌｩwｦ�ｸ�ｮﾆNo.ｱﾒｰﾊ
+    LDP    M7204                  
+    FN(40030011) D7300 K0               
+    SET    M7300                  
+    LDP    M7204                  
+    AND    M7100                  
+    FN(40030111) D7300 K0               
+    OUT    M7301                  
+    LD     M7301 <4c0200> D7300 D7302 <4c0200> D7301 D7303 
+    LD     M7301 <650239> D7302   
+
+==== FHA R ｩwｦ�ｧｹｦｨ ｻP MｽX｡]M20=Bit0｡BM21=Bit1｡^
+    LD     SM1841                 
+    AND    X43                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転　ｱﾗｰﾑ1
+    ANI    SM1840                 
+    OUT    M7102                  
+    LD     M7102                  
+    AND    D7303.0                
+    OUT    M7103                  
+    OUT    M7110                  
+    LD     M7102                  
+    AND    D7303.1                
+    OUT    M7104                  
+    OUT    M7111                  
+
+==== FHA R ｭ�ﾂIｦ�ｸm｡]､wｭ�ﾂIｴ_ﾂk｡Bｰｱ､釭Bｦb 0｢X｡ﾓ0.1｢X｡^
+    LDI    SM1842                 
+    ANI    SM1840                 
+    FN(40040911) SD1840 HFFFFFFF6       
+    FN(40040b11) SD1840 HA              
+    OUT    M7105                  
+
+==== FHA R ｭｫｸm｡GﾅXｰﾊｾｹｳｵｭｫｸm 0.3 ｬ悅ﾏｩwｦ�ｶbｲｧｱ`ｭｫｸm
+    LDP    M7202                  
+    SET    M7302                  
+    RST    M7300                  
+    LD     M7302                  
+    OUT    T1301 K3               
+    OUT    Y43                    
+    OUT    SM1850                 
+    LD     T1301                  
+    RST    M7302                  
+
+==== FHA R ｰeｾｹ､H｡Gﾂﾐｼg4_RB BMOV K1X30｡1Y520ｪｺABSODEXｦ�､ｸ
+    LD     M7100                  
+    OUT    Y532                   ; WX131 ﾛｰﾀﾘｰ(R)回転　起動入力待ち
+    LD     M7101                  
+    OUT    Y533                   ; WX132 ﾛｰﾀﾘｰ(R)回転　ｱﾗｰﾑ1
+    LD     M7102                  
+    OUT    Y534                   ; WX133 ﾛｰﾀﾘｰ(R)回転　位置決め完了
+    LD     M7103                  
+    OUT    Y535                   ; WX134
+    LD     M7104                  
+    OUT    Y536                   ; WX135
+    LD     M7105                  
+    OUT    Y537                   ; WX136
+    LD     M7106                  
+    OUT    Y538                   ; WX137
+
+==== FHA L (ｶb2) ｵ{ｦ｡ｸｹｽX D210 ｡� ｩwｦ�ｸ�ｮﾆNo./MｽX
+    LD     SM400 <4c0200> K0 D7310 <4c0200> K0 D7311 ; 常時ON
+    FN(40030010) D210 K90 <4c0200> K1 D7310 <4c0200> K1 D7311 ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    FN(40030010) D210 K91 <4c0200> K2 D7310 <4c0200> K2 D7311 ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    FN(40030310) D210 K1                ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    FN(40030511) D210 K80 <4c0200> K3 D7310 <4c0200> K3 D7311 ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    FN(40030010) D210 K0 <4c0200> K4 D7310 <4c0200> K0 D7311 ; TP ﾛｰﾀﾘ型(L)回転PG番号
+
+==== FHA L ｦAON｡]ｪu･ﾎｬJｦｳｱ隗ﾎｹﾏｪｺｦAONｫ�･O｡^
+    LD     M7225                  
+    OUT    Y49                    
+    LD     Y49                    
+    AND    X9                     
+    OUT    M7126                  
+
+==== FHA L ﾄｵｳ�1 ALM1｡]ｻP ABSODEX ｦPｷ･ｩﾊ｡GON=･ｿｱ`｡^
+    LD     X49                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　起動入力待ち
+    ANI    SM1865                 
+    ANI    M7310                  
+    OUT    M7121                  
+
+==== FHA L ｰ_ｰﾊｿ鬢Jｵ･ｫﾝ=ｦAON｡B､wｭ�ﾂIｴ_ﾂk｡B･ｼｰﾊｧ@｡BｵLｲｧｱ`
+    LD     M7126                  
+    ANI    SM1862                 
+    ANI    SM1860                 
+    AND    M7121                  
+    OUT    M7120                  
+
+==== FHA L ｭ�ﾂIｴ_ﾂk｡GGOTｫs｡AｩﾎｦAON 1ｬ戓皋ﾛｰﾊｰ�
+    LD     SM400 <4c0200> K1 D7314 ; 常時ON
+    LD     M7126                  
+    OUT    T1310 K10              
+    LDP    M7223                  
+    LD     T1310                  
+    AND    SM1862                 
+    AND    X49                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　起動入力待ち
+    ORB                           
+    ANI    SM1860                 
+    FN(65024102) D7314                  
+
+==== FHA L ｰ_ｰﾊ｡GｸｹｽXｵLｮﾄｮﾉｳｵ｡Aｧ_ｫhｨﾌｩwｦ�ｸ�ｮﾆNo.ｱﾒｰﾊ
+    LDP    M7224                  
+    FN(40030011) D7310 K0               
+    SET    M7310                  
+    LDP    M7224                  
+    AND    M7120                  
+    FN(40030111) D7310 K0               
+    OUT    M7311                  
+    LD     M7311 <4c0200> D7310 D7312 <4c0200> D7311 D7313 
+    LD     M7311 <65023a> D7312   
+
+==== FHA L ｩwｦ�ｧｹｦｨ ｻP MｽX｡]M20=Bit0｡BM21=Bit1｡^
+    LD     SM1861                 
+    AND    X4A                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転　ｱﾗｰﾑ1
+    ANI    SM1860                 
+    OUT    M7122                  
+    LD     M7122                  
+    AND    D7313.0                
+    OUT    M7123                  
+    OUT    M7130                  
+    LD     M7122                  
+    AND    D7313.1                
+    OUT    M7124                  
+    OUT    M7131                  
+
+==== FHA L ｭ�ﾂIｦ�ｸm｡]､wｭ�ﾂIｴ_ﾂk｡Bｰｱ､釭Bｦb 0｢X｡ﾓ0.1｢X｡^
+    LDI    SM1862                 
+    ANI    SM1860                 
+    FN(40040911) SD1860 HFFFFFFF6       
+    FN(40040b11) SD1860 HA              
+    OUT    M7125                  
+
+==== FHA L ｭｫｸm｡GﾅXｰﾊｾｹｳｵｭｫｸm 0.3 ｬ悅ﾏｩwｦ�ｶbｲｧｱ`ｭｫｸm
+    LDP    M7222                  
+    SET    M7312                  
+    RST    M7310                  
+    LD     M7312                  
+    OUT    T1311 K3               
+    OUT    Y4A                    
+    OUT    SM1870                 
+    LD     T1311                  
+    RST    M7312                  
+
+==== FHA L ｰeｾｹ､H｡Gﾂﾐｼg4_RB BMOV K1X30｡1Y520ｪｺABSODEXｦ�､ｸ
+    LD     M7120                  
+    OUT    Y539                   ; WX138 ﾛｰﾀﾘｰ(L)回転　起動入力待ち
+    LD     M7121                  
+    OUT    Y53A                   ; WX139 ﾛｰﾀﾘｰ(L)回転　ｱﾗｰﾑ1
+    LD     M7122                  
+    OUT    Y53B                   ; WX140 ﾛｰﾀﾘｰ(L)回転　位置決め完了
+    LD     M7123                  
+    OUT    Y53C                   ; WX141
+    LD     M7124                  
+    OUT    Y53D                   ; WX142
+    LD     M7125                  
+    OUT    Y53E                   ; WX143
+    LD     M7126                  
+    OUT    Y53F                   ; WX144
+    END                           

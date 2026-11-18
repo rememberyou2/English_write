@@ -1,0 +1,21 @@
+    LD     SM400                  ; 常時ON
+    OUT    T0 K300                ; PLC RUN_D
+    OUT    T1 K10                 ; PLC RUN遅延
+    OUT    M0                     ; 常時ON
+    LD     SM401                  ; 常時OFF
+    OUT    M1                     ; 常時OFF
+    FN(40030510) K1 W18                 ; TP 表示ベース画面
+    FN(40030511) W18 K2                 ; TP 表示ベース画面
+    OUT    L0                     ; TP ﾒｲﾝ画面
+    FN(4c020002) K0 D0                  
+    FN(40030510) K20 W18                ; TP 表示ベース画面
+    FN(40030511) W18 K29                ; TP 表示ベース画面
+    OR     L1                     ; TP 各個画面
+    ANI    T10                    ; 各個画面ﾌﾗｸﾞOFF遅延
+    ANI    L0                     ; TP ﾒｲﾝ画面
+    OUT    L1                     ; TP 各個画面
+    FN(40030510) K20 W18                ; TP 表示ベース画面
+    FN(40030511) W18 K29                ; TP 表示ベース画面
+    INV                           
+    OUT    T10 K2                 ; 各個画面ﾌﾗｸﾞOFF遅延
+    END                           

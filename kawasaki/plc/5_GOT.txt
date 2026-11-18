@@ -1,0 +1,110 @@
+
+==== メイン画面
+    LD     X500                   ; OX81 　　R ﾓｰﾀ電源ON中
+    AND    X510                   ; OX97 　　L ﾓｰﾀ電源ON中
+    LD     X500                   ; OX81 　　R ﾓｰﾀ電源ON中
+    ANI    X510                   ; OX97 　　L ﾓｰﾀ電源ON中
+    LDI    X500                   ; OX81 　　R ﾓｰﾀ電源ON中
+    AND    X510                   ; OX97 　　L ﾓｰﾀ電源ON中
+    ORB                           
+    AND    SM411                  ; 0.2秒ｸﾛｯｸ
+    ORB                           
+    OUT    B110                   ; TP 運転準備 PL
+    LD     X505                   ; OX86　　 R 第1原点
+    AND    X515                   ; OX102 　L 第1原点
+    LD     M1200                  ; 原点復帰開始
+    AND    SM412                  ; 1秒ｸﾛｯｸ
+    ORB                           
+    OUT    B111                   ; TP 原点復帰 PL
+    LD     M1105                  ; 自動運転中
+    LD     M1050                  ; 自動運転条件
+    AND    SM412                  ; 1秒ｸﾛｯｸ
+    ORB                           
+    OUT    B112                   ; TP 自動運転 PL
+    LD     M1110                  ; ｻｲｸﾙ停止指令
+    AND    SM412                  ; 1秒ｸﾛｯｸ
+    ORI    M1105                  ; 自動運転中
+    OUT    B113                   ; TP ｻｲｸﾙ停止 PL
+    LD     M1900                  ; 異常まとめ
+    OUT    B114                   ; TP 異常ﾘｾｯﾄ PL
+    FN(40030110) W100 K0                ; TP ﾃﾞﾓ回数
+    OUT    B115                   ; ﾃﾞﾓ回数ﾘｾｯﾄ PL
+    LD     M0 <4c0200> D100 W100  ; 常時ON / ﾃﾞﾓ回数 / TP ﾃﾞﾓ回数
+
+==== GOT Manual 1
+    LD     X560                   ; OX177
+    OUT    B290                   ; TP R Hool Open PL
+    LD     X561                   ; OX178
+    OUT    B291                   ; TP R Hook Close PL
+    LD     X562                   ; OX179
+    OUT    B2D2                   
+    LD     M1                     ; 常時OFF
+    OUT    B2D3                   
+    LD     M1                     ; 常時OFF
+    OUT    B2D4                   
+    LD     M1                     ; 常時OFF
+    OUT    B2D5                   
+    LD     X50                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転 Mコード　Bit0
+    ANI    X51 <4c0200> K1 D204   ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転 Mコード　Bit1 / ﾛｰﾀﾘ型(R)回転　Mｺｰﾄﾞ
+    LDI    X50                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転 Mコード　Bit0
+    AND    X51 <4c0200> K2 D204   ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転 Mコード　Bit1 / ﾛｰﾀﾘ型(R)回転　Mｺｰﾄﾞ
+    LD     X50                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転 Mコード　Bit0
+    AND    X51 <4c0200> K3 D204   ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転 Mコード　Bit1 / ﾛｰﾀﾘ型(R)回転　Mｺｰﾄﾞ
+    LD     M0 <4c0200> D204 D564  ; 常時ON / ﾛｰﾀﾘ型(R)回転　Mｺｰﾄﾞ
+    FN(40030010) K90 D200               ; TP ﾛｰﾀﾘ型(R)回転PG番号
+    AND    SM412                  ; 1秒ｸﾛｯｸ
+    FN(40030012) K1 D204                ; ﾛｰﾀﾘ型(R)回転　Mｺｰﾄﾞ
+    OUT    B296                   ; TP R Pos1 PL
+    LD     X48                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転 サーボON状態
+    OUT    B29D                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)ｻｰﾎﾞON PL
+    LD     B28E                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)起動
+    OUT    B29E                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)起動 PL
+    LD     X47                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(R)回転 原点位置
+    OUT    B29F                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(R)原点 PL
+
+==== GOT Manual 2
+    LD     X566                   ; OX183
+    OUT    B2B0                   ; TP L Hook Open PL
+    LD     X567                   ; OX184
+    OUT    B2B1                   ; TP L Hook Close PL
+    LD     X568                   ; OX185
+    OUT    B2B2                   ; TP Paper Hook Open PL
+    LD     X569                   ; OX186
+    OUT    B2B3                   ; TP Paper Hook Close PL
+    LD     X56A                   ; OX187
+    OUT    B2D6                   
+    LD     M1                     ; 常時OFF
+    OUT    B2D7                   
+    LD     M1                     ; 常時OFF
+    OUT    B2D8                   
+    LD     M1                     ; 常時OFF
+    OUT    B2D9                   
+    LD     X58                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転 Mコード　Bit0
+    ANI    X59 <4c0200> K1 D214   ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転 Mコード　Bit1 / ﾛｰﾀﾘ型(L)回転 Mｺｰﾄﾞ
+    LDI    X58                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転 Mコード　Bit0
+    AND    X59 <4c0200> K2 D214   ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転 Mコード　Bit1 / ﾛｰﾀﾘ型(L)回転 Mｺｰﾄﾞ
+    LD     X58                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転 Mコード　Bit0
+    AND    X59 <4c0200> K3 D214   ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転 Mコード　Bit1 / ﾛｰﾀﾘ型(L)回転 Mｺｰﾄﾞ
+    LD     M0 <4c0200> D214 D565  ; 常時ON / ﾛｰﾀﾘ型(L)回転 Mｺｰﾄﾞ
+    FN(40030010) K90 D210               ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    AND    SM412                  ; 1秒ｸﾛｯｸ
+    FN(40030012) K1 D214                ; ﾛｰﾀﾘ型(L)回転 Mｺｰﾄﾞ
+    OUT    B2B6                   ; TP L Pos1 PL
+    FN(40030010) K91 D210               ; TP ﾛｰﾀﾘ型(L)回転PG番号
+    AND    SM412                  ; 1秒ｸﾛｯｸ
+    FN(40030012) K2 D214                ; ﾛｰﾀﾘ型(L)回転 Mｺｰﾄﾞ
+    OUT    B2B7                   ; TP L Pos2 PL
+    LD     X4F                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転 サーボON状態
+    OUT    B2BD                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)ｻｰﾎﾞON PL
+    LD     B2AE                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)起動
+    OUT    B2BE                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)起動 PL
+    LD     X4E                    ; ﾛｰﾀﾘｰ型ﾊﾝﾄﾞ(L)回転 原点位置
+    OUT    B2BF                   ; TP ﾛｰﾀﾘ型ﾊﾝﾄﾞ(L)原点 PL
+
+==== GOT Manual 3
+    LD     X3A                    ; Paper Vacuum Check OK 1
+    AND    X3B                    ; Paper Vacuum Check OK 2
+    OUT    B2D0                   
+    LD     M1                     ; 常時OFF
+    OUT    B2D1                   
+    END                           

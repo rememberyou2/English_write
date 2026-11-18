@@ -1,0 +1,36 @@
+    LD     M0 <490308> W300 K16 Z0 <4c0406> <f000> W1000 W1000 K16 ; 常時ON
+    LD     M0 <4c0200> W300 D550 <4c0200> W301 D551 ; 常時ON
+    AND    W100F.0                
+    OUT    Y540                   ; WX145
+    LD     M0 <4c0200> W310 D552 <4c0200> W311 D553 ; 常時ON
+    AND    B310                   
+    OUT    Y541                   ; WX146
+    LD     M0 <4c0200> W320 D554 <4c0200> W321 D555 <4c0200> W322 D556 ; 常時ON
+    MPS                           
+    AND    B330                   
+    OUT    Y542                   ; WX147
+    MRD                           
+    AND    B340                   
+    OUT    Y543                   ; WX148
+    MRD                           
+    AND    B341                   
+    OUT    Y544                   ; WX149
+    MRD                           
+    AND    B342                   
+    OUT    Y545                   ; WX150
+    MRD                           
+    AND    B343                   
+    OUT    Y546                   ; WX151
+    MRD                           
+    AND    B344                   
+    OUT    Y547                   ; WX152
+    AND    B343                   
+    SET    M343                   
+    MRD                           
+    AND    M343                   
+    OUT    T343 K50               
+    MPP                           
+    AND    T343                   
+    RST    M343                   
+    RST    B343                   
+    END                           

@@ -1,0 +1,154 @@
+
+==== Rロボット
+    LDI    X501                   ; OX82　　 R ｴﾗｰ発生中
+    AND    X502                   ; OX83 　　R 定常状態
+    ANI    X503                   ; OX84 　　R 自動運転中
+    ANI    X504                   ; OX85 　　R ﾃｨｰﾁﾓｰﾄﾞ
+    ANI    X50B                   ; OX92 　　R ﾃｨｰﾁﾛｯｸ
+    MPS                           
+    LD     X505                   ; OX86　　 R 第1原点
+    OR     X51F                   ; OX112
+    ANB                           
+    OUT    M2000                  ; R 自動運転条件
+    MPP                           
+    OUT    M2001                  ; R 原点復帰条件
+    LD     M2000                  ; R 自動運転条件
+    ANI    M1900                  ; 異常まとめ
+    OUT    M2015                  ; R 自動運転可
+    LDP    M1110                  ; ｻｲｸﾙ停止指令
+    AND    X503                   ; OX84 　　R 自動運転中
+    OR     M2030                  ; R ｻｲｸﾙ停止指示中
+    ANI    M2031                  ; R ｻｲｸﾙ停止完了
+    OUT    M2030                  ; R ｻｲｸﾙ停止指示中
+    LD     M2030                  ; R ｻｲｸﾙ停止指示中
+    LDI    X503                   ; OX84 　　R 自動運転中
+    OR     X504                   ; OX85 　　R ﾃｨｰﾁﾓｰﾄﾞ
+    OR     X51E                   ; OX111　ｻｲｸﾙ停止受付
+    ANB                           
+    OUT    M2031                  ; R ｻｲｸﾙ停止完了
+    LD     M2001                  ; R 原点復帰条件
+    ANI    M1900                  ; 異常まとめ
+    OUT    M2016                  ; R 原点復帰可
+
+==== Ｌロボット
+    LDI    X511                   ; OX98 　　L ｴﾗｰ発生中
+    AND    X512                   ; OX99 　　L 定常状態
+    ANI    X513                   ; OX100 　L 自動運転中
+    ANI    X514                   ; OX101 　L ﾃｨｰﾁﾓｰﾄﾞ
+    ANI    X51B                   ; OX108 　L ﾃｨｰﾁﾛｯｸ
+    MPS                           
+    LD     X515                   ; OX102 　L 第1原点
+    OR     X51F                   ; OX112
+    ANB                           
+    OUT    M3000                  ; L 自動運転条件
+    MPP                           
+    OUT    M3001                  ; L 原点復帰条件
+    LD     M3000                  ; L 自動運転条件
+    ANI    M1900                  ; 異常まとめ
+    OUT    M3015                  ; L 自動運転可
+    LDP    M1110                  ; ｻｲｸﾙ停止指令
+    AND    X513                   ; OX100 　L 自動運転中
+    OR     M3030                  ; L ｻｲｸﾙ停止指示中
+    ANI    M3031                  ; L ｻｲｸﾙ停止完了
+    OUT    M3030                  ; L ｻｲｸﾙ停止指示中
+    LD     M3030                  ; L ｻｲｸﾙ停止指示中
+    LDI    X513                   ; OX100 　L 自動運転中
+    OR     X514                   ; OX101 　L ﾃｨｰﾁﾓｰﾄﾞ
+    OR     X51E                   ; OX111　ｻｲｸﾙ停止受付
+    ANB                           
+    OUT    M3031                  ; L ｻｲｸﾙ停止完了
+    LD     M3001                  ; L 原点復帰条件
+    ANI    M1900                  ; 異常まとめ
+    OUT    M3016                  ; L 原点復帰可
+
+==== 出力
+    LD     M1001                  ; ﾓｰﾀ電源ON
+    ANI    X500                   ; OX81 　　R ﾓｰﾀ電源ON中
+    OUT    Y500                   ; WX81    R 外部ﾓｰﾀ電源ON
+    LD     B104                   ; TP 異常リセット
+    OUT    Y501                   ; WX82    R 外部ｴﾗｰﾘｾｯﾄ
+    LD     M0                     ; 常時ON
+    OUT    Y504                   ; WX85    R 外部ﾎｰﾙﾄﾞ
+    LD     M0                     ; 常時ON
+    OUT    Y505                   ; WX86    R 外部低速ﾘﾋﾟｰﾄ
+    LD     M1200                  ; 原点復帰開始
+    OUT    Y506                   ; WX87    R 原点復帰指令
+    LD     M2030                  ; R ｻｲｸﾙ停止指示中
+    OUT    Y507                   ; WX88    R ｻｲｸﾙ停止指令
+    LD     M1100                  ; 自動運転開始
+    OUT    Y508                   ; WX89    R 自動起動
+    LD     B10F                   ; TP RBｶｳﾝﾄﾘｾｯﾄ
+    OUT    Y50D                   ; WX94    RBｶｳﾝﾄﾘｾｯﾄ
+    LD     M1                     ; 常時OFF
+    OUT    Y50E                   ; WX95    ﾀﾞｲﾚｸﾄﾃｨｰﾁ開始
+    LD     M1                     ; 常時OFF
+    OUT    Y50F                   ; WX96    ﾀﾞｲﾚｸﾄﾃｨｰﾁ終了
+    LD     M1001                  ; ﾓｰﾀ電源ON
+    ANI    X510                   ; OX97 　　L ﾓｰﾀ電源ON中
+    OUT    Y510                   ; WX97　　L 外部ﾓｰﾀ電源ON
+    LD     B104                   ; TP 異常リセット
+    OUT    Y511                   ; WX98　　 L 外部ｴﾗｰﾘｾｯﾄ
+    LD     M0                     ; 常時ON
+    OUT    Y514                   ; WX101　L 外部ﾎｰﾙﾄﾞ
+    LD     M0                     ; 常時ON
+    OUT    Y515                   ; WX102　 L 外部低速ﾘﾋﾟｰﾄ
+    LD     M1200                  ; 原点復帰開始
+    OUT    Y516                   ; WX103　L 原点復帰指令
+    LD     M2030                  ; R ｻｲｸﾙ停止指示中
+    OUT    Y517                   ; WX104　L ｻｲｸﾙ停止指令
+    LD     M1100                  ; 自動運転開始
+    OUT    Y518                   ; WX105　L 自動起動
+    LD     L1                     ; TP 各個画面
+    OUT    Y51F                   ; WX112
+    LD     M0 <4c0406> <f101> X30 <f101> Y520 K8 ; 常時ON / Laser Stage Finish / WX113 Laser Stage Finish
+    LD     B280                   ; R Hook Close
+    ANI    B281                   ; R Hook Open
+    OUT    Y560                   ; WX177
+    LD     B281                   ; R Hook Open
+    ANI    B280                   ; R Hook Close
+    OUT    Y561                   ; WX178
+    LD     B2C3                   
+    OR     Y562                   ; WX179
+    ANI    B2C2                   
+    OUT    Y562                   ; WX179
+    LD     B2C2                   
+    OR     Y563                   ; WX180
+    ANI    B2C3                   
+    OUT    Y563                   ; WX180
+    LD     B2C5                   
+    OR     Y564                   ; WX181
+    ANI    B2C4                   
+    OUT    Y564                   ; WX181
+    LD     B2C4                   
+    OR     Y565                   ; WX182
+    ANI    B2C5                   
+    OUT    Y565                   ; WX182
+    LD     B2A0                   
+    ANI    B2A1                   
+    OUT    Y566                   ; WX183
+    LD     B2A1                   
+    ANI    B2A0                   
+    OUT    Y567                   ; WX184
+    LD     B2A2                   
+    ANI    B2A3                   
+    OUT    Y568                   ; WX185
+    LD     B2A3                   
+    ANI    B2A2                   
+    OUT    Y569                   ; WX186
+    LD     B2C7                   
+    OR     Y56A                   ; WX187
+    ANI    B2C6                   
+    OUT    Y56A                   ; WX187
+    LD     B2C6                   
+    OR     Y56B                   ; WX188
+    ANI    B2C7                   
+    OUT    Y56B                   ; WX188
+    LD     B2C9                   
+    OR     Y56C                   ; WX189
+    ANI    B2C8                   
+    OUT    Y56C                   ; WX189
+    LD     B2C8                   
+    OR     Y56D                   ; WX190
+    ANI    B2C9                   
+    OUT    Y56D                   ; WX190
+    END                           
